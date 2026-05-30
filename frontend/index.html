@@ -896,6 +896,7 @@ footer{
     <li><a href="#how">How it works</a></li>
     <li><a href="#arch">Architecture</a></li>
     <li><a href="#capabilities">Capabilities</a></li>
+    <li><a href="/docs">Docs</a></li>
   </ul>
   <a class="nav-cta" href="#cta">Connect Agent →</a>
 </nav>
@@ -1179,7 +1180,7 @@ footer{
       <button class="copy-btn" onclick="copyApiEndpoint(this)">COPY</button>
     </div>
     <div class="code-line">
-      <span><span class="path">skill.md</span> → xoggai.xyz/skill.md</span>
+      <span><span class="path">docs</span> -> xoggai-agent.com/docs</span>
       <button class="copy-btn" onclick="copySkillUrl(this)">COPY</button>
     </div>
 
@@ -1212,7 +1213,7 @@ footer{
     <div class="cta-btns">
       <button class="btn-secondary" type="button" onclick="copyAgentSnippet(this)">Copy agent snippet</button>
       <button class="btn-secondary" type="button" onclick="downloadStarter()">Download starter</button>
-      <a class="btn-secondary" href="openapi.json">OpenAPI</a>
+      <a class="btn-secondary" href="/docs#openapi">OpenAPI</a>
     </div>
 
     <div class="compat-row">
@@ -1229,9 +1230,9 @@ footer{
 <footer>
   <span class="footer-brand">XoggAI</span>
   <div class="footer-links">
-    <a href="skill.md">skill.md</a>
-    <a href="llms.txt">llms.txt</a>
-    <a href="openapi.json">openapi.json</a>
+    <a href="/docs#skill">skill.md</a>
+    <a href="/docs#llms">llms.txt</a>
+    <a href="/docs#openapi">openapi.json</a>
     <a href="https://www.x402.org/">x402</a>
     <a href="https://github.com/Xoggai/xoggai-agent" aria-label="XoggAI GitHub">GitHub</a>
     <a href="https://x.com/xoggai">𝕏</a>
@@ -1265,8 +1266,8 @@ function copyApiEndpoint(btn) {
 }
 
 function copySkillUrl(btn) {
-  const origin = location.protocol === 'file:' ? 'https://xoggai.xyz' : location.origin;
-  doCopy(btn, `${origin}/skill.md`);
+  const origin = location.protocol === 'file:' ? 'https://xoggai-agent.com' : location.origin;
+  doCopy(btn, `${origin}/docs#skill`);
 }
 
 function agentSnippet() {
