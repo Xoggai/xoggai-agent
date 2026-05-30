@@ -20,6 +20,26 @@ app.use('*', corsMiddleware)
 app.use('/intent', rateLimitMiddleware)
 app.use('/search', rateLimitMiddleware)
 
+app.get('/', (c) =>
+  c.json({
+    name: 'XoggAI Backend',
+    status: 'live',
+    mode: 'public-preview',
+    execution: 'dry-run by default',
+    website: 'https://xoggai-agent.com',
+    docs: 'https://xoggai-agent.com/docs',
+    repository: 'https://github.com/Xoggai/xoggai-agent',
+    endpoints: {
+      health: '/health',
+      intent: '/intent?q=what%20is%20the%20ETH%20price&budget=0.05&dry=true',
+      search: '/search?q=crypto%20price&limit=5&dry=true',
+      stats: '/api/stats',
+      feed: '/api/feed',
+      endpoints: '/api/endpoints',
+    },
+  }),
+)
+
 app.route('/intent', intentRoute)
 app.route('/search', searchRoute)
 app.route('/api/stats', statsRoute)

@@ -8,6 +8,8 @@ Live site: https://xoggai-agent.com
 Backend API: https://xoggai-backend.onrender.com  
 Docs UI: https://xoggai-agent.com/docs
 
+![XoggAI public preview](docs/assets/xoggai-preview.png)
+
 ## Current Status
 
 XoggAI is a public preview.
@@ -51,6 +53,7 @@ https://xoggai-backend.onrender.com
 Common endpoints:
 
 ```http
+GET /
 GET /health
 GET /intent?q=what%20is%20the%20ETH%20price&budget=0.05&dry=true
 GET /search?q=crypto%20price&limit=5&dry=true
