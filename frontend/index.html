@@ -615,33 +615,75 @@ section{ position:relative;z-index:1; }
 }
 .copy-btn:hover{ color:var(--orange); }
 .agent-console{
-  max-width:540px;margin:1.75rem auto 0;
+  max-width:760px;margin:1.75rem auto 0;text-align:left;
 }
-.intent-form{
-  display:grid;grid-template-columns:1fr auto;
-  gap:0.625rem;margin-top:1rem;
+.terminal-panel{
+  border:1px solid var(--border2);
+  background:rgba(4,12,8,0.88);
+  box-shadow:0 24px 80px rgba(0,0,0,0.26), inset 0 0 0 1px rgba(255,255,255,0.025);
 }
-.intent-input{
-  width:100%;min-width:0;
-  background:var(--bg2);border:1px solid var(--border2);
-  border-radius:8px;padding:0.875rem 1rem;
-  color:var(--text);font-family:var(--font-mono);
-  font-size:0.8rem;outline:none;
+.terminal-top{
+  height:42px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 1rem;
+  font-family:var(--font-mono);font-size:0.65rem;
+  color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;
 }
-.intent-input:focus{ border-color:var(--orange); }
-.intent-result{
-  display:none;text-align:left;margin-top:1rem;
-  background:var(--bg2);border:1px solid var(--border);
-  border-radius:8px;padding:1rem;
-  font-family:var(--font-mono);font-size:0.72rem;
-  line-height:1.6;color:var(--muted2);
-  white-space:pre-wrap;overflow:auto;max-height:260px;
+.terminal-dots{ display:flex;gap:0.45rem;align-items:center; }
+.terminal-dot{ width:8px;height:8px;border-radius:999px;background:var(--muted); }
+.terminal-dot:nth-child(1){ background:var(--orange); }
+.terminal-dot:nth-child(2){ background:var(--orange2); }
+.terminal-dot:nth-child(3){ background:#2dd4bf; }
+.terminal-log{
+  min-height:300px;max-height:360px;overflow:auto;
+  padding:1rem 1.15rem;
+  font-family:var(--font-mono);font-size:0.75rem;
+  line-height:1.7;color:var(--muted2);
 }
-.intent-status{
-  min-height:1.25rem;margin-top:0.625rem;
-  color:var(--muted);font-size:0.72rem;
-  font-family:var(--font-mono);text-align:left;
+.terminal-line{
+  display:grid;grid-template-columns:5.4rem minmax(0,1fr);
+  gap:0.75rem;align-items:start;
 }
+.terminal-time{ color:var(--muted);opacity:0.62; }
+.terminal-prompt{ color:#2dd4bf;font-weight:700; }
+.terminal-ok{ color:#86efac; }
+.terminal-warn{ color:var(--orange); }
+.terminal-json{
+  margin:0.55rem 0 0.8rem 6.15rem;
+  border-left:1px solid var(--border2);
+  padding-left:1rem;white-space:pre-wrap;overflow:auto;
+  color:#b7dac5;font-family:var(--font-mono);
+}
+.terminal-input-row{
+  margin:0 1rem 1rem;border:1px solid var(--border2);
+  display:grid;grid-template-columns:auto minmax(0,1fr) auto;
+  gap:0.75rem;align-items:center;
+  padding:0.8rem 0.9rem;background:var(--bg2);
+}
+.terminal-input{
+  min-width:0;width:100%;
+  background:transparent;border:none;outline:none;
+  color:var(--text);font-family:var(--font-mono);font-size:0.8rem;
+}
+.terminal-run{
+  border:none;background:var(--orange);color:#120804;
+  font-family:var(--font-mono);font-size:0.68rem;font-weight:700;
+  letter-spacing:0.08em;text-transform:uppercase;
+  padding:0.55rem 0.75rem;cursor:pointer;
+}
+.terminal-run:disabled{ opacity:0.5;cursor:not-allowed; }
+.terminal-commands{
+  display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;
+  margin-top:0.75rem;
+}
+.terminal-command{
+  border:1px solid var(--border);
+  background:rgba(10,26,18,0.76);
+  color:var(--muted2);
+  font-family:var(--font-mono);font-size:0.68rem;
+  padding:0.45rem 0.7rem;cursor:pointer;
+}
+.terminal-command:hover{ border-color:var(--orange);color:var(--orange); }
 .cta-btns{
   display:flex;gap:1rem;justify-content:center;
   flex-wrap:wrap;margin-top:1.75rem;
@@ -702,7 +744,10 @@ footer{
   .nav-links{ display:none; }
   .demo-box{ position:static; }
   .arch-eq{ gap:0.875rem; }
-  .intent-form{ grid-template-columns:1fr; }
+  .terminal-line{ grid-template-columns:1fr;gap:0.1rem; }
+  .terminal-json{ margin-left:0;padding-left:0.75rem; }
+  .terminal-input-row{ grid-template-columns:1fr; }
+  .terminal-run{ justify-self:start; }
 }
 @media(prefers-reduced-motion:reduce){
   body::before,.ambient-flow::before,.flow-line,.flow-node,.flow-node::after,.flow-bit{ animation:none; }
@@ -893,7 +938,7 @@ footer{
   </p>
 
   <div class="hero-actions">
-    <a href="#agent-console" class="btn-primary">Try Intent Router →</a>
+    <a href="#agent-console" class="btn-primary">Open Terminal →</a>
     <a href="#how" class="btn-secondary">See how it works</a>
   </div>
 
@@ -1127,7 +1172,7 @@ footer{
   <div class="cta-inner">
     <p class="section-label">// connect agent</p>
     <h2 class="cta-title">Connect your<br/>agent.</h2>
-    <p class="cta-sub">Point your agent at XoggAI, run a dry route, then decide when to enable live execution.</p>
+    <p class="cta-sub">Point your agent at XoggAI, run terminal commands, then decide when to enable live execution.</p>
 
     <div class="code-line">
       <span><span class="kw">GET</span> <span class="path" id="apiEndpointText">https://xoggai-backend.onrender.com/intent?q=...</span></span>
@@ -1139,12 +1184,29 @@ footer{
     </div>
 
     <div class="agent-console" id="agent-console">
-      <form class="intent-form" id="intentForm">
-        <input class="intent-input" id="intentInput" value="what is the ETH price?" aria-label="Intent" maxlength="500"/>
-        <button class="btn-primary" type="submit" id="intentSubmit">Run dry test →</button>
-      </form>
-      <div class="intent-status" id="intentStatus"></div>
-      <pre class="intent-result" id="intentResult"></pre>
+      <div class="terminal-panel" aria-label="XoggAI agent terminal">
+        <div class="terminal-top">
+          <div class="terminal-dots" aria-hidden="true">
+            <span class="terminal-dot"></span>
+            <span class="terminal-dot"></span>
+            <span class="terminal-dot"></span>
+          </div>
+          <span>xoggai terminal / dry-run</span>
+        </div>
+        <div class="terminal-log" id="terminalLog" aria-live="polite"></div>
+        <form class="terminal-input-row" id="terminalForm">
+          <span class="terminal-prompt">xoggai&gt;</span>
+          <input class="terminal-input" id="terminalInput" value="route what is the ETH price?" aria-label="XoggAI terminal command" maxlength="500" autocomplete="off"/>
+          <button class="terminal-run" id="terminalSubmit" type="submit">Run</button>
+        </form>
+      </div>
+      <div class="terminal-commands" aria-label="Terminal command shortcuts">
+        <button class="terminal-command" type="button" data-command="help">help</button>
+        <button class="terminal-command" type="button" data-command="health">health</button>
+        <button class="terminal-command" type="button" data-command="stats">stats</button>
+        <button class="terminal-command" type="button" data-command="route what is the ETH price?">route ETH price</button>
+        <button class="terminal-command" type="button" data-command="clear">clear</button>
+      </div>
     </div>
 
     <div class="cta-btns">
@@ -1323,45 +1385,152 @@ function doCopy(btn, text) {
   }, 2000);
 }
 
-const intentForm = document.getElementById('intentForm');
-if (intentForm) {
-  intentForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const input = document.getElementById('intentInput');
-    const status = document.getElementById('intentStatus');
-    const result = document.getElementById('intentResult');
-    const submit = document.getElementById('intentSubmit');
-    const q = input.value.trim();
-    if (!q) return;
+const terminalLog = document.getElementById('terminalLog');
+const terminalForm = document.getElementById('terminalForm');
+const terminalInput = document.getElementById('terminalInput');
+const terminalSubmit = document.getElementById('terminalSubmit');
 
-    status.textContent = 'Routing intent...';
-    result.style.display = 'none';
-    submit.disabled = true;
+function terminalTime() {
+  return new Date().toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  });
+}
+
+function appendTerminalLine(text, className = '') {
+  if (!terminalLog) return;
+  const row = document.createElement('div');
+  row.className = 'terminal-line';
+
+  const time = document.createElement('span');
+  time.className = 'terminal-time';
+  time.textContent = terminalTime();
+
+  const body = document.createElement('span');
+  if (className) body.className = className;
+  body.textContent = text;
+
+  row.append(time, body);
+  terminalLog.appendChild(row);
+  terminalLog.scrollTop = terminalLog.scrollHeight;
+}
+
+function appendPrompt(command) {
+  appendTerminalLine(`xoggai> ${command}`);
+}
+
+function appendTerminalJson(value) {
+  if (!terminalLog) return;
+  const pre = document.createElement('pre');
+  pre.className = 'terminal-json';
+  pre.textContent = JSON.stringify(value, null, 2);
+  terminalLog.appendChild(pre);
+  terminalLog.scrollTop = terminalLog.scrollHeight;
+}
+
+function resetTerminal() {
+  if (!terminalLog) return;
+  terminalLog.textContent = '';
+  appendTerminalLine('XoggAI terminal ready. Mode: dry-run.', 'terminal-ok');
+  appendTerminalLine('commands: help, health, stats, route <intent>, clear');
+}
+
+function routePreview(intent) {
+  appendTerminalJson({
+    success: true,
+    preview: true,
+    intent,
+    endpoint: {
+      url: 'xoggai-backend.onrender.com/intent',
+      name: 'XoggAI Intent Router',
+      rating: 4.8,
+      latencyMs: 14,
+    },
+    mode: 'dry-run',
+  });
+  appendTerminalLine('preview mode: backend request was not reachable from this browser.', 'terminal-warn');
+}
+
+async function runTerminalCommand(rawCommand) {
+  const command = rawCommand.trim();
+  if (!command) return;
+
+  appendPrompt(command);
+  const normalized = command.toLowerCase();
+
+  if (normalized === 'clear') {
+    resetTerminal();
+    return;
+  }
+
+  if (normalized === 'help') {
+    appendTerminalLine('route <intent>  - select the best x402 endpoint');
+    appendTerminalLine('stats           - read XoggAI network stats');
+    appendTerminalLine('health          - check backend availability');
+    appendTerminalLine('clear           - reset terminal output');
+    return;
+  }
+
+  if (normalized === 'health') {
+    const res = await fetch(`${API_BASE}/health`);
+    appendTerminalJson(await res.json());
+    appendTerminalLine(res.ok ? 'backend reachable' : `backend returned ${res.status}`, res.ok ? 'terminal-ok' : 'terminal-warn');
+    return;
+  }
+
+  if (normalized === 'stats') {
+    const res = await fetch(`${API_BASE}/api/stats`);
+    appendTerminalJson(await res.json());
+    return;
+  }
+
+  const intent = normalized.startsWith('route ')
+    ? command.slice(6).trim()
+    : command;
+
+  if (!intent) {
+    appendTerminalLine('missing intent. Example: route what is the ETH price?', 'terminal-warn');
+    return;
+  }
+
+  appendTerminalLine('routing intent...');
+
+  try {
+    const res = await fetch(`${API_BASE}/intent?q=${encodeURIComponent(intent)}&dry=true`);
+    const data = await res.json();
+    appendTerminalJson(data);
+    appendTerminalLine(
+      data.success ? 'endpoint selected. dry-run only; no payment sent.' : `request failed: ${data.error || res.status}`,
+      data.success ? 'terminal-ok' : 'terminal-warn',
+    );
+  } catch {
+    routePreview(intent);
+  }
+}
+
+if (terminalForm && terminalInput) {
+  resetTerminal();
+
+  terminalForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const command = terminalInput.value;
+    terminalInput.value = '';
+    terminalSubmit.disabled = true;
 
     try {
-      const res = await fetch(`${API_BASE}/intent?q=${encodeURIComponent(q)}&dry=true`);
-      const data = await res.json();
-      result.textContent = JSON.stringify(data, null, 2);
-      result.style.display = 'block';
-      status.textContent = data.success ? 'Endpoint selected. Dry run only; no payment sent.' : `Request failed: ${data.error || res.status}`;
-    } catch {
-      result.textContent = JSON.stringify({
-        success: true,
-        preview: true,
-        intent: q,
-        endpoint: {
-          url: 'xoggai-backend.onrender.com/intent',
-          name: 'XoggAI Intent Router',
-          rating: 4.8,
-          latencyMs: 14
-        },
-        note: 'Static preview mode. Deploy the backend API to enable live routing.'
-      }, null, 2);
-      result.style.display = 'block';
-      status.textContent = 'Preview mode. Backend is not deployed on this static URL yet.';
+      await runTerminalCommand(command);
     } finally {
-      submit.disabled = false;
+      terminalSubmit.disabled = false;
+      terminalInput.focus();
     }
+  });
+
+  document.querySelectorAll('[data-command]').forEach((button) => {
+    button.addEventListener('click', () => {
+      terminalInput.value = button.getAttribute('data-command') || '';
+      terminalForm.requestSubmit();
+    });
   });
 }
 
