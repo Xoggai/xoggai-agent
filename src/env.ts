@@ -7,7 +7,10 @@ const envSchema = z.object({
   DATABASE_URL: z.string().url(),
   REDIS_URL: z.string().url(),
   ANTHROPIC_API_KEY: z.string().min(1),
-  ANTHROPIC_BASE_URL: z.string().url().optional(),
+  ANTHROPIC_BASE_URL: z.preprocess(
+    (value) => (value === '' ? undefined : value),
+    z.string().url().optional(),
+  ),
   ANTHROPIC_ROUTER_MODEL: z.string().min(1).default('claude-sonnet-4-5'),
   ANTHROPIC_RATING_MODEL: z.string().min(1).default('claude-haiku-4-5-20251001'),
   X402_WALLET_PRIVATE_KEY: z.string().min(1),
