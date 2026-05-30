@@ -77,6 +77,12 @@
             "in": "query",
             "required": false,
             "schema": { "type": "number", "default": 0, "minimum": 0, "maximum": 5 }
+          },
+          {
+            "name": "dry",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "boolean", "default": false }
           }
         ],
         "responses": {

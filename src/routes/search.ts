@@ -13,6 +13,10 @@ const schema = z.object({
   limit: z.coerce.number().int().positive().max(50).default(10),
   category: z.string().min(1).max(80).optional(),
   min_rating: z.coerce.number().min(0).max(5).default(0),
+  dry: z
+    .enum(['true', 'false'])
+    .transform((value) => value === 'true')
+    .default('false'),
 })
 
 type SearchRow = {
@@ -32,8 +36,9 @@ function cacheKey(params: z.infer<typeof schema>) {
   return `search:${createHash('sha256').update(JSON.stringify(params)).digest('hex')}`
 }
 
-function requireSearchPayment(paymentHeader?: string) {
+function requireSearchPayment(paymentHeader: string | undefined, dryRun: boolean) {
   if (env.NODE_ENV === 'development') return null
+  if (dryRun) return null
   if (paymentHeader) return null
   return {
     success: false,
@@ -49,7 +54,7 @@ export const searchRoute = new Hono().get('/', async (c) => {
     return c.json({ error: 'invalid_params', detail: parsed.error.flatten() }, 400)
   }
 
-  const paymentError = requireSearchPayment(c.req.header('x-payment'))
+  const paymentError = requireSearchPayment(c.req.header('x-payment'), parsed.data.dry)
   if (paymentError) return c.json(paymentError, 402)
 
   const key = cacheKey(parsed.data)
@@ -94,6 +99,7 @@ export const searchRoute = new Hono().get('/', async (c) => {
     results,
     total: results.length,
     query: parsed.data.q,
+    dry: parsed.data.dry,
   }
 
   await redis.set(key, JSON.stringify(payload), 'EX', env.SEARCH_CACHE_TTL)

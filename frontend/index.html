@@ -1205,7 +1205,11 @@ footer{
         <button class="terminal-command" type="button" data-command="help">help</button>
         <button class="terminal-command" type="button" data-command="health">health</button>
         <button class="terminal-command" type="button" data-command="stats">stats</button>
+        <button class="terminal-command" type="button" data-command="endpoints">endpoints</button>
+        <button class="terminal-command" type="button" data-command="search crypto price">search crypto</button>
         <button class="terminal-command" type="button" data-command="route what is the ETH price?">route ETH price</button>
+        <button class="terminal-command" type="button" data-command="docs">docs</button>
+        <button class="terminal-command" type="button" data-command="openapi">openapi</button>
         <button class="terminal-command" type="button" data-command="clear">clear</button>
       </div>
     </div>
@@ -1434,7 +1438,7 @@ function resetTerminal() {
   if (!terminalLog) return;
   terminalLog.textContent = '';
   appendTerminalLine('XoggAI terminal ready. Mode: dry-run.', 'terminal-ok');
-  appendTerminalLine('commands: help, health, stats, route <intent>, clear');
+  appendTerminalLine('commands: help, health, stats, endpoints, search <query>, route <intent>, docs, openapi, clear');
 }
 
 function routePreview(intent) {
@@ -1453,6 +1457,32 @@ function routePreview(intent) {
   appendTerminalLine('preview mode: backend request was not reachable from this browser.', 'terminal-warn');
 }
 
+function docsPayload() {
+  const origin = location.protocol === 'file:' ? 'https://xoggai-agent.com' : location.origin;
+  return {
+    docs: `${origin}/docs`,
+    skill: `${origin}/docs#skill`,
+    llms: `${origin}/docs#llms`,
+    openapi: `${origin}/docs#openapi`,
+    raw: {
+      skill: `${origin}/skill.md`,
+      llms: `${origin}/llms.txt`,
+      openapi: `${origin}/openapi.json`,
+    },
+  };
+}
+
+function compactEndpoint(endpoint) {
+  return {
+    name: endpoint.name,
+    category: endpoint.category,
+    priceUsdc: endpoint.priceUsdc,
+    rating: endpoint.avgRating ?? endpoint.rating,
+    latencyMs: endpoint.avgLatencyMs ?? endpoint.latencyMs,
+    url: endpoint.url,
+  };
+}
+
 async function runTerminalCommand(rawCommand) {
   const command = rawCommand.trim();
   if (!command) return;
@@ -1467,8 +1497,11 @@ async function runTerminalCommand(rawCommand) {
 
   if (normalized === 'help') {
     appendTerminalLine('route <intent>  - select the best x402 endpoint');
+    appendTerminalLine('search <query>  - preview matching endpoint index results');
+    appendTerminalLine('endpoints       - list top registered x402 endpoints');
     appendTerminalLine('stats           - read XoggAI network stats');
     appendTerminalLine('health          - check backend availability');
+    appendTerminalLine('docs/openapi    - print agent documentation links');
     appendTerminalLine('clear           - reset terminal output');
     return;
   }
@@ -1483,6 +1516,50 @@ async function runTerminalCommand(rawCommand) {
   if (normalized === 'stats') {
     const res = await fetch(`${API_BASE}/api/stats`);
     appendTerminalJson(await res.json());
+    return;
+  }
+
+  if (normalized === 'endpoints') {
+    appendTerminalLine('loading endpoint index...');
+    const res = await fetch(`${API_BASE}/api/endpoints?limit=5`);
+    const data = await res.json();
+    appendTerminalJson({
+      total: data.total,
+      results: (data.results || []).map(compactEndpoint),
+    });
+    appendTerminalLine(res.ok ? 'top endpoints loaded.' : `endpoints returned ${res.status}`, res.ok ? 'terminal-ok' : 'terminal-warn');
+    return;
+  }
+
+  if (normalized.startsWith('search ')) {
+    const query = command.slice(7).trim();
+    if (!query) {
+      appendTerminalLine('missing query. Example: search crypto price', 'terminal-warn');
+      return;
+    }
+    appendTerminalLine('searching x402 endpoint index...');
+    const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}&limit=5&dry=true`);
+    const data = await res.json();
+    appendTerminalJson({
+      query: data.query || query,
+      dry: data.dry ?? true,
+      total: data.total,
+      results: (data.results || []).map(compactEndpoint),
+      error: data.error,
+    });
+    appendTerminalLine(
+      res.ok ? 'search complete. dry-run only; no payment sent.' : `search returned ${res.status}`,
+      res.ok ? 'terminal-ok' : 'terminal-warn',
+    );
+    return;
+  }
+
+  if (normalized === 'docs' || normalized === 'openapi') {
+    const links = docsPayload();
+    appendTerminalJson(normalized === 'openapi'
+      ? { openapi: links.openapi, raw: links.raw.openapi }
+      : links);
+    appendTerminalLine('docs link ready.', 'terminal-ok');
     return;
   }
 
