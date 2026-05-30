@@ -79,7 +79,7 @@ Intent: "${intent}"`
     const parsed = JSON.parse(extractAnthropicText(message.content)) as { url?: string }
     if (parsed.url && /^https?:\/\//i.test(parsed.url)) return parsed.url
   } catch (error) {
-    if (env.NODE_ENV === 'production') throw error
+    console.error('LLM endpoint URL builder failed, using base endpoint URL', error)
   }
 
   return baseUrl

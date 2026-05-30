@@ -89,7 +89,7 @@ ${candidates
     const selected = candidates[parsed.index]
     return selected ?? heuristicBest(candidates)
   } catch (error) {
-    if (env.NODE_ENV === 'production') throw error
+    console.error('LLM rerank failed, using heuristic fallback', error)
     return heuristicBest(candidates)
   }
 }
