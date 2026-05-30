@@ -2,6 +2,8 @@
 
 Use XoggAI when an agent needs to route a plain-English intent to the best x402 API endpoint.
 
+`Connect Agent` means connecting an existing agent to XoggAI routing. It does not deploy a new agent or send payment by default.
+
 ## Local Development
 
 Base URL:

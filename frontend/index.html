@@ -331,6 +331,43 @@ section{ position:relative;z-index:1; }
 }
 .btn-secondary:hover{ border-color:var(--orange);color:var(--orange); }
 
+.trust-strip{
+  display:flex;gap:0.65rem;flex-wrap:wrap;justify-content:center;
+  margin:-1.5rem 0 2.25rem;
+  animation:fadeUp 0.9s 0.35s ease both;
+}
+.trust-item{
+  border:1px solid var(--border);
+  background:rgba(10,26,18,0.68);
+  border-radius:8px;
+  padding:0.62rem 0.9rem;
+  min-width:136px;
+  text-align:left;
+}
+.trust-item strong{
+  display:block;
+  font-family:var(--font-mono);
+  font-size:0.72rem;
+  color:var(--text);
+  line-height:1;
+}
+.trust-item span{
+  display:block;
+  margin-top:0.35rem;
+  font-family:var(--font-mono);
+  font-size:0.58rem;
+  color:var(--muted);
+  letter-spacing:0.09em;
+  text-transform:uppercase;
+}
+.trust-dot{
+  display:inline-block;
+  width:6px;height:6px;border-radius:999px;
+  background:#86efac;
+  box-shadow:0 0 12px rgba(134,239,172,0.55);
+  margin-right:0.45rem;
+}
+
 /* STATS */
 .stats-row{
   display:flex;gap:2px;flex-wrap:wrap;justify-content:center;
@@ -749,6 +786,57 @@ footer{
   .terminal-input-row{ grid-template-columns:1fr; }
   .terminal-run{ justify-self:start; }
 }
+@media(max-width:520px){
+  nav{ padding:0.8rem 1rem; }
+  .nav-logo-text{ font-size:1.05rem; }
+  .nav-cta{ padding:0.45rem 0.6rem;font-size:0.56rem; }
+  .hero{ padding:6rem 1rem 4rem; }
+  .hero-badge{
+    max-width:min(330px,calc(100vw - 2rem));
+    white-space:normal;
+    justify-content:center;
+    text-align:center;
+    font-size:0.58rem;
+    line-height:1.45;
+  }
+  .hero-title{
+    font-size:1.7rem;
+    line-height:1.1;
+    letter-spacing:-0.025em;
+    width:min(100%,320px);
+    max-width:320px;
+    white-space:normal;
+  }
+  .hero-sub{
+    font-size:0.95rem;
+    width:min(100%,340px);
+    max-width:340px;
+  }
+  .hero-actions{
+    flex-direction:column;
+    align-items:center;
+    width:100%;
+  }
+  .btn-primary,.btn-secondary{
+    width:min(100%,280px);
+    justify-content:center;
+  }
+  .trust-strip{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    width:100%;
+  }
+  .trust-item{
+    min-width:0;
+    padding:0.62rem 0.7rem;
+  }
+  .trust-item strong{ font-size:0.66rem; }
+  .trust-item span{ font-size:0.54rem; }
+  .stat-pill{
+    min-width:calc(50% - 2px);
+    padding:1rem 0.75rem;
+  }
+}
 @media(prefers-reduced-motion:reduce){
   body::before,.ambient-flow::before,.flow-line,.flow-node,.flow-node::after,.flow-bit{ animation:none; }
   .flow-line,.flow-node,.flow-bit{ display:none; }
@@ -908,7 +996,7 @@ footer{
     <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">4.8</span>&nbsp;DeFi yield scan → agenticfi.wtf&nbsp;<span style="color:#2d4d3a">· 24ms</span></div>
     <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">5.0</span>&nbsp;Crypto news → httpay.xyz&nbsp;<span style="color:#2d4d3a">· 8ms</span></div>
     <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">4.7</span>&nbsp;Token info → nansen.ai&nbsp;<span style="color:#2d4d3a">· 19ms</span></div>
-    <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">5.0</span>&nbsp;Base tx executed autonomously&nbsp;<span style="color:#2d4d3a">· 31ms</span></div>
+    <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">5.0</span>&nbsp;Base route previewed&nbsp;<span style="color:#2d4d3a">· 31ms</span></div>
     <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">4.9</span>&nbsp;Multi-agent collaboration started&nbsp;<span style="color:#2d4d3a">· 5ms</span></div>
     <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">5.0</span>&nbsp;BTC price → stablecrypto.dev&nbsp;<span style="color:#2d4d3a">· 11ms</span></div>
     <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">4.8</span>&nbsp;Twitter trends fetched → cascade.fyi&nbsp;<span style="color:#2d4d3a">· 16ms</span></div>
@@ -917,7 +1005,7 @@ footer{
     <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">4.8</span>&nbsp;DeFi yield scan → agenticfi.wtf&nbsp;<span style="color:#2d4d3a">· 24ms</span></div>
     <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">5.0</span>&nbsp;Crypto news → httpay.xyz&nbsp;<span style="color:#2d4d3a">· 8ms</span></div>
     <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">4.7</span>&nbsp;Token info → nansen.ai&nbsp;<span style="color:#2d4d3a">· 19ms</span></div>
-    <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">5.0</span>&nbsp;Base tx executed autonomously&nbsp;<span style="color:#2d4d3a">· 31ms</span></div>
+    <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">5.0</span>&nbsp;Base route previewed&nbsp;<span style="color:#2d4d3a">· 31ms</span></div>
     <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">4.9</span>&nbsp;Multi-agent collaboration started&nbsp;<span style="color:#2d4d3a">· 5ms</span></div>
     <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">5.0</span>&nbsp;BTC price → stablecrypto.dev&nbsp;<span style="color:#2d4d3a">· 11ms</span></div>
     <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">4.8</span>&nbsp;Twitter trends fetched → cascade.fyi&nbsp;<span style="color:#2d4d3a">· 16ms</span></div>
@@ -926,7 +1014,7 @@ footer{
 
 <!-- ===================== HERO ===================== -->
 <section class="hero">
-  <div class="hero-badge"><span class="badge-dot"></span>Now live on Base mainnet</div>
+  <div class="hero-badge"><span class="badge-dot"></span>Public preview - dry-run router live</div>
 
   <h1 class="hero-title">
     Intelligence that<br/>
@@ -934,8 +1022,8 @@ footer{
   </h1>
 
   <p class="hero-sub">
-    XoggAI connects LLM reasoning, x402 economic rails, and Base infrastructure —
-    so your agents don't just answer, they <strong>execute</strong>.
+    XoggAI helps agents discover and route intent to x402 APIs.
+    Dry-run endpoint selection is live today; wallet-gated execution comes when the agent is ready.
   </p>
 
   <div class="hero-actions">
@@ -943,11 +1031,18 @@ footer{
     <a href="#how" class="btn-secondary">See how it works</a>
   </div>
 
+  <div class="trust-strip" aria-label="XoggAI public preview status">
+    <div class="trust-item"><strong><span class="trust-dot"></span>Backend live</strong><span>Render API</span></div>
+    <div class="trust-item"><strong>Dry-run first</strong><span>No payment sent</span></div>
+    <div class="trust-item"><strong>Open docs</strong><span>Skill + OpenAPI</span></div>
+    <div class="trust-item"><strong>GitHub public</strong><span>Source repo</span></div>
+  </div>
+
   <div class="stats-row">
-    <div class="stat-pill"><span class="stat-num" id="ctr-agents">0</span><span class="stat-label">Active Agents</span></div>
-    <div class="stat-pill"><span class="stat-num" id="ctr-tx">0</span><span class="stat-label">Transactions</span></div>
-    <div class="stat-pill"><span class="stat-num" id="ctr-apis">0</span><span class="stat-label">APIs Consumed</span></div>
-    <div class="stat-pill"><span class="stat-num" id="ctr-hrs">0</span><span class="stat-label">Hours Saved</span></div>
+    <div class="stat-pill"><span class="stat-num" id="ctr-agents">0</span><span class="stat-label">Agents Routed</span></div>
+    <div class="stat-pill"><span class="stat-num" id="ctr-tx">0</span><span class="stat-label">Routes Previewed</span></div>
+    <div class="stat-pill"><span class="stat-num" id="ctr-apis">0</span><span class="stat-label">APIs Indexed</span></div>
+    <div class="stat-pill"><span class="stat-num" id="ctr-hrs">0</span><span class="stat-label">Dry Runs</span></div>
   </div>
 </section>
 
@@ -959,9 +1054,9 @@ footer{
     We have intelligence. We have infrastructure. We have payments.
     Yet somehow, most AI products still end where the chat box ends.
     <span class="hl">That never made sense.</span><br/><br/>
-    So we built XoggAI. Not as another AI interface —
-    but as a system where <strong>intelligence becomes action</strong>.
-    Where agents don't just answer. <strong>They execute.</strong>
+    So we built XoggAI. Not as another AI interface,
+    but as a routing layer where agents can discover the right x402 API before execution.
+    Today it runs safe dry-runs. Tomorrow it can coordinate paid calls when wallet controls are ready.
   </p>
 </section>
 
@@ -969,7 +1064,7 @@ footer{
 <section class="arch reveal" id="arch">
   <p class="section-label">// architecture</p>
   <h2 class="arch-title">Three layers.<br/>One unified system.</h2>
-  <p class="arch-sub">Every autonomous action your agent takes is powered by three tightly integrated layers working in concert.</p>
+  <p class="arch-sub">Every route preview is powered by three layers that can later support wallet-gated execution.</p>
 
   <div class="arch-grid">
     <!-- LLM -->
@@ -993,7 +1088,7 @@ footer{
         </svg>
       </div>
       <div class="arch-card-title">X402 Protocol</div>
-      <div class="arch-card-desc">Economic coordination layer. Machines paying machines. Agents consuming APIs autonomously. The future internet's payment rails.</div>
+      <div class="arch-card-desc">Economic coordination layer for paid APIs. Machine-readable pricing, budgets, and payment intent before execution.</div>
     </div>
     <!-- Base -->
     <div class="arch-card">
@@ -1025,7 +1120,7 @@ footer{
 <!-- ===================== HOW IT WORKS ===================== -->
 <section class="how reveal" id="how">
   <p class="section-label">// how it works</p>
-  <h2 class="arch-title">Send intent. Get results.</h2>
+  <h2 class="arch-title">Connect agent. Route intent.</h2>
 
   <div class="how-grid">
     <!-- STEPS -->
@@ -1034,35 +1129,35 @@ footer{
         <div class="step-num">01</div>
         <div class="step-body">
           <div class="step-title">Send a natural language intent</div>
-          <div class="step-desc">No params, no schemas, no API keys. Just what you want done. Your agent sends a single GET request.</div>
+          <div class="step-desc">Your existing agent sends plain English to XoggAI. No new agent deploy required.</div>
         </div>
       </div>
       <div class="step">
         <div class="step-num">02</div>
         <div class="step-body">
           <div class="step-title">XoggAI searches and ranks endpoints</div>
-          <div class="step-desc">Vector search + LLM reranking across thousands of rated x402 APIs. Best endpoint wins — automatically.</div>
+          <div class="step-desc">Vector search and ranking pick the most relevant x402 endpoint for the intent.</div>
         </div>
       </div>
       <div class="step">
         <div class="step-num">03</div>
         <div class="step-body">
-          <div class="step-title">402 payment negotiation</div>
-          <div class="step-desc">Server returns price and payment address. Nothing charged yet. Full transparency before commitment.</div>
+          <div class="step-title">Dry-run preview comes back first</div>
+          <div class="step-desc">The agent sees endpoint name, price, rating, latency, and schema. No payment is sent.</div>
         </div>
       </div>
       <div class="step">
         <div class="step-num">04</div>
         <div class="step-body">
-          <div class="step-title">Agent pays and executes</div>
-          <div class="step-desc">USDC payment attached. XoggAI relays to upstream, returns data. Entire flow: autonomous, no human touch.</div>
+          <div class="step-title">Execution stays gated</div>
+          <div class="step-desc">Live x402 calls require an intentional wallet and budget path. Public mode stays dry-run by default.</div>
         </div>
       </div>
       <div class="step">
         <div class="step-num">05</div>
         <div class="step-body">
-          <div class="step-title">Result rated. Index improves.</div>
-          <div class="step-desc">AI scores 0–5. Bad endpoints sink, good ones rise. Every call makes the system smarter.</div>
+          <div class="step-title">Agent integrates the route</div>
+          <div class="step-desc">Use the docs, OpenAPI schema, or starter snippet to add XoggAI routing to your own agent.</div>
         </div>
       </div>
     </div>
@@ -1076,35 +1171,25 @@ footer{
         <span class="demo-filename">xoggai-agent.ts</span>
       </div>
       <div class="demo-body">
-<span class="c-comment">// XoggAI — one endpoint, everything</span>
+<span class="c-comment">// XoggAI - route intent before execution</span>
 <br/>
-<span class="c-kw">import</span> <span class="c-txt">{ XoggAI } </span><span class="c-kw">from</span> <span class="c-str">'xoggai-sdk'</span>
+<span class="c-kw">const</span> <span class="c-var">api</span> <span class="c-txt">= </span><span class="c-str">'https://xoggai-backend.onrender.com'</span>
+<br/>
+<span class="c-kw">const</span> <span class="c-var">url</span> <span class="c-txt">= </span><span class="c-kw">new</span> <span class="c-fn">URL</span><span class="c-txt">(api + </span><span class="c-str">'/intent'</span><span class="c-txt">)</span>
+<br/>
+<span class="c-var">url</span><span class="c-txt">.</span><span class="c-var">searchParams</span><span class="c-txt">.</span><span class="c-fn">set</span><span class="c-txt">(</span><span class="c-str">'q'</span><span class="c-txt">, </span><span class="c-str">'what is the ETH price?'</span><span class="c-txt">)</span>
+<br/>
+<span class="c-var">url</span><span class="c-txt">.</span><span class="c-var">searchParams</span><span class="c-txt">.</span><span class="c-fn">set</span><span class="c-txt">(</span><span class="c-str">'dry'</span><span class="c-txt">, </span><span class="c-str">'true'</span><span class="c-txt">)</span>
 <br/><br/>
-<span class="c-kw">const</span> <span class="c-var">agent</span> <span class="c-txt">= </span><span class="c-kw">new</span> <span class="c-fn">XoggAI</span><span class="c-txt">({</span>
+<span class="c-comment">// safe preview: no payment, no upstream execution</span>
 <br/>
-<span style="padding-left:1.25rem"></span><span class="c-var">network</span><span class="c-txt">: </span><span class="c-str">'base-mainnet'</span><span class="c-txt">,</span>
-<br/>
-<span style="padding-left:1.25rem"></span><span class="c-var">budget</span><span class="c-txt">: </span><span class="c-num">0.10</span> <span class="c-comment">// USDC</span>
-<br/>
-<span class="c-txt">})</span>
+<span class="c-kw">const</span> <span class="c-var">route</span> <span class="c-txt">= </span><span class="c-kw">await</span> <span class="c-fn">fetch</span><span class="c-txt">(url).</span><span class="c-fn">then</span><span class="c-txt">(r => r.</span><span class="c-fn">json</span><span class="c-txt">())</span>
 <br/><br/>
-<span class="c-comment">// plain-English intent</span>
+<span class="c-comment">// route.endpoint = best matching x402 API</span>
 <br/>
-<span class="c-kw">const</span> <span class="c-var">result</span> <span class="c-txt">= </span><span class="c-kw">await</span> <span class="c-var">agent</span><span class="c-txt">.</span><span class="c-fn">execute</span><span class="c-txt">({</span>
+<span class="c-fn">console</span><span class="c-txt">.</span><span class="c-fn">log</span><span class="c-txt">(route.endpoint)</span>
 <br/>
-<span style="padding-left:1.25rem"></span><span class="c-var">intent</span><span class="c-txt">: </span><span class="c-str">"get ETH price, buy if &lt;$3000"</span><span class="c-txt">,</span>
-<br/>
-<span style="padding-left:1.25rem"></span><span class="c-var">autonomous</span><span class="c-txt">: </span><span class="c-kw">true</span>
-<br/>
-<span class="c-txt">})</span>
-<br/><br/>
-<span class="c-comment">// routed → paid → executed → rated</span>
-<br/>
-<span class="c-fn">console</span><span class="c-txt">.</span><span class="c-fn">log</span><span class="c-txt">(result)</span>
-<br/>
-<span class="c-comment">// { price: 2847.33, tx: "0xa3f...",</span>
-<br/>
-<span class="c-comment">//   rating: 5.0, latency: "11ms" }</span>
+<span class="c-comment">// { name, url, priceUsdc, rating, latencyMs }</span>
 <br/><br/>
 <span class="demo-cursor"></span>
       </div>
@@ -1125,17 +1210,17 @@ footer{
     <div class="cap-card">
       <span class="cap-arrow">→</span>
       <div class="cap-title">Execute</div>
-      <div class="cap-desc">Real actions in the real world. API calls, transactions, data retrieval — all autonomous.</div>
+      <div class="cap-desc">Execution-ready routing. Public preview stays dry-run until wallet controls are intentionally enabled.</div>
     </div>
     <div class="cap-card">
       <span class="cap-arrow">→</span>
       <div class="cap-title">Transact</div>
-      <div class="cap-desc">Machine-to-machine payments via x402. Agents buy resources without human approval.</div>
+      <div class="cap-desc">Designed for x402 payments, with budget and wallet paths kept explicit before any paid call.</div>
     </div>
     <div class="cap-card">
       <span class="cap-arrow">→</span>
       <div class="cap-title">Collaborate</div>
-      <div class="cap-desc">Agents working with agents. Distributed intelligence across millions of nodes.</div>
+      <div class="cap-desc">Existing agents can call one routing layer instead of hardcoding every paid API endpoint.</div>
     </div>
     <div class="cap-card">
       <span class="cap-arrow">→</span>
@@ -1173,7 +1258,7 @@ footer{
   <div class="cta-inner">
     <p class="section-label">// connect agent</p>
     <h2 class="cta-title">Connect your<br/>agent.</h2>
-    <p class="cta-sub">Point your agent at XoggAI, run terminal commands, then decide when to enable live execution.</p>
+    <p class="cta-sub">Connect your existing agent to XoggAI routing. Copy the docs, test dry-runs, then wire the endpoint into your agent.</p>
 
     <div class="code-line">
       <span><span class="kw">GET</span> <span class="path" id="apiEndpointText">https://xoggai-backend.onrender.com/intent?q=...</span></span>
@@ -1572,12 +1657,17 @@ async function runTerminalCommand(rawCommand) {
     return;
   }
 
+  appendTerminalLine('intent parsed.');
+  appendTerminalLine('mode: dry-run. no payment will be sent.');
   appendTerminalLine('routing intent...');
 
   try {
     const res = await fetch(`${API_BASE}/intent?q=${encodeURIComponent(intent)}&dry=true`);
     const data = await res.json();
     appendTerminalJson(data);
+    if (data.success && data.endpoint?.name) {
+      appendTerminalLine(`selected endpoint: ${data.endpoint.name}`, 'terminal-ok');
+    }
     appendTerminalLine(
       data.success ? 'endpoint selected. dry-run only; no payment sent.' : `request failed: ${data.error || res.status}`,
       data.success ? 'terminal-ok' : 'terminal-warn',
