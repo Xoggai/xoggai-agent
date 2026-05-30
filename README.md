@@ -1,14 +1,28 @@
 # XoggAI Agent
 
-XoggAI is an intent router for x402 APIs.
+[![Website](https://img.shields.io/badge/website-live-f97316?style=flat-square)](https://xoggai-agent.com)
+[![Backend](https://img.shields.io/badge/backend-render-46e3c0?style=flat-square)](https://xoggai-backend.onrender.com)
+[![Docs](https://img.shields.io/badge/docs-agent%20files-8aad99?style=flat-square)](https://xoggai-agent.com/docs)
+[![Mode](https://img.shields.io/badge/mode-dry--run%20preview-0f2218?style=flat-square)](https://xoggai-agent.com)
 
-Agents send a plain-English intent to XoggAI, receive a ranked endpoint preview, and can decide when to move from dry-run routing into wallet-gated execution.
+XoggAI routes plain-English AI agent intents to ranked x402 API endpoints.
+
+Agents send an intent, receive an endpoint preview with price, latency, rating, URL, and schema, then decide when to move from dry-run routing into wallet-gated execution.
 
 Live site: https://xoggai-agent.com  
 Backend API: https://xoggai-backend.onrender.com  
 Docs UI: https://xoggai-agent.com/docs
 
 ![XoggAI public preview](docs/assets/xoggai-preview.png)
+
+## Quick Test
+
+```powershell
+curl.exe https://xoggai-backend.onrender.com/health
+curl.exe "https://xoggai-backend.onrender.com/intent?q=what%20is%20the%20ETH%20price&budget=0.05&dry=true"
+```
+
+Expected behavior: dry-run responses only. Public demos do not send payment.
 
 ## Current Status
 
@@ -41,6 +55,16 @@ existing agent
 3. XoggAI returns endpoint metadata in dry-run mode.
 4. The caller sees price, latency, rating, URL, and schema before execution.
 5. Future live execution requires an intentional wallet and budget path.
+
+## Architecture
+
+```text
+frontend terminal/docs
+-> backend intent router
+-> endpoint index + rating engine
+-> dry-run preview response
+-> optional future x402 execution path
+```
 
 ## Public API
 

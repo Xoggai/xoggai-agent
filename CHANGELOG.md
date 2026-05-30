@@ -6,3 +6,4 @@
 - Expanded the website terminal with `endpoints`, `search`, `docs`, and `openapi` commands.
 - Clarified the public preview flow: dry-run routing first, live execution gated.
 - Added a README preview screenshot and backend root route for easier project inspection.
+- Added README badges, quick-test commands, and social preview metadata.
