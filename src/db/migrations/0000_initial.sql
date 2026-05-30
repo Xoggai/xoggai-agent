@@ -1,0 +1,52 @@
+CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+CREATE TABLE IF NOT EXISTS endpoints (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  url text NOT NULL UNIQUE,
+  name text NOT NULL,
+  description text NOT NULL,
+  category text NOT NULL,
+  price_usdc real NOT NULL,
+  avg_rating real NOT NULL DEFAULT 0,
+  rating_count integer NOT NULL DEFAULT 0,
+  avg_latency_ms integer NOT NULL DEFAULT 0,
+  is_active boolean NOT NULL DEFAULT true,
+  input_schema jsonb,
+  embedding vector(1536),
+  created_at timestamp DEFAULT now(),
+  updated_at timestamp DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS endpoints_embedding_idx
+  ON endpoints USING hnsw (embedding vector_cosine_ops);
+
+CREATE INDEX IF NOT EXISTS endpoints_rating_idx
+  ON endpoints (avg_rating);
+
+CREATE TABLE IF NOT EXISTS routing_events (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  intent text NOT NULL,
+  endpoint_id uuid REFERENCES endpoints(id),
+  endpoint_url text NOT NULL,
+  latency_ms integer,
+  price_usdc real,
+  tx_hash text,
+  status text NOT NULL,
+  error_message text,
+  rating real,
+  rating_reason text,
+  raw_response jsonb,
+  created_at timestamp DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS stats (
+  id integer PRIMARY KEY DEFAULT 1,
+  active_agents integer NOT NULL DEFAULT 0,
+  total_tx integer NOT NULL DEFAULT 0,
+  apis_consumed integer NOT NULL DEFAULT 0,
+  hours_saved real NOT NULL DEFAULT 0,
+  updated_at timestamp DEFAULT now()
+);
+
+INSERT INTO stats (id) VALUES (1) ON CONFLICT (id) DO NOTHING;

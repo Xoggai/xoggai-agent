@@ -1,0 +1,14 @@
+# XoggAI
+
+XoggAI is an intent router for x402 APIs. Agents send natural-language intents to `/intent`; XoggAI embeds the intent, searches registered x402 endpoints, reranks candidates, and optionally executes the selected endpoint through x402 payment.
+
+## API
+
+- `GET /health`
+- `GET /intent?q=<intent>&budget=0.05&dry=true`
+- `GET /search?q=<query>&limit=10`
+- `GET /api/stats`
+- `GET /api/feed`
+- `GET /api/endpoints`
+
+Use `dry=true` for route selection without upstream execution or payment.

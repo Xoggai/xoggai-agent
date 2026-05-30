@@ -1,0 +1,112 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "XoggAI API",
+    "version": "1.0.0",
+    "description": "Intent routing API for x402 endpoints."
+  },
+  "servers": [
+    { "url": "http://localhost:3000", "description": "Local development" },
+    { "url": "https://api.xoggai.xyz", "description": "Production" }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "responses": {
+          "200": {
+            "description": "Server status"
+          }
+        }
+      }
+    },
+    "/intent": {
+      "get": {
+        "summary": "Route a natural-language intent",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "minLength": 3, "maxLength": 500 }
+          },
+          {
+            "name": "budget",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "number", "default": 0.05, "maximum": 10 }
+          },
+          {
+            "name": "dry",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "boolean", "default": false }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Intent routed successfully" },
+          "402": { "description": "Budget exceeded" },
+          "404": { "description": "No endpoint found" }
+        }
+      }
+    },
+    "/search": {
+      "get": {
+        "summary": "Search registered x402 endpoints",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 10, "maximum": 50 }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "min_rating",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "number", "default": 0, "minimum": 0, "maximum": 5 }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Ranked endpoint results" }
+        }
+      }
+    },
+    "/api/stats": {
+      "get": {
+        "summary": "Platform statistics",
+        "responses": {
+          "200": { "description": "Aggregate stats" }
+        }
+      }
+    },
+    "/api/feed": {
+      "get": {
+        "summary": "Live routing event feed",
+        "responses": {
+          "200": { "description": "Server-sent events stream" }
+        }
+      }
+    },
+    "/api/endpoints": {
+      "get": {
+        "summary": "Explore registered endpoints",
+        "responses": {
+          "200": { "description": "Endpoint list" }
+        }
+      }
+    }
+  }
+}

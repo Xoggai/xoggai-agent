@@ -1,0 +1,7 @@
+[build]
+  publish = "frontend"
+
+[[headers]]
+  for = "/config.js"
+  [headers.values]
+    Cache-Control = "no-store"

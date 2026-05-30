@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>XoggAI — Intelligence Becomes Action</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060f0b;
+  --bg2:#0a1a12;
+  --bg3:#0f2218;
+  --orange:#f97316;
+  --orange2:#fb923c;
+  --text:#e8f5ee;
+  --muted:#5a7a68;
+  --muted2:#8aad99;
+  --border:#182e22;
+  --border2:#1f3d2c;
+  --font-display:'Syne',sans-serif;
+  --font-mono:'Space Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-display);
+  overflow-x:hidden;
+  min-height:100vh;
+}
+
+/* GRID BG */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(249,115,22,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(249,115,22,0.03) 1px,transparent 1px);
+  background-size:64px 64px;
+  pointer-events:none;z-index:0;
+  animation:gridDrift 36s linear infinite;
+  will-change:background-position;
+}
+
+.ambient-flow{
+  position:fixed;inset:0;z-index:0;
+  pointer-events:none;overflow:hidden;
+}
+.ambient-flow::before{
+  content:'';position:absolute;inset:-30%;
+  background:
+    linear-gradient(115deg,transparent 30%,rgba(249,115,22,0.09) 48%,rgba(94,234,212,0.045) 50%,transparent 66%);
+  opacity:0.8;
+  transform:translate3d(-35%,0,0);
+  animation:heroSweep 14s ease-in-out infinite;
+}
+.flow-line{
+  position:absolute;top:var(--top);left:-40vw;
+  width:var(--width,30vw);height:2px;
+  background:linear-gradient(90deg,transparent,rgba(249,115,22,0.85),rgba(94,234,212,0.42),transparent);
+  opacity:0;
+  transform:translate3d(-45vw,0,0) rotate(var(--angle,0deg));
+  animation:dataLane var(--duration,13s) linear infinite;
+  animation-delay:var(--delay,0s);
+  filter:drop-shadow(0 0 10px rgba(249,115,22,0.75));
+}
+.flow-node{
+  position:absolute;left:var(--left);top:var(--top);
+  width:7px;height:7px;border-radius:50%;
+  background:var(--orange);
+  opacity:0;
+  box-shadow:0 0 18px rgba(249,115,22,0.95);
+  animation:fieldNode 4.4s ease-in-out infinite;
+  animation-delay:var(--delay,0s);
+}
+.flow-node::after{
+  content:'';position:absolute;inset:-9px;
+  border:1px solid rgba(249,115,22,0.34);
+  border-radius:50%;
+  transform:scale(0.4);
+  opacity:0;
+  animation:nodeRing 4.4s ease-out infinite;
+  animation-delay:inherit;
+}
+.flow-bit{
+  position:absolute;left:var(--left);top:var(--top);
+  width:16px;height:2px;border-radius:999px;
+  background:rgba(94,234,212,0.72);
+  box-shadow:0 0 12px rgba(94,234,212,0.35);
+  opacity:0;
+  transform:translateX(-20vw);
+  animation:packetBit var(--duration,9s) linear infinite;
+  animation-delay:var(--delay,0s);
+}
+@keyframes gridDrift{
+  from{ background-position:0 0,0 0; }
+  to{ background-position:64px 64px,64px 64px; }
+}
+@keyframes dataLane{
+  0%{ opacity:0; transform:translate3d(-45vw,0,0) rotate(var(--angle,0deg)); }
+  9%{ opacity:0.78; }
+  55%{ opacity:0.48; }
+  100%{ opacity:0; transform:translate3d(150vw,0,0) rotate(var(--angle,0deg)); }
+}
+@keyframes fieldNode{
+  0%,100%{ opacity:0; transform:scale(0.7); }
+  18%,42%{ opacity:0.9; transform:scale(1); }
+}
+@keyframes nodeRing{
+  0%{ opacity:0; transform:scale(0.35); }
+  28%{ opacity:0.8; }
+  70%,100%{ opacity:0; transform:scale(1.9); }
+}
+@keyframes packetBit{
+  0%{ opacity:0; transform:translateX(-22vw); }
+  12%{ opacity:0.95; }
+  68%{ opacity:0.65; }
+  100%{ opacity:0; transform:translateX(122vw); }
+}
+@keyframes heroSweep{
+  0%,18%{ opacity:0; transform:translate3d(-36%,0,0); }
+  40%{ opacity:0.8; }
+  74%,100%{ opacity:0; transform:translate3d(34%,0,0); }
+}
+
+/* =====================
+   LOGO SVG COMPONENT
+   ===================== */
+.logo-svg { display:block; }
+
+/* Chip body pulse */
+@keyframes chipPulse {
+  0%,100%{ filter:drop-shadow(0 0 4px rgba(249,115,22,0.4)); }
+  50%{ filter:drop-shadow(0 0 12px rgba(249,115,22,0.9)); }
+}
+
+/* Trace travel animation - data packets moving along traces */
+@keyframes tracePulse {
+  0%{ opacity:0; stroke-dashoffset:40; }
+  20%{ opacity:1; }
+  80%{ opacity:1; }
+  100%{ opacity:0; stroke-dashoffset:0; }
+}
+
+/* Node dots blink */
+@keyframes nodeBlink {
+  0%,100%{ opacity:0.3; r:2; }
+  50%{ opacity:1; r:3.5; }
+}
+
+/* X letter glow */
+@keyframes xGlow {
+  0%,100%{ opacity:0.85; }
+  50%{ opacity:1; filter:drop-shadow(0 0 6px rgba(249,115,22,1)); }
+}
+
+.chip-logo { animation: chipPulse 3s ease-in-out infinite; }
+.chip-node { animation: nodeBlink 2s ease-in-out infinite; }
+.chip-node:nth-child(2n){ animation-delay:0.4s; }
+.chip-node:nth-child(3n){ animation-delay:0.8s; }
+.chip-node:nth-child(4n){ animation-delay:1.2s; }
+.chip-node:nth-child(5n){ animation-delay:1.6s; }
+.chip-x { animation: xGlow 2.5s ease-in-out infinite; }
+
+/* Data packet traveling along a path */
+.trace-packet {
+  stroke: #f97316;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  fill: none;
+  stroke-dasharray: 6 34;
+  animation: tracePulse 3s ease-in-out infinite;
+}
+.trace-packet:nth-child(1){ animation-delay: 0s; }
+.trace-packet:nth-child(2){ animation-delay: 0.5s; }
+.trace-packet:nth-child(3){ animation-delay: 1.0s; }
+.trace-packet:nth-child(4){ animation-delay: 1.5s; }
+.trace-packet:nth-child(5){ animation-delay: 2.0s; }
+.trace-packet:nth-child(6){ animation-delay: 2.5s; }
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:1rem 2.5rem;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(6,15,11,0.9);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{
+  display:flex;align-items:center;gap:0.625rem;
+  text-decoration:none;
+}
+.nav-logo-text{
+  font-size:1.25rem;font-weight:800;color:var(--text);
+  letter-spacing:-0.02em;
+}
+.nav-links{
+  display:flex;gap:2.5rem;list-style:none;
+}
+.nav-links a{
+  color:var(--muted);text-decoration:none;
+  font-size:0.8rem;font-weight:600;
+  letter-spacing:0.08em;text-transform:uppercase;
+  transition:color 0.2s;font-family:var(--font-mono);
+}
+.nav-links a:hover{ color:var(--orange); }
+.nav-cta{
+  background:var(--orange);color:#050a06;
+  padding:0.5rem 1.375rem;border-radius:6px;
+  font-size:0.8rem;font-weight:700;
+  text-decoration:none;letter-spacing:0.04em;
+  transition:all 0.2s;font-family:var(--font-mono);
+  text-transform:uppercase;
+}
+.nav-cta:hover{
+  background:var(--orange2);
+  transform:translateY(-1px);
+  box-shadow:0 6px 20px rgba(249,115,22,0.35);
+}
+
+/* SECTIONS */
+section{ position:relative;z-index:1; }
+
+/* LIVE FEED TICKER */
+.ticker-wrap{
+  position:relative;z-index:1;
+  margin-top:64px;
+  overflow:hidden;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  background:var(--bg2);
+  padding:0.625rem 0;
+}
+.ticker-track{
+  display:flex;gap:4rem;
+  animation:tickerScroll 30s linear infinite;
+  width:max-content;
+}
+.ticker-item{
+  display:flex;align-items:center;gap:0.5rem;
+  white-space:nowrap;
+  font-size:0.7rem;
+  font-family:var(--font-mono);
+  color:var(--muted);
+}
+.ticker-dot{
+  width:5px;height:5px;border-radius:50%;
+  background:var(--orange);flex-shrink:0;
+  animation:tickerDotPulse 1.5s ease-in-out infinite;
+}
+.ticker-score{ color:var(--orange);font-weight:700; }
+@keyframes tickerScroll{
+  from{ transform:translateX(0); }
+  to{ transform:translateX(-50%); }
+}
+@keyframes tickerDotPulse{
+  0%,100%{opacity:1}50%{opacity:0.3}
+}
+
+/* =====================
+   HERO
+   ===================== */
+.hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:7rem 2rem 5rem;
+  text-align:center;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  background:rgba(249,115,22,0.08);
+  border:1px solid rgba(249,115,22,0.22);
+  color:var(--orange);
+  padding:0.375rem 1rem;border-radius:999px;
+  font-size:0.7rem;font-weight:700;
+  letter-spacing:0.12em;text-transform:uppercase;
+  margin-bottom:2rem;font-family:var(--font-mono);
+  animation:fadeUp 0.9s ease both;
+}
+.badge-dot{
+  width:6px;height:6px;background:var(--orange);
+  border-radius:50%;animation:badgePulse 2s infinite;
+}
+@keyframes badgePulse{ 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+
+.hero-title{
+  font-size:clamp(2.75rem,7vw,5.5rem);
+  font-weight:800;line-height:1.03;
+  letter-spacing:-0.045em;margin-bottom:1.5rem;
+  animation:fadeUp 0.9s 0.1s ease both;
+}
+.hero-title .accent{ color:var(--orange); }
+
+.hero-sub{
+  font-size:clamp(1rem,2vw,1.2rem);
+  color:var(--muted2);max-width:560px;
+  line-height:1.65;margin-bottom:3rem;font-weight:400;
+  animation:fadeUp 0.9s 0.2s ease both;
+}
+
+.hero-actions{
+  display:flex;gap:1rem;justify-content:center;
+  flex-wrap:wrap;margin-bottom:3.5rem;
+  animation:fadeUp 0.9s 0.3s ease both;
+}
+.btn-primary{
+  background:var(--orange);color:#050a06;
+  padding:0.875rem 2rem;border-radius:8px;
+  font-size:0.95rem;font-weight:700;text-decoration:none;
+  display:inline-flex;align-items:center;gap:0.5rem;
+  transition:all 0.25s;letter-spacing:0.01em;
+  border:0;cursor:pointer;font-family:var(--font-display);
+}
+.btn-primary:hover{
+  background:var(--orange2);transform:translateY(-2px);
+  box-shadow:0 10px 30px rgba(249,115,22,0.3);
+}
+.btn-secondary{
+  background:transparent;color:var(--text);
+  padding:0.875rem 2rem;
+  border:1px solid var(--border2);border-radius:8px;
+  font-size:0.95rem;font-weight:600;text-decoration:none;
+  display:inline-flex;align-items:center;gap:0.5rem;
+  transition:all 0.25s;
+  cursor:pointer;font-family:var(--font-display);
+}
+.btn-secondary:hover{ border-color:var(--orange);color:var(--orange); }
+
+/* STATS */
+.stats-row{
+  display:flex;gap:2px;flex-wrap:wrap;justify-content:center;
+  animation:fadeUp 0.9s 0.4s ease both;
+}
+.stat-pill{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:1.125rem 1.75rem;
+  text-align:center;min-width:150px;
+}
+.stat-num{
+  font-size:1.875rem;font-weight:800;
+  color:var(--orange);font-family:var(--font-mono);
+  display:block;line-height:1;
+}
+.stat-label{
+  font-size:0.65rem;color:var(--muted);
+  text-transform:uppercase;letter-spacing:0.1em;
+  margin-top:0.375rem;display:block;font-family:var(--font-mono);
+}
+
+/* =====================
+   MANIFESTO
+   ===================== */
+.manifesto{
+  padding:7rem 2rem;
+  max-width:820px;margin:0 auto;
+}
+.section-label{
+  font-size:0.65rem;letter-spacing:0.18em;
+  text-transform:uppercase;color:var(--orange);
+  font-weight:700;margin-bottom:1.25rem;
+  font-family:var(--font-mono);
+}
+.manifesto-text{
+  font-size:clamp(1.2rem,2.5vw,1.65rem);
+  line-height:1.75;color:var(--muted2);font-weight:400;
+}
+.manifesto-text strong{ color:var(--text);font-weight:700; }
+.manifesto-text .hl{ color:var(--orange); }
+
+/* =====================
+   ARCHITECTURE
+   ===================== */
+.arch{
+  padding:6rem 2rem;
+  max-width:1100px;margin:0 auto;
+}
+.arch-title{
+  font-size:clamp(1.75rem,3.5vw,2.75rem);
+  font-weight:800;letter-spacing:-0.035em;margin-bottom:0.875rem;
+}
+.arch-sub{
+  color:var(--muted2);margin-bottom:3.5rem;
+  max-width:500px;line-height:1.65;
+}
+.arch-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1px;background:var(--border);
+  border:1px solid var(--border);border-radius:12px;overflow:hidden;
+}
+.arch-card{
+  background:var(--bg2);padding:2.25rem;
+  transition:background 0.3s;
+}
+.arch-card:hover{ background:var(--bg3); }
+.arch-num{
+  font-family:var(--font-mono);font-size:0.65rem;
+  color:var(--orange);letter-spacing:0.1em;
+  margin-bottom:1.25rem;opacity:0.6;
+}
+.arch-icon-wrap{
+  width:46px;height:46px;border-radius:10px;
+  background:rgba(249,115,22,0.08);
+  border:1px solid rgba(249,115,22,0.18);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:1.25rem;
+}
+.arch-card-title{
+  font-size:1.1rem;font-weight:700;margin-bottom:0.5rem;
+}
+.arch-card-desc{
+  font-size:0.85rem;color:var(--muted2);line-height:1.7;
+}
+.arch-eq{
+  margin-top:2.5rem;padding:1.75rem 2rem;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  gap:1.5rem;flex-wrap:wrap;
+}
+.eq-part{ text-align:center; }
+.eq-lbl{
+  font-size:0.6rem;color:var(--muted);
+  text-transform:uppercase;letter-spacing:0.12em;
+  margin-bottom:0.25rem;font-family:var(--font-mono);
+}
+.eq-val{ font-size:1rem;font-weight:700;color:var(--text); }
+.eq-op{ font-size:1.5rem;color:var(--orange);font-weight:700;opacity:0.4; }
+.eq-res{ font-size:1.1rem;font-weight:800;color:var(--orange); }
+
+/* =====================
+   HOW IT WORKS
+   ===================== */
+.how{
+  padding:6rem 2rem;
+  max-width:1100px;margin:0 auto;
+}
+.how-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:4rem;align-items:start;margin-top:3.5rem;
+}
+.how-steps{ display:flex;flex-direction:column; }
+.step{
+  display:flex;gap:1.25rem;
+  position:relative;padding-bottom:2.25rem;
+}
+.step:not(:last-child)::before{
+  content:'';position:absolute;
+  left:19px;top:42px;bottom:0;
+  width:1px;background:var(--border2);
+}
+.step-num{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--bg2);border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  font-family:var(--font-mono);font-size:0.7rem;
+  color:var(--orange);font-weight:700;
+  transition:all 0.3s;
+}
+.step:hover .step-num{
+  background:var(--orange);color:#050a06;
+  border-color:var(--orange);
+}
+.step-body{ padding-top:0.625rem; }
+.step-title{ font-size:1rem;font-weight:700;margin-bottom:0.375rem; }
+.step-desc{ font-size:0.85rem;color:var(--muted2);line-height:1.7; }
+
+/* CODE DEMO */
+.demo-box{
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:12px;overflow:hidden;
+  position:sticky;top:90px;
+}
+.demo-header{
+  background:var(--bg3);
+  padding:0.75rem 1rem;
+  display:flex;align-items:center;gap:0.5rem;
+  border-bottom:1px solid var(--border);
+}
+.demo-dot{ width:9px;height:9px;border-radius:50%; }
+.demo-filename{
+  font-size:0.65rem;font-family:var(--font-mono);
+  color:var(--muted);margin-left:auto;letter-spacing:0.04em;
+}
+.demo-body{
+  padding:1.375rem;
+  font-family:var(--font-mono);
+  font-size:0.775rem;line-height:1.9;
+}
+.c-comment{ color:var(--muted); }
+.c-kw{ color:#f97316; }
+.c-var{ color:#5eead4; }
+.c-str{ color:#86efac; }
+.c-num{ color:#fcd34d; }
+.c-fn{ color:#fb923c; }
+.c-txt{ color:var(--text); }
+.demo-cursor{
+  display:inline-block;width:7px;height:13px;
+  background:var(--orange);
+  animation:cursorBlink 1s step-end infinite;
+  vertical-align:middle;margin-left:2px;
+}
+@keyframes cursorBlink{
+  0%,49%{opacity:1}50%,100%{opacity:0}
+}
+
+/* =====================
+   CAPABILITIES
+   ===================== */
+.caps{
+  padding:6rem 2rem;
+  max-width:1100px;margin:0 auto;
+}
+.caps-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  gap:1rem;margin-top:3rem;
+}
+.cap-card{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:10px;padding:1.625rem;
+  transition:all 0.3s;cursor:default;
+}
+.cap-card:hover{
+  border-color:rgba(249,115,22,0.35);
+  background:var(--bg3);
+  transform:translateY(-3px);
+  box-shadow:0 12px 32px rgba(0,0,0,0.3);
+}
+.cap-arrow{
+  font-size:1.25rem;color:var(--orange);
+  margin-bottom:0.875rem;font-weight:800;
+  display:block;transition:transform 0.3s;
+}
+.cap-card:hover .cap-arrow{ transform:translateX(4px); }
+.cap-title{ font-size:1.05rem;font-weight:700;margin-bottom:0.375rem; }
+.cap-desc{ font-size:0.82rem;color:var(--muted2);line-height:1.65; }
+
+/* =====================
+   VISION
+   ===================== */
+.vision{
+  padding:8rem 2rem;text-align:center;
+}
+.vision-inner{ max-width:680px;margin:0 auto; }
+.vision-quote{
+  font-size:clamp(1.5rem,3.5vw,2.375rem);
+  font-weight:700;line-height:1.4;
+  letter-spacing:-0.025em;margin-bottom:1.75rem;
+}
+.vision-quote .hl{ color:var(--orange); }
+.vision-desc{
+  color:var(--muted2);line-height:1.75;
+  margin-bottom:3rem;font-size:1rem;
+}
+.vision-stats{
+  display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;
+}
+.vs-item{ text-align:center; }
+.vs-num{
+  font-size:2rem;font-weight:800;
+  color:var(--orange);font-family:var(--font-mono);
+  display:block;line-height:1;
+}
+.vs-lbl{
+  font-size:0.65rem;color:var(--muted);
+  text-transform:uppercase;letter-spacing:0.12em;
+  margin-top:0.375rem;display:block;
+  font-family:var(--font-mono);
+}
+
+/* =====================
+   CTA
+   ===================== */
+.cta-sec{
+  padding:7rem 2rem;
+  border-top:1px solid var(--border);
+  text-align:center;
+}
+.cta-inner{ max-width:540px;margin:0 auto; }
+.cta-title{
+  font-size:clamp(2rem,5vw,3.25rem);
+  font-weight:800;letter-spacing:-0.04em;margin-bottom:1rem;
+}
+.cta-sub{
+  color:var(--muted2);margin-bottom:2.5rem;
+  line-height:1.7;
+}
+.code-line{
+  background:var(--bg2);border:1px solid var(--border2);
+  border-radius:8px;padding:0.75rem 1.25rem;
+  font-family:var(--font-mono);font-size:0.775rem;
+  color:var(--muted2);
+  display:flex;align-items:center;
+  justify-content:space-between;
+  max-width:440px;margin:0 auto 0.625rem;text-align:left;
+}
+.code-line .kw{ color:var(--orange); }
+.code-line .path{ color:#5eead4; }
+.copy-btn{
+  background:none;border:none;cursor:pointer;
+  font-size:0.65rem;font-family:var(--font-mono);
+  color:var(--muted);letter-spacing:0.08em;
+  text-transform:uppercase;transition:color 0.2s;
+  padding:0;
+}
+.copy-btn:hover{ color:var(--orange); }
+.agent-console{
+  max-width:540px;margin:1.75rem auto 0;
+}
+.intent-form{
+  display:grid;grid-template-columns:1fr auto;
+  gap:0.625rem;margin-top:1rem;
+}
+.intent-input{
+  width:100%;min-width:0;
+  background:var(--bg2);border:1px solid var(--border2);
+  border-radius:8px;padding:0.875rem 1rem;
+  color:var(--text);font-family:var(--font-mono);
+  font-size:0.8rem;outline:none;
+}
+.intent-input:focus{ border-color:var(--orange); }
+.intent-result{
+  display:none;text-align:left;margin-top:1rem;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:8px;padding:1rem;
+  font-family:var(--font-mono);font-size:0.72rem;
+  line-height:1.6;color:var(--muted2);
+  white-space:pre-wrap;overflow:auto;max-height:260px;
+}
+.intent-status{
+  min-height:1.25rem;margin-top:0.625rem;
+  color:var(--muted);font-size:0.72rem;
+  font-family:var(--font-mono);text-align:left;
+}
+.cta-btns{
+  display:flex;gap:1rem;justify-content:center;
+  flex-wrap:wrap;margin-top:1.75rem;
+}
+.compat-row{
+  display:flex;gap:0.625rem;
+  justify-content:center;flex-wrap:wrap;
+  margin-top:2.5rem;align-items:center;
+}
+.compat-label{
+  font-size:0.7rem;color:var(--muted);
+  font-family:var(--font-mono);letter-spacing:0.06em;
+  text-transform:uppercase;
+}
+.compat-badge{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:6px;padding:0.3rem 0.875rem;
+  font-size:0.7rem;color:var(--muted2);font-family:var(--font-mono);
+}
+
+/* FOOTER */
+footer{
+  border-top:1px solid var(--border);
+  padding:1.75rem 2.5rem;
+  display:flex;align-items:center;
+  justify-content:space-between;flex-wrap:wrap;gap:1rem;
+}
+.footer-brand{ font-weight:800;font-size:0.9rem;color:var(--muted); }
+.footer-links{ display:flex;gap:1.75rem; }
+.footer-links a{
+  font-size:0.7rem;color:var(--muted);
+  text-decoration:none;font-family:var(--font-mono);
+  letter-spacing:0.04em;transition:color 0.2s;
+}
+.footer-links a:hover{ color:var(--orange); }
+.footer-tag{
+  font-size:0.65rem;color:var(--muted);
+  font-family:var(--font-mono);opacity:0.45;
+}
+
+/* SCROLL REVEAL */
+.reveal{
+  opacity:0;transform:translateY(28px);
+  transition:opacity 0.75s ease,transform 0.75s ease;
+}
+.reveal.visible{ opacity:1;transform:translateY(0); }
+
+/* KEYFRAMES */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(22px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* RESPONSIVE */
+@media(max-width:820px){
+  .arch-grid{ grid-template-columns:1fr; }
+  .how-grid{ grid-template-columns:1fr; }
+  .nav-links{ display:none; }
+  .demo-box{ position:static; }
+  .arch-eq{ gap:0.875rem; }
+  .intent-form{ grid-template-columns:1fr; }
+}
+@media(prefers-reduced-motion:reduce){
+  body::before,.ambient-flow::before,.flow-line,.flow-node,.flow-node::after,.flow-bit{ animation:none; }
+  .flow-line,.flow-node,.flow-bit{ display:none; }
+}
+</style>
+</head>
+<body>
+
+<div class="ambient-flow" aria-hidden="true">
+  <span class="flow-line" style="--top:18%;--width:34vw;--angle:0deg;--duration:18s;--delay:-2s"></span>
+  <span class="flow-line" style="--top:31%;--width:24vw;--angle:0deg;--duration:15s;--delay:-9s"></span>
+  <span class="flow-line" style="--top:48%;--width:38vw;--angle:0deg;--duration:21s;--delay:-5s"></span>
+  <span class="flow-line" style="--top:67%;--width:28vw;--angle:0deg;--duration:17s;--delay:-12s"></span>
+  <span class="flow-line" style="--top:82%;--width:32vw;--angle:0deg;--duration:19s;--delay:-7s"></span>
+  <span class="flow-line" style="--top:37%;--width:20vw;--angle:90deg;--duration:22s;--delay:-14s"></span>
+  <span class="flow-line" style="--top:72%;--width:22vw;--angle:90deg;--duration:24s;--delay:-4s"></span>
+  <span class="flow-line" style="--top:12%;--width:18vw;--angle:0deg;--duration:12s;--delay:-6s"></span>
+  <span class="flow-line" style="--top:58%;--width:44vw;--angle:0deg;--duration:16s;--delay:-10s"></span>
+  <span class="flow-line" style="--top:91%;--width:26vw;--angle:0deg;--duration:14s;--delay:-1s"></span>
+  <span class="flow-line" style="--top:22%;--width:24vw;--angle:90deg;--duration:18s;--delay:-8s"></span>
+  <span class="flow-line" style="--top:63%;--width:30vw;--angle:90deg;--duration:20s;--delay:-15s"></span>
+  <span class="flow-node" style="--left:18%;--top:24%;--delay:-1s"></span>
+  <span class="flow-node" style="--left:42%;--top:36%;--delay:-3s"></span>
+  <span class="flow-node" style="--left:67%;--top:21%;--delay:-5s"></span>
+  <span class="flow-node" style="--left:81%;--top:54%;--delay:-2s"></span>
+  <span class="flow-node" style="--left:28%;--top:76%;--delay:-6s"></span>
+  <span class="flow-node" style="--left:58%;--top:84%;--delay:-4s"></span>
+  <span class="flow-node" style="--left:11%;--top:43%;--delay:-7s"></span>
+  <span class="flow-node" style="--left:73%;--top:71%;--delay:-8s"></span>
+  <span class="flow-node" style="--left:91%;--top:31%;--delay:-5.5s"></span>
+  <span class="flow-bit" style="--left:8%;--top:27%;--duration:8s;--delay:-3s"></span>
+  <span class="flow-bit" style="--left:16%;--top:52%;--duration:10s;--delay:-7s"></span>
+  <span class="flow-bit" style="--left:4%;--top:73%;--duration:9s;--delay:-1s"></span>
+  <span class="flow-bit" style="--left:22%;--top:88%;--duration:11s;--delay:-5s"></span>
+</div>
+
+<!-- ===================== NAV ===================== -->
+<nav>
+  <a class="nav-logo" href="#">
+    <!-- ACCURATE LOGO: chip with X, traces going all directions, circle endpoints -->
+    <svg width="38" height="38" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="chip-logo logo-svg">
+
+      <!-- TRACES (behind chip body) -->
+      <!-- Top-left trace -->
+      <polyline points="34,28 34,18 20,18" stroke="#f97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <!-- Top-center-left trace -->
+      <line x1="42" y1="22" x2="42" y2="6" stroke="#f97316" stroke-width="3" stroke-linecap="round"/>
+      <!-- Top-center-right trace -->
+      <line x1="56" y1="22" x2="56" y2="6" stroke="#f97316" stroke-width="3" stroke-linecap="round"/>
+      <!-- Top-right trace -->
+      <polyline points="64,28 64,16 76,16" stroke="#f97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+      <!-- Left-top trace -->
+      <polyline points="28,36 16,36 16,26" stroke="#f97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <!-- Left-center trace -->
+      <line x1="22" y1="50" x2="6" y2="50" stroke="#f97316" stroke-width="3" stroke-linecap="round"/>
+      <!-- Left-bottom trace -->
+      <polyline points="28,62 14,62 14,74" stroke="#f97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <!-- Left-lower trace -->
+      <polyline points="28,70 20,70 20,82" stroke="#f97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+      <!-- Right-top trace -->
+      <polyline points="72,36 84,36 84,24" stroke="#f97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <!-- Right-center trace -->
+      <line x1="78" y1="50" x2="94" y2="50" stroke="#f97316" stroke-width="3" stroke-linecap="round"/>
+      <!-- Right-center-lower trace -->
+      <polyline points="72,58 86,58 86,70" stroke="#f97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <!-- Right-lower trace -->
+      <polyline points="72,68 80,68 80,80" stroke="#f97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+      <!-- Bottom-left trace -->
+      <polyline points="38,78 38,90 26,90" stroke="#f97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <!-- Bottom-right trace -->
+      <polyline points="60,78 60,92 72,92" stroke="#f97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+      <!-- ANIMATED DATA PACKETS on traces -->
+      <!-- Top-center-left -->
+      <line x1="42" y1="22" x2="42" y2="6" stroke="#f97316" stroke-width="2.5" stroke-linecap="round" fill="none"
+        stroke-dasharray="5 30" opacity="0">
+        <animate attributeName="stroke-dashoffset" from="40" to="0" dur="2.5s" begin="0s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;1;1;0" dur="2.5s" begin="0s" repeatCount="indefinite"/>
+      </line>
+      <!-- Right-center -->
+      <line x1="78" y1="50" x2="94" y2="50" stroke="#f97316" stroke-width="2.5" stroke-linecap="round" fill="none"
+        stroke-dasharray="5 25" opacity="0">
+        <animate attributeName="stroke-dashoffset" from="35" to="0" dur="2s" begin="0.6s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;1;1;0" dur="2s" begin="0.6s" repeatCount="indefinite"/>
+      </line>
+      <!-- Left-center -->
+      <line x1="22" y1="50" x2="6" y2="50" stroke="#f97316" stroke-width="2.5" stroke-linecap="round" fill="none"
+        stroke-dasharray="5 25" opacity="0">
+        <animate attributeName="stroke-dashoffset" from="35" to="0" dur="2.2s" begin="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;1;1;0" dur="2.2s" begin="1.2s" repeatCount="indefinite"/>
+      </line>
+      <!-- Top-right -->
+      <polyline points="64,28 64,16 76,16" stroke="#f97316" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"
+        stroke-dasharray="5 40" opacity="0">
+        <animate attributeName="stroke-dashoffset" from="45" to="0" dur="2.8s" begin="1.8s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;1;1;0" dur="2.8s" begin="1.8s" repeatCount="indefinite"/>
+      </polyline>
+      <!-- Bottom-right -->
+      <polyline points="60,78 60,92 72,92" stroke="#f97316" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"
+        stroke-dasharray="5 40" opacity="0">
+        <animate attributeName="stroke-dashoffset" from="45" to="0" dur="2.3s" begin="0.3s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;1;1;0" dur="2.3s" begin="0.3s" repeatCount="indefinite"/>
+      </polyline>
+
+      <!-- CHIP OUTER BODY -->
+      <rect x="22" y="22" width="56" height="56" rx="8" ry="8"
+        stroke="#f97316" stroke-width="3" fill="none"/>
+
+      <!-- CHIP INNER BORDER (double-border effect like logo) -->
+      <rect x="28" y="28" width="44" height="44" rx="5" ry="5"
+        stroke="#f97316" stroke-width="1.5" fill="rgba(249,115,22,0.04)"/>
+
+      <!-- X LETTER -->
+      <g class="chip-x">
+        <line x1="38" y1="38" x2="62" y2="62" stroke="#f97316" stroke-width="4" stroke-linecap="round"/>
+        <line x1="62" y1="38" x2="38" y2="62" stroke="#f97316" stroke-width="4" stroke-linecap="round"/>
+      </g>
+
+      <!-- NODE CIRCLES at trace endpoints -->
+      <circle class="chip-node" cx="20" cy="18" r="3" fill="#f97316"/>
+      <circle class="chip-node" cx="42" cy="6"  r="3" fill="#f97316"/>
+      <circle class="chip-node" cx="56" cy="6"  r="3" fill="#f97316"/>
+      <circle class="chip-node" cx="76" cy="16" r="3" fill="#f97316"/>
+
+      <circle class="chip-node" cx="16" cy="26" r="3" fill="#f97316"/>
+      <circle class="chip-node" cx="6"  cy="50" r="3" fill="#f97316"/>
+      <circle class="chip-node" cx="14" cy="74" r="3" fill="#f97316"/>
+      <circle class="chip-node" cx="20" cy="82" r="3" fill="#f97316"/>
+
+      <circle class="chip-node" cx="84" cy="24" r="3" fill="#f97316"/>
+      <circle class="chip-node" cx="94" cy="50" r="3" fill="#f97316"/>
+      <circle class="chip-node" cx="86" cy="70" r="3" fill="#f97316"/>
+      <circle class="chip-node" cx="80" cy="80" r="3" fill="#f97316"/>
+
+      <circle class="chip-node" cx="26" cy="90" r="3" fill="#f97316"/>
+      <circle class="chip-node" cx="72" cy="92" r="3" fill="#f97316"/>
+    </svg>
+    <span class="nav-logo-text">XoggAI</span>
+  </a>
+
+  <ul class="nav-links">
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#arch">Architecture</a></li>
+    <li><a href="#capabilities">Capabilities</a></li>
+  </ul>
+  <a class="nav-cta" href="#cta">Connect Agent →</a>
+</nav>
+
+<!-- ===================== TICKER ===================== -->
+<div class="ticker-wrap">
+  <div class="ticker-track" id="tickerTrack">
+    <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">5.0</span>&nbsp;ETH price routed → x402market.io&nbsp;<span style="color:#2d4d3a">· 12ms</span></div>
+    <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">4.8</span>&nbsp;DeFi yield scan → agenticfi.wtf&nbsp;<span style="color:#2d4d3a">· 24ms</span></div>
+    <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">5.0</span>&nbsp;Crypto news → httpay.xyz&nbsp;<span style="color:#2d4d3a">· 8ms</span></div>
+    <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">4.7</span>&nbsp;Token info → nansen.ai&nbsp;<span style="color:#2d4d3a">· 19ms</span></div>
+    <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">5.0</span>&nbsp;Base tx executed autonomously&nbsp;<span style="color:#2d4d3a">· 31ms</span></div>
+    <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">4.9</span>&nbsp;Multi-agent collaboration started&nbsp;<span style="color:#2d4d3a">· 5ms</span></div>
+    <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">5.0</span>&nbsp;BTC price → stablecrypto.dev&nbsp;<span style="color:#2d4d3a">· 11ms</span></div>
+    <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">4.8</span>&nbsp;Twitter trends fetched → cascade.fyi&nbsp;<span style="color:#2d4d3a">· 16ms</span></div>
+    <!-- duplicate for seamless loop -->
+    <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">5.0</span>&nbsp;ETH price routed → x402market.io&nbsp;<span style="color:#2d4d3a">· 12ms</span></div>
+    <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">4.8</span>&nbsp;DeFi yield scan → agenticfi.wtf&nbsp;<span style="color:#2d4d3a">· 24ms</span></div>
+    <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">5.0</span>&nbsp;Crypto news → httpay.xyz&nbsp;<span style="color:#2d4d3a">· 8ms</span></div>
+    <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">4.7</span>&nbsp;Token info → nansen.ai&nbsp;<span style="color:#2d4d3a">· 19ms</span></div>
+    <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">5.0</span>&nbsp;Base tx executed autonomously&nbsp;<span style="color:#2d4d3a">· 31ms</span></div>
+    <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">4.9</span>&nbsp;Multi-agent collaboration started&nbsp;<span style="color:#2d4d3a">· 5ms</span></div>
+    <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">5.0</span>&nbsp;BTC price → stablecrypto.dev&nbsp;<span style="color:#2d4d3a">· 11ms</span></div>
+    <div class="ticker-item"><span class="ticker-dot"></span><span class="ticker-score">4.8</span>&nbsp;Twitter trends fetched → cascade.fyi&nbsp;<span style="color:#2d4d3a">· 16ms</span></div>
+  </div>
+</div>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero">
+  <div class="hero-badge"><span class="badge-dot"></span>Now live on Base mainnet</div>
+
+  <h1 class="hero-title">
+    Intelligence that<br/>
+    <span class="accent">doesn't stop talking.</span>
+  </h1>
+
+  <p class="hero-sub">
+    XoggAI connects LLM reasoning, x402 economic rails, and Base infrastructure —
+    so your agents don't just answer, they <strong>execute</strong>.
+  </p>
+
+  <div class="hero-actions">
+    <a href="#agent-console" class="btn-primary">Try Intent Router →</a>
+    <a href="#how" class="btn-secondary">See how it works</a>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-pill"><span class="stat-num" id="ctr-agents">0</span><span class="stat-label">Active Agents</span></div>
+    <div class="stat-pill"><span class="stat-num" id="ctr-tx">0</span><span class="stat-label">Transactions</span></div>
+    <div class="stat-pill"><span class="stat-num" id="ctr-apis">0</span><span class="stat-label">APIs Consumed</span></div>
+    <div class="stat-pill"><span class="stat-num" id="ctr-hrs">0</span><span class="stat-label">Hours Saved</span></div>
+  </div>
+</section>
+
+<!-- ===================== MANIFESTO ===================== -->
+<section class="manifesto reveal" id="manifesto">
+  <p class="section-label">// why we exist</p>
+  <p class="manifesto-text">
+    <strong>Why does AI still stop at conversations?</strong>
+    We have intelligence. We have infrastructure. We have payments.
+    Yet somehow, most AI products still end where the chat box ends.
+    <span class="hl">That never made sense.</span><br/><br/>
+    So we built XoggAI. Not as another AI interface —
+    but as a system where <strong>intelligence becomes action</strong>.
+    Where agents don't just answer. <strong>They execute.</strong>
+  </p>
+</section>
+
+<!-- ===================== ARCHITECTURE ===================== -->
+<section class="arch reveal" id="arch">
+  <p class="section-label">// architecture</p>
+  <h2 class="arch-title">Three layers.<br/>One unified system.</h2>
+  <p class="arch-sub">Every autonomous action your agent takes is powered by three tightly integrated layers working in concert.</p>
+
+  <div class="arch-grid">
+    <!-- LLM -->
+    <div class="arch-card">
+      <div class="arch-num">01 / THINK</div>
+      <div class="arch-icon-wrap">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <circle cx="11" cy="11" r="3.5" stroke="#f97316" stroke-width="1.5"/>
+          <path d="M11 2.5v2M11 17.5v2M2.5 11h2M17.5 11h2M4.9 4.9l1.4 1.4M15.7 15.7l1.4 1.4M4.9 17.1l1.4-1.4M15.7 6.3l1.4-1.4" stroke="#f97316" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="arch-card-title">LLM Infrastructure</div>
+      <div class="arch-card-desc">Reasoning engine at the core. Context learning, decision making, intent understanding. This is where intelligence lives.</div>
+    </div>
+    <!-- X402 -->
+    <div class="arch-card">
+      <div class="arch-num">02 / TRANSACT</div>
+      <div class="arch-icon-wrap">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <path d="M3 8h16M3 8l3.5-3.5M3 8l3.5 3.5M19 14H3M19 14l-3.5-3.5M19 14l-3.5 3.5" stroke="#f97316" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="arch-card-title">X402 Protocol</div>
+      <div class="arch-card-desc">Economic coordination layer. Machines paying machines. Agents consuming APIs autonomously. The future internet's payment rails.</div>
+    </div>
+    <!-- Base -->
+    <div class="arch-card">
+      <div class="arch-num">03 / SCALE</div>
+      <div class="arch-icon-wrap">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <rect x="2.5" y="2.5" width="7" height="7" rx="1.5" stroke="#f97316" stroke-width="1.5"/>
+          <rect x="12.5" y="2.5" width="7" height="7" rx="1.5" stroke="#f97316" stroke-width="1.5"/>
+          <rect x="2.5" y="12.5" width="7" height="7" rx="1.5" stroke="#f97316" stroke-width="1.5"/>
+          <rect x="12.5" y="12.5" width="7" height="7" rx="1.5" stroke="#f97316" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <div class="arch-card-title">Base Ecosystem</div>
+      <div class="arch-card-desc">Fast, cheap, composable. The execution infrastructure where autonomous agents operate at actual scale without friction.</div>
+    </div>
+  </div>
+
+  <div class="arch-eq">
+    <div class="eq-part"><div class="eq-lbl">Intelligence</div><div class="eq-val">LLM</div></div>
+    <div class="eq-op">+</div>
+    <div class="eq-part"><div class="eq-lbl">Economic rails</div><div class="eq-val">X402</div></div>
+    <div class="eq-op">+</div>
+    <div class="eq-part"><div class="eq-lbl">Execution layer</div><div class="eq-val">Base</div></div>
+    <div class="eq-op">=</div>
+    <div class="eq-part"><div class="eq-lbl">The result</div><div class="eq-res">XoggAI</div></div>
+  </div>
+</section>
+
+<!-- ===================== HOW IT WORKS ===================== -->
+<section class="how reveal" id="how">
+  <p class="section-label">// how it works</p>
+  <h2 class="arch-title">Send intent. Get results.</h2>
+
+  <div class="how-grid">
+    <!-- STEPS -->
+    <div class="how-steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <div class="step-title">Send a natural language intent</div>
+          <div class="step-desc">No params, no schemas, no API keys. Just what you want done. Your agent sends a single GET request.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <div class="step-title">XoggAI searches and ranks endpoints</div>
+          <div class="step-desc">Vector search + LLM reranking across thousands of rated x402 APIs. Best endpoint wins — automatically.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <div class="step-title">402 payment negotiation</div>
+          <div class="step-desc">Server returns price and payment address. Nothing charged yet. Full transparency before commitment.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-body">
+          <div class="step-title">Agent pays and executes</div>
+          <div class="step-desc">USDC payment attached. XoggAI relays to upstream, returns data. Entire flow: autonomous, no human touch.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">05</div>
+        <div class="step-body">
+          <div class="step-title">Result rated. Index improves.</div>
+          <div class="step-desc">AI scores 0–5. Bad endpoints sink, good ones rise. Every call makes the system smarter.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CODE DEMO -->
+    <div class="demo-box">
+      <div class="demo-header">
+        <div class="demo-dot" style="background:#f97316"></div>
+        <div class="demo-dot" style="background:#fb923c;opacity:0.5"></div>
+        <div class="demo-dot" style="background:#fdba74;opacity:0.3"></div>
+        <span class="demo-filename">xoggai-agent.ts</span>
+      </div>
+      <div class="demo-body">
+<span class="c-comment">// XoggAI — one endpoint, everything</span>
+<br/>
+<span class="c-kw">import</span> <span class="c-txt">{ XoggAI } </span><span class="c-kw">from</span> <span class="c-str">'xoggai-sdk'</span>
+<br/><br/>
+<span class="c-kw">const</span> <span class="c-var">agent</span> <span class="c-txt">= </span><span class="c-kw">new</span> <span class="c-fn">XoggAI</span><span class="c-txt">({</span>
+<br/>
+<span style="padding-left:1.25rem"></span><span class="c-var">network</span><span class="c-txt">: </span><span class="c-str">'base-mainnet'</span><span class="c-txt">,</span>
+<br/>
+<span style="padding-left:1.25rem"></span><span class="c-var">budget</span><span class="c-txt">: </span><span class="c-num">0.10</span> <span class="c-comment">// USDC</span>
+<br/>
+<span class="c-txt">})</span>
+<br/><br/>
+<span class="c-comment">// plain-English intent</span>
+<br/>
+<span class="c-kw">const</span> <span class="c-var">result</span> <span class="c-txt">= </span><span class="c-kw">await</span> <span class="c-var">agent</span><span class="c-txt">.</span><span class="c-fn">execute</span><span class="c-txt">({</span>
+<br/>
+<span style="padding-left:1.25rem"></span><span class="c-var">intent</span><span class="c-txt">: </span><span class="c-str">"get ETH price, buy if &lt;$3000"</span><span class="c-txt">,</span>
+<br/>
+<span style="padding-left:1.25rem"></span><span class="c-var">autonomous</span><span class="c-txt">: </span><span class="c-kw">true</span>
+<br/>
+<span class="c-txt">})</span>
+<br/><br/>
+<span class="c-comment">// routed → paid → executed → rated</span>
+<br/>
+<span class="c-fn">console</span><span class="c-txt">.</span><span class="c-fn">log</span><span class="c-txt">(result)</span>
+<br/>
+<span class="c-comment">// { price: 2847.33, tx: "0xa3f...",</span>
+<br/>
+<span class="c-comment">//   rating: 5.0, latency: "11ms" }</span>
+<br/><br/>
+<span class="demo-cursor"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CAPABILITIES ===================== -->
+<section class="caps reveal" id="capabilities">
+  <p class="section-label">// capabilities</p>
+  <h2 class="arch-title">Built for what's next.</h2>
+  <div class="caps-grid">
+    <div class="cap-card">
+      <span class="cap-arrow">→</span>
+      <div class="cap-title">Think</div>
+      <div class="cap-desc">Deep reasoning with full context. Understands intent, not just commands.</div>
+    </div>
+    <div class="cap-card">
+      <span class="cap-arrow">→</span>
+      <div class="cap-title">Execute</div>
+      <div class="cap-desc">Real actions in the real world. API calls, transactions, data retrieval — all autonomous.</div>
+    </div>
+    <div class="cap-card">
+      <span class="cap-arrow">→</span>
+      <div class="cap-title">Transact</div>
+      <div class="cap-desc">Machine-to-machine payments via x402. Agents buy resources without human approval.</div>
+    </div>
+    <div class="cap-card">
+      <span class="cap-arrow">→</span>
+      <div class="cap-title">Collaborate</div>
+      <div class="cap-desc">Agents working with agents. Distributed intelligence across millions of nodes.</div>
+    </div>
+    <div class="cap-card">
+      <span class="cap-arrow">→</span>
+      <div class="cap-title">Improve</div>
+      <div class="cap-desc">Every interaction trains the index. The system gets smarter with every call.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== VISION ===================== -->
+<section class="vision reveal">
+  <div class="vision-inner">
+    <p class="section-label">// the future</p>
+    <p class="vision-quote">
+      "The next generation of AI products
+      <span class="hl">won't look like apps</span>.
+      They'll look like networks."
+    </p>
+    <p class="vision-desc">
+      We're building for a world where AI becomes economic infrastructure.
+      Where millions of agents interact with millions of systems.
+      Where software becomes autonomous. Where intelligence becomes an economy.
+    </p>
+    <div class="vision-stats">
+      <div class="vs-item"><span class="vs-num">∞</span><span class="vs-lbl">Agents</span></div>
+      <div class="vs-item"><span class="vs-num">x402</span><span class="vs-lbl">Protocol</span></div>
+      <div class="vs-item"><span class="vs-num">Base</span><span class="vs-lbl">Ecosystem</span></div>
+      <div class="vs-item"><span class="vs-num">0</span><span class="vs-lbl" id="vs-wait">Human waits</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CTA ===================== -->
+<section class="cta-sec reveal" id="cta">
+  <div class="cta-inner">
+    <p class="section-label">// connect agent</p>
+    <h2 class="cta-title">Connect your<br/>agent.</h2>
+    <p class="cta-sub">Point your agent at XoggAI, run a dry route, then decide when to enable live execution.</p>
+
+    <div class="code-line">
+      <span><span class="kw">GET</span> <span class="path" id="apiEndpointText">https://api.xoggai.xyz/intent?q=...</span></span>
+      <button class="copy-btn" onclick="copyApiEndpoint(this)">COPY</button>
+    </div>
+    <div class="code-line">
+      <span><span class="path">skill.md</span> → xoggai.xyz/skill.md</span>
+      <button class="copy-btn" onclick="copySkillUrl(this)">COPY</button>
+    </div>
+
+    <div class="agent-console" id="agent-console">
+      <form class="intent-form" id="intentForm">
+        <input class="intent-input" id="intentInput" value="what is the ETH price?" aria-label="Intent" maxlength="500"/>
+        <button class="btn-primary" type="submit" id="intentSubmit">Run dry test →</button>
+      </form>
+      <div class="intent-status" id="intentStatus"></div>
+      <pre class="intent-result" id="intentResult"></pre>
+    </div>
+
+    <div class="cta-btns">
+      <button class="btn-secondary" type="button" onclick="copyAgentSnippet(this)">Copy agent snippet</button>
+      <button class="btn-secondary" type="button" onclick="downloadStarter()">Download starter</button>
+      <a class="btn-secondary" href="openapi.json">OpenAPI</a>
+    </div>
+
+    <div class="compat-row">
+      <span class="compat-label">Works with</span>
+      <span class="compat-badge">Claude Code</span>
+      <span class="compat-badge">Cursor</span>
+      <span class="compat-badge">Codex</span>
+      <span class="compat-badge">Windsurf</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer>
+  <span class="footer-brand">XoggAI</span>
+  <div class="footer-links">
+    <a href="skill.md">skill.md</a>
+    <a href="llms.txt">llms.txt</a>
+    <a href="openapi.json">openapi.json</a>
+    <a href="https://www.x402.org/">x402</a>
+    <a href="https://x.com/xoggai">𝕏</a>
+  </div>
+  <span class="footer-tag">Built on Base · Powered by x402</span>
+</footer>
+
+<script src="config.js"></script>
+<script>
+// ---- COUNTER ANIMATION ----
+function animateCount(el, target, duration) {
+  let start = 0;
+  const step = target / (duration / 16);
+  const t = setInterval(() => {
+    start = Math.min(start + step, target);
+    el.textContent = Math.round(start).toLocaleString();
+    if (start >= target) clearInterval(t);
+  }, 16);
+}
+
+const API_BASE = window.XOGGAI_API_BASE || (location.protocol === 'file:' || location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://api.xoggai.xyz');
+let txCount = 58392;
+
+function syncApiEndpointText() {
+  const el = document.getElementById('apiEndpointText');
+  if (el) el.textContent = `${API_BASE}/intent?q=...`;
+}
+
+function copyApiEndpoint(btn) {
+  doCopy(btn, `GET ${API_BASE}/intent?q=what+is+the+ETH+price&dry=true`);
+}
+
+function copySkillUrl(btn) {
+  const origin = location.protocol === 'file:' ? 'https://xoggai.xyz' : location.origin;
+  doCopy(btn, `${origin}/skill.md`);
+}
+
+function agentSnippet() {
+  return [
+    "const XOGGAI_API = '" + API_BASE + "';",
+    '',
+    'export async function routeIntent(intent, budget = 0.05) {',
+    '  const url = new URL(`${XOGGAI_API}/intent`);',
+    "  url.searchParams.set('q', intent);",
+    "  url.searchParams.set('budget', String(budget));",
+    "  url.searchParams.set('dry', 'true');",
+    '  const res = await fetch(url);',
+    "  if (!res.ok) throw new Error(`XoggAI route failed: ${res.status}`);",
+    '  return res.json();',
+    '}',
+    '',
+    "console.log(await routeIntent('what is the ETH price?'));",
+  ].join('\n');
+}
+
+function copyAgentSnippet(btn) {
+  doCopy(btn, agentSnippet());
+}
+
+function downloadStarter() {
+  const file = new Blob([agentSnippet()], { type: 'text/typescript' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(file);
+  a.download = 'xoggai-agent-starter.ts';
+  document.body.appendChild(a);
+  a.click();
+  URL.revokeObjectURL(a.href);
+  a.remove();
+}
+
+async function loadStats() {
+  try {
+    const res = await fetch(`${API_BASE}/api/stats`);
+    const data = await res.json();
+    txCount = data.totalTx;
+    animateCount(document.getElementById('ctr-agents'), data.activeAgents, 1800);
+    animateCount(document.getElementById('ctr-tx'), data.totalTx, 1800);
+    animateCount(document.getElementById('ctr-apis'), data.apisConsumed, 1800);
+    animateCount(document.getElementById('ctr-hrs'), data.hoursSaved, 1800);
+  } catch {
+    animateCount(document.getElementById('ctr-agents'), 1247, 1800);
+    animateCount(document.getElementById('ctr-tx'), txCount, 1800);
+    animateCount(document.getElementById('ctr-apis'), 92841, 1800);
+    animateCount(document.getElementById('ctr-hrs'), 14200, 1800);
+  }
+}
+
+window.addEventListener('load', () => {
+  syncApiEndpointText();
+  setTimeout(loadStats, 500);
+});
+
+function connectFeed() {
+  const track = document.getElementById('tickerTrack');
+  if (!track) return;
+  let hasLiveEvents = false;
+
+  const es = new EventSource(`${API_BASE}/api/feed`);
+
+  es.onmessage = (e) => {
+    let event;
+    try {
+      event = JSON.parse(e.data);
+    } catch {
+      return;
+    }
+    if (event.ping) return;
+    if (!hasLiveEvents) {
+      track.textContent = '';
+      hasLiveEvents = true;
+    }
+
+    const item = document.createElement('div');
+    item.className = 'ticker-item';
+    item.innerHTML = `
+      <span class="ticker-dot"></span>
+      <span class="ticker-score">${event.score ?? '...'}</span>&nbsp;
+      ${event.endpoint}&nbsp;
+      <span style="color:#2d4d3a">· ${event.latencyMs ?? 0}ms</span>
+    `;
+    track.appendChild(item);
+    if (track.children.length > 40) track.removeChild(track.firstChild);
+  };
+
+  es.onerror = () => {
+    es.close();
+    if (hasLiveEvents) setTimeout(connectFeed, 5000);
+  };
+}
+
+window.addEventListener('load', connectFeed);
+
+// ---- SCROLL REVEAL ----
+const reveals = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('visible');
+  });
+}, { threshold: 0.08 });
+reveals.forEach(r => io.observe(r));
+
+// ---- COPY BUTTONS ----
+function doCopy(btn, text) {
+  navigator.clipboard.writeText(text).catch(() => {});
+  const orig = btn.textContent;
+  btn.textContent = 'COPIED!';
+  btn.style.color = 'var(--orange)';
+  setTimeout(() => {
+    btn.textContent = orig;
+    btn.style.color = '';
+  }, 2000);
+}
+
+const intentForm = document.getElementById('intentForm');
+if (intentForm) {
+  intentForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const input = document.getElementById('intentInput');
+    const status = document.getElementById('intentStatus');
+    const result = document.getElementById('intentResult');
+    const submit = document.getElementById('intentSubmit');
+    const q = input.value.trim();
+    if (!q) return;
+
+    status.textContent = 'Routing intent...';
+    result.style.display = 'none';
+    submit.disabled = true;
+
+    try {
+      const res = await fetch(`${API_BASE}/intent?q=${encodeURIComponent(q)}&dry=true`);
+      const data = await res.json();
+      result.textContent = JSON.stringify(data, null, 2);
+      result.style.display = 'block';
+      status.textContent = data.success ? 'Endpoint selected. Dry run only; no payment sent.' : `Request failed: ${data.error || res.status}`;
+    } catch {
+      result.textContent = JSON.stringify({
+        success: true,
+        preview: true,
+        intent: q,
+        endpoint: {
+          url: 'api.xoggai.xyz/intent',
+          name: 'XoggAI Intent Router',
+          rating: 4.8,
+          latencyMs: 14
+        },
+        note: 'Static preview mode. Deploy the backend API to enable live routing.'
+      }, null, 2);
+      result.style.display = 'block';
+      status.textContent = 'Preview mode. Backend is not deployed on this static URL yet.';
+    } finally {
+      submit.disabled = false;
+    }
+  });
+}
+
+// ---- LIVE COUNTER: add 1 every few seconds ----
+setInterval(() => {
+  txCount++;
+  const el = document.getElementById('ctr-tx');
+  if (el) el.textContent = txCount.toLocaleString();
+}, 3700);
+</script>
+</body>
+</html>

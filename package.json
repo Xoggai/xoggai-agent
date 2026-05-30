@@ -1,0 +1,40 @@
+{
+  "name": "xoggai-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "db:push": "drizzle-kit push",
+    "db:local:init": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/apply-migration.ps1",
+    "db:init": "tsx src/db/migrate.ts",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "frontend:serve": "python -m http.server 5173",
+    "netlify:prepare": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/prepare-netlify.ps1",
+    "seed": "tsx src/db/seed.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.24.3",
+    "@hono/node-server": "^1.13.7",
+    "bullmq": "^5.16.0",
+    "dotenv": "^16.4.5",
+    "drizzle-orm": "^0.30.10",
+    "hono": "^4.6.3",
+    "ioredis": "^5.4.1",
+    "node-cron": "^3.0.3",
+    "pg": "^8.12.0",
+    "viem": "^2.23.1",
+    "x402": "^0.1.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.11",
+    "@types/node-cron": "^3.0.11",
+    "@types/pg": "^8.11.6",
+    "drizzle-kit": "^0.21.4",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.4"
+  }
+}
