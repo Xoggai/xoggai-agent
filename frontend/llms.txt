@@ -4,6 +4,8 @@ XoggAI is an intent router for x402 APIs. Agents send natural-language intents t
 
 ## API
 
+Production base URL: https://xoggai-backend.onrender.com
+
 - `GET /health`
 - `GET /intent?q=<intent>&budget=0.05&dry=true`
 - `GET /search?q=<query>&limit=10`

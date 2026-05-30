@@ -27,7 +27,7 @@ GET /search?q=crypto%20price&limit=5
 Base URL:
 
 ```text
-https://api.xoggai.xyz
+https://xoggai-backend.onrender.com
 ```
 
 Keep `dry=true` until the agent wallet and x402 payment path are intentionally enabled.
