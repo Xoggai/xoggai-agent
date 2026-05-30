@@ -98,7 +98,8 @@ nav{
 main{
   position:relative;
   z-index:1;
-  width:min(1180px,calc(100% - 3rem));
+  width:calc(100% - 3rem);
+  max-width:1180px;
   margin:0 auto;
   padding:5.5rem 0 4rem;
 }
@@ -156,11 +157,113 @@ h1{
   text-transform:uppercase;
   letter-spacing:0.1em;
 }
+.guide-stack{
+  display:grid;
+  gap:1rem;
+  margin-bottom:1rem;
+}
+.section-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:end;
+  gap:1rem;
+  margin:2.5rem 0 1rem;
+}
+.section-head h2{
+  font-size:clamp(1.65rem,3vw,2.45rem);
+  letter-spacing:-0.035em;
+}
+.section-head p{
+  max-width:620px;
+  color:var(--muted2);
+  line-height:1.65;
+}
+.quick-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:1rem;
+}
+.quick-card,.mode-card,.api-card{
+  border:1px solid var(--border2);
+  background:rgba(4,12,8,0.86);
+  padding:1rem;
+  min-width:0;
+}
+.quick-card strong,.mode-card strong,.api-card strong{
+  display:block;
+  color:var(--text);
+  font-size:1.05rem;
+  margin-bottom:0.65rem;
+}
+.quick-card p,.mode-card p,.api-card p{
+  color:var(--muted2);
+  line-height:1.65;
+}
+.step-index{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:1.7rem;
+  height:1.7rem;
+  margin-bottom:0.75rem;
+  border:1px solid rgba(249,115,22,0.42);
+  color:var(--orange);
+  font-family:var(--font-mono);
+  font-size:0.72rem;
+  background:rgba(249,115,22,0.08);
+}
+.code-line{
+  display:block;
+  margin-top:0.85rem;
+  border:1px solid var(--border2);
+  background:#041009;
+  color:#bdf9e8;
+  font-family:var(--font-mono);
+  font-size:0.72rem;
+  line-height:1.7;
+  padding:0.85rem;
+  overflow:auto;
+  max-width:100%;
+  white-space:nowrap;
+}
+.mode-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:1rem;
+}
+.mode-list{
+  display:grid;
+  gap:0.55rem;
+  margin-top:0.8rem;
+}
+.mode-list span{
+  color:var(--muted2);
+  font-family:var(--font-mono);
+  font-size:0.72rem;
+}
+.mode-list span::before{
+  content:'>';
+  color:var(--orange);
+  margin-right:0.45rem;
+}
+.api-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:1rem;
+}
+.api-card code{
+  display:inline-block;
+  color:var(--cyan);
+  font-family:var(--font-mono);
+  font-size:0.82rem;
+  margin-bottom:0.55rem;
+}
 .docs-grid{
   display:grid;
   grid-template-columns:260px minmax(0,1fr);
   gap:1rem;
   align-items:start;
+  min-width:0;
 }
 .doc-tabs{
   position:sticky;top:5.5rem;
@@ -202,6 +305,7 @@ h1{
   border:1px solid var(--border2);
   background:rgba(4,12,8,0.9);
   min-height:620px;
+  min-width:0;
 }
 .panel-head{
   display:flex;
@@ -365,8 +469,22 @@ footer a:hover{color:var(--orange)}
 @media(max-width:860px){
   nav{padding:0.9rem 1rem}
   .nav-actions a{display:none}
-  main{width:min(100% - 1.5rem,1180px);padding-top:3rem}
+  main{
+    width:100%;
+    max-width:none;
+    margin:0;
+    padding:3rem 0.75rem 4rem;
+    overflow:hidden;
+  }
   .hero{grid-template-columns:1fr}
+  .hero,.guide-stack,.section-head,.docs-grid,.status-card,.doc-panel{max-width:100%;width:100%}
+  .hero > *,.quick-grid,.mode-grid,.api-grid,.status-grid{min-width:0}
+  h1,.hero p,.section-head p,.quick-card p,.mode-card p,.api-card p{max-width:100%;overflow-wrap:break-word}
+  .hero > div,.hero p,.section-head p,.quick-card,.mode-card,.api-card{
+    max-width:calc(100vw - 1.5rem);
+  }
+  .section-head{display:grid}
+  .quick-grid,.mode-grid,.api-grid{grid-template-columns:1fr}
   .docs-grid{grid-template-columns:1fr}
   .doc-tabs{position:static;display:grid;grid-template-columns:1fr;gap:0.35rem}
   .panel-head{display:grid}
@@ -387,7 +505,9 @@ footer a:hover{color:var(--orange)}
   </a>
   <div class="nav-actions">
     <a href="/">Home</a>
-    <a href="/#agent-console">Terminal</a>
+    <a href="#quickstart">Quickstart</a>
+    <a href="#api">API</a>
+    <a href="#agent-files">Files</a>
     <a href="https://github.com/Xoggai/xoggai-agent">GitHub</a>
   </div>
 </nav>
@@ -396,8 +516,8 @@ footer a:hover{color:var(--orange)}
   <section class="hero">
     <div>
       <p class="eyebrow">// agent-readable docs</p>
-      <h1>Readable docs for agent files.</h1>
-      <p>These pages make the public agent files easier to inspect without changing the raw files that agents, crawlers, and API tooling can consume directly.</p>
+      <h1>Connect agents to x402 routing.</h1>
+      <p>Start with dry-run intent routing, inspect matched endpoints, then move toward live execution only when wallet and budget controls are intentionally enabled.</p>
     </div>
     <aside class="status-card" aria-label="Documentation status">
       <div class="status-grid">
@@ -421,7 +541,110 @@ footer a:hover{color:var(--orange)}
     </aside>
   </section>
 
-  <section class="docs-grid" aria-label="XoggAI docs">
+  <section class="guide-stack" id="quickstart" aria-label="Quickstart">
+    <div class="section-head">
+      <h2>Quickstart</h2>
+      <p>Use the backend directly from an agent, script, or browser console. Public mode is dry-run first.</p>
+    </div>
+    <div class="quick-grid">
+      <article class="quick-card">
+        <span class="step-index">01</span>
+        <strong>Check service health</strong>
+        <p>Confirm the public backend is awake before routing intents.</p>
+        <code class="code-line">GET https://xoggai-backend.onrender.com/health</code>
+      </article>
+      <article class="quick-card">
+        <span class="step-index">02</span>
+        <strong>Route a plain-English intent</strong>
+        <p>Ask for the best matching x402 endpoint without sending payment.</p>
+        <code class="code-line">GET /intent?q=what%20is%20the%20ETH%20price&amp;budget=0.05&amp;dry=true</code>
+      </article>
+      <article class="quick-card">
+        <span class="step-index">03</span>
+        <strong>Search the endpoint index</strong>
+        <p>Inspect available endpoint candidates before your agent chooses one.</p>
+        <code class="code-line">GET /search?q=crypto%20price&amp;limit=5&amp;dry=true</code>
+      </article>
+      <article class="quick-card">
+        <span class="step-index">04</span>
+        <strong>Wire the agent file</strong>
+        <p>Point agent tooling at the public skill or OpenAPI schema.</p>
+        <code class="code-line">https://xoggai-agent.com/skill.md</code>
+      </article>
+    </div>
+  </section>
+
+  <section class="guide-stack" aria-label="Execution model">
+    <div class="section-head">
+      <h2>Execution model</h2>
+      <p>XoggAI separates endpoint discovery from payment execution so agents can evaluate routing before spending.</p>
+    </div>
+    <div class="mode-grid">
+      <article class="mode-card">
+        <strong>Dry-run preview</strong>
+        <p>Default public behavior. Returns route metadata and endpoint candidates without sending wallet payment.</p>
+        <div class="mode-list">
+          <span>Safe for public demos</span>
+          <span>Shows endpoint fit, price, latency, and schema</span>
+          <span>Uses <code>dry=true</code></span>
+        </div>
+      </article>
+      <article class="mode-card">
+        <strong>Live execution</strong>
+        <p>Future gated path. Requires explicit wallet, budget, and execution controls before x402 payment can happen.</p>
+        <div class="mode-list">
+          <span>Requires intentional enablement</span>
+          <span>Uses caller-funded wallet flow</span>
+          <span>Kept off in public preview</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="guide-stack" id="api" aria-label="API surface">
+    <div class="section-head">
+      <h2>API surface</h2>
+      <p>The public API is small on purpose: route intents, search endpoints, inspect stats, and fetch agent-readable metadata.</p>
+    </div>
+    <div class="api-grid">
+      <article class="api-card">
+        <code>GET /intent</code>
+        <strong>Route intent</strong>
+        <p>Returns the best endpoint preview for a natural-language request.</p>
+      </article>
+      <article class="api-card">
+        <code>GET /search</code>
+        <strong>Search endpoints</strong>
+        <p>Returns ranked endpoint candidates for a query.</p>
+      </article>
+      <article class="api-card">
+        <code>GET /api/stats</code>
+        <strong>Network stats</strong>
+        <p>Returns public counters shown across the website and terminal.</p>
+      </article>
+      <article class="api-card">
+        <code>GET /api/endpoints</code>
+        <strong>Endpoint index</strong>
+        <p>Returns available x402 endpoint metadata.</p>
+      </article>
+      <article class="api-card">
+        <code>GET /api/feed</code>
+        <strong>Activity feed</strong>
+        <p>Returns public routing and endpoint activity entries.</p>
+      </article>
+      <article class="api-card">
+        <code>GET /health</code>
+        <strong>Health check</strong>
+        <p>Returns service status for uptime checks and deploy smoke tests.</p>
+      </article>
+    </div>
+  </section>
+
+  <div class="section-head" id="agent-files">
+    <h2>Agent files</h2>
+    <p>Raw files stay public for agents and crawlers. This viewer keeps them easier to inspect in-browser.</p>
+  </div>
+  <section class="docs-grid" aria-label="XoggAI agent files">
     <aside class="doc-tabs" aria-label="Documentation tabs">
       <button class="doc-tab active" type="button" data-doc="skill">
         <strong>skill.md</strong>
