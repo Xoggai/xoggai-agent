@@ -42,6 +42,9 @@ Set these Render environment variables before going public:
 ```text
 ALLOWED_ORIGINS=https://your-netlify-site.netlify.app,https://xoggai.xyz
 ANTHROPIC_API_KEY=sk-ant-...
+ANTHROPIC_BASE_URL=https://your-anthropic-compatible-router.example.com
+ANTHROPIC_ROUTER_MODEL=claude-sonnet-4-5
+ANTHROPIC_RATING_MODEL=claude-haiku-4-5-20251001
 X402_WALLET_PRIVATE_KEY=0x...
 X402_WALLET_ADDRESS=0x...
 ALLOW_LIVE_EXECUTION=false

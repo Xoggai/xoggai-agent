@@ -21,6 +21,12 @@ services:
         sync: false
       - key: ANTHROPIC_API_KEY
         sync: false
+      - key: ANTHROPIC_BASE_URL
+        sync: false
+      - key: ANTHROPIC_ROUTER_MODEL
+        value: claude-sonnet-4-5
+      - key: ANTHROPIC_RATING_MODEL
+        value: claude-haiku-4-5-20251001
       - key: X402_WALLET_PRIVATE_KEY
         sync: false
       - key: X402_WALLET_ADDRESS
