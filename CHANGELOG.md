@@ -10,3 +10,4 @@
 - Expanded the docs UI with quickstart, execution model, API surface, and agent file sections.
 - Upgraded the website terminal with connect, status, price, explain, and payment simulation commands.
 - Added backend `/api/info`, a homepage safety section, and a copyable docs agent snippet.
+- Added security notes, launch checklist, and recommended GitHub About metadata.

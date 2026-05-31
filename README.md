@@ -33,6 +33,16 @@ XoggAI is a public preview.
 - Safe by default: no payment is sent during dry-runs.
 - Not enabled publicly yet: live x402 payment execution.
 
+## GitHub About
+
+Recommended repository metadata:
+
+```text
+Description: Dry-run intent router that connects AI agents to ranked x402 API endpoints.
+Website: https://xoggai-agent.com
+Topics: ai-agents, x402, base, intent-routing, typescript, hono, netlify, render
+```
+
 ## What Connect Agent Means
 
 Connect Agent means connecting an existing agent to XoggAI routing.
@@ -208,5 +218,7 @@ Keep `ALLOW_LIVE_EXECUTION=false` for public demos.
 - `frontend/examples/` - browser-downloadable starter snippet.
 - `examples/` - standalone integration examples.
 - `scripts/` - local helper scripts.
+- `docs/LAUNCH_CHECKLIST.md` - public launch checklist.
+- `SECURITY.md` - security and public preview safety notes.
 - `render.yaml` - Render Blueprint.
 - `netlify.toml` - Netlify static deploy config.
