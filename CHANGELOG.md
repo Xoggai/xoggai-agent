@@ -8,3 +8,4 @@
 - Added a README preview screenshot and backend root route for easier project inspection.
 - Added README badges, quick-test commands, and social preview metadata.
 - Expanded the docs UI with quickstart, execution model, API surface, and agent file sections.
+- Upgraded the website terminal with connect, status, price, explain, and payment simulation commands.

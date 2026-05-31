@@ -98,9 +98,14 @@ The website terminal is a live dry-run console.
 
 ```text
 help
+connect
+status
 health
 stats
 endpoints
+price eth
+explain what is the ETH price?
+simulate payment
 search crypto price
 route what is the ETH price?
 docs

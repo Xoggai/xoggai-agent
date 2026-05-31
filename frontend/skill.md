@@ -37,9 +37,14 @@ Keep `dry=true` until the agent wallet and x402 payment path are intentionally e
 Common terminal commands:
 
 ```text
+connect
+status
 health
 stats
 endpoints
+price eth
+explain what is the ETH price?
+simulate payment
 search crypto price
 route what is the ETH price?
 docs

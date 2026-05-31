@@ -1302,13 +1302,15 @@ footer{
       </div>
       <div class="terminal-commands" aria-label="Terminal command shortcuts">
         <button class="terminal-command" type="button" data-command="help">help</button>
-        <button class="terminal-command" type="button" data-command="health">health</button>
-        <button class="terminal-command" type="button" data-command="stats">stats</button>
+        <button class="terminal-command" type="button" data-command="connect">connect</button>
+        <button class="terminal-command" type="button" data-command="status">status</button>
         <button class="terminal-command" type="button" data-command="endpoints">endpoints</button>
-        <button class="terminal-command" type="button" data-command="search crypto price">search crypto</button>
+        <button class="terminal-command" type="button" data-command="price eth">price ETH</button>
+        <button class="terminal-command" type="button" data-command="explain what is the ETH price?">explain route</button>
+        <button class="terminal-command" type="button" data-command="simulate payment">simulate payment</button>
         <button class="terminal-command" type="button" data-command="route what is the ETH price?">route ETH price</button>
+        <button class="terminal-command" type="button" data-command="search crypto price">search crypto</button>
         <button class="terminal-command" type="button" data-command="docs">docs</button>
-        <button class="terminal-command" type="button" data-command="openapi">openapi</button>
         <button class="terminal-command" type="button" data-command="clear">clear</button>
       </div>
     </div>
@@ -1537,11 +1539,11 @@ function resetTerminal() {
   if (!terminalLog) return;
   terminalLog.textContent = '';
   appendTerminalLine('XoggAI terminal ready. Mode: dry-run.', 'terminal-ok');
-  appendTerminalLine('commands: help, health, stats, endpoints, search <query>, route <intent>, docs, openapi, clear');
+  appendTerminalLine('commands: connect, status, price <asset>, explain <intent>, simulate payment, route <intent>');
 }
 
 function routePreview(intent) {
-  appendTerminalJson({
+  const preview = {
     success: true,
     preview: true,
     intent,
@@ -1552,8 +1554,10 @@ function routePreview(intent) {
       latencyMs: 14,
     },
     mode: 'dry-run',
-  });
+  };
+  appendTerminalJson(preview);
   appendTerminalLine('preview mode: backend request was not reachable from this browser.', 'terminal-warn');
+  return preview;
 }
 
 function docsPayload() {
@@ -1582,6 +1586,113 @@ function compactEndpoint(endpoint) {
   };
 }
 
+async function requestJson(url) {
+  try {
+    const res = await fetch(url);
+    let data = {};
+    try {
+      data = await res.json();
+    } catch {
+      data = { error: 'non_json_response' };
+    }
+    return { ok: res.ok, status: res.status, data };
+  } catch {
+    return {
+      ok: false,
+      status: 0,
+      data: {
+        error: 'network_unreachable',
+        message: 'backend request was not reachable from this browser',
+      },
+    };
+  }
+}
+
+function connectPayload() {
+  const links = docsPayload();
+  return {
+    action: 'connect_existing_agent',
+    mode: 'dry-run first',
+    backend: `${API_BASE}/intent`,
+    docs: links.docs,
+    agentFiles: {
+      skill: links.raw.skill,
+      llms: links.raw.llms,
+      openapi: links.raw.openapi,
+    },
+    nextCall: `GET ${API_BASE}/intent?q=<intent>&budget=0.05&dry=true`,
+    payment: 'not sent while dry=true',
+  };
+}
+
+function paymentSimulation(intent) {
+  return {
+    intent,
+    mode: 'simulation',
+    paymentSent: false,
+    payer: 'caller wallet, never XoggAI by default',
+    publicPreview: {
+      dryRun: true,
+      liveExecutionEnabled: false,
+    },
+    wouldRequireForLive: [
+      'caller wallet approval',
+      'x402 payment header',
+      'explicit budget cap',
+      'ALLOW_LIVE_EXECUTION=true on the backend',
+    ],
+  };
+}
+
+function explainPayload(intent, data) {
+  const endpoint = data?.endpoint ? compactEndpoint(data.endpoint) : {
+    name: 'XoggAI Intent Router',
+    category: 'intent-routing',
+    priceUsdc: null,
+    rating: 4.8,
+    latencyMs: 14,
+    url: `${API_BASE}/intent`,
+  };
+
+  return {
+    intent,
+    interpretation: 'plain-English request routed to the closest x402 API endpoint',
+    selectedEndpoint: endpoint,
+    selectionSignals: [
+      'semantic match',
+      'budget compatibility',
+      'endpoint rating',
+      'latency profile',
+      'schema fit',
+    ],
+    execution: {
+      mode: 'dry-run',
+      paymentSent: false,
+      reason: 'public preview keeps live x402 execution gated',
+    },
+  };
+}
+
+async function routeIntentDryRun(intent) {
+  appendTerminalLine('intent parsed.');
+  appendTerminalLine('mode: dry-run. no payment will be sent.');
+  appendTerminalLine('routing intent...');
+
+  const result = await requestJson(`${API_BASE}/intent?q=${encodeURIComponent(intent)}&dry=true`);
+  if (!result.status) return routePreview(intent);
+
+  const data = result.data;
+  appendTerminalJson(data);
+  if (data.success && data.endpoint?.name) {
+    appendTerminalLine(`selected endpoint: ${data.endpoint.name}`, 'terminal-ok');
+  }
+  appendTerminalLine(
+    data.success ? 'endpoint selected. dry-run only; no payment sent.' : `request failed: ${data.error || result.status}`,
+    data.success ? 'terminal-ok' : 'terminal-warn',
+  );
+  return data;
+}
+
 async function runTerminalCommand(rawCommand) {
   const command = rawCommand.trim();
   if (!command) return;
@@ -1595,38 +1706,70 @@ async function runTerminalCommand(rawCommand) {
   }
 
   if (normalized === 'help') {
+    appendTerminalLine('connect        - show the agent integration plan');
+    appendTerminalLine('status         - check backend health and public stats');
+    appendTerminalLine('price <asset>  - route a market-data intent, e.g. price eth');
+    appendTerminalLine('explain <text> - explain routing and safety signals');
+    appendTerminalLine('simulate payment - show what live x402 execution would require');
     appendTerminalLine('route <intent>  - select the best x402 endpoint');
     appendTerminalLine('search <query>  - preview matching endpoint index results');
     appendTerminalLine('endpoints       - list top registered x402 endpoints');
-    appendTerminalLine('stats           - read XoggAI network stats');
-    appendTerminalLine('health          - check backend availability');
     appendTerminalLine('docs/openapi    - print agent documentation links');
     appendTerminalLine('clear           - reset terminal output');
     return;
   }
 
+  if (normalized === 'connect') {
+    appendTerminalLine('building agent connection plan...');
+    appendTerminalJson(connectPayload());
+    appendTerminalLine('agent can call /intent with dry=true before enabling live execution.', 'terminal-ok');
+    return;
+  }
+
   if (normalized === 'health') {
-    const res = await fetch(`${API_BASE}/health`);
-    appendTerminalJson(await res.json());
-    appendTerminalLine(res.ok ? 'backend reachable' : `backend returned ${res.status}`, res.ok ? 'terminal-ok' : 'terminal-warn');
+    const result = await requestJson(`${API_BASE}/health`);
+    appendTerminalJson(result.data);
+    appendTerminalLine(result.ok ? 'backend reachable' : `backend returned ${result.status || 'unreachable'}`, result.ok ? 'terminal-ok' : 'terminal-warn');
     return;
   }
 
   if (normalized === 'stats') {
-    const res = await fetch(`${API_BASE}/api/stats`);
-    appendTerminalJson(await res.json());
+    const result = await requestJson(`${API_BASE}/api/stats`);
+    appendTerminalJson(result.data);
+    appendTerminalLine(result.ok ? 'stats loaded.' : `stats returned ${result.status || 'unreachable'}`, result.ok ? 'terminal-ok' : 'terminal-warn');
+    return;
+  }
+
+  if (normalized === 'status') {
+    appendTerminalLine('checking backend and public counters...');
+    const [health, stats] = await Promise.all([
+      requestJson(`${API_BASE}/health`),
+      requestJson(`${API_BASE}/api/stats`),
+    ]);
+    appendTerminalJson({
+      backend: {
+        reachable: health.ok,
+        status: health.status || 'unreachable',
+        body: health.data,
+      },
+      mode: 'dry-run public preview',
+      liveExecution: 'gated',
+      stats: stats.ok ? stats.data : { error: stats.data.error || 'unavailable' },
+    });
+    appendTerminalLine(health.ok ? 'status ready.' : 'backend unavailable from this browser.', health.ok ? 'terminal-ok' : 'terminal-warn');
     return;
   }
 
   if (normalized === 'endpoints') {
     appendTerminalLine('loading endpoint index...');
-    const res = await fetch(`${API_BASE}/api/endpoints?limit=5`);
-    const data = await res.json();
+    const result = await requestJson(`${API_BASE}/api/endpoints?limit=5`);
+    const data = result.data;
     appendTerminalJson({
       total: data.total,
       results: (data.results || []).map(compactEndpoint),
+      error: data.error,
     });
-    appendTerminalLine(res.ok ? 'top endpoints loaded.' : `endpoints returned ${res.status}`, res.ok ? 'terminal-ok' : 'terminal-warn');
+    appendTerminalLine(result.ok ? 'top endpoints loaded.' : `endpoints returned ${result.status || 'unreachable'}`, result.ok ? 'terminal-ok' : 'terminal-warn');
     return;
   }
 
@@ -1637,8 +1780,8 @@ async function runTerminalCommand(rawCommand) {
       return;
     }
     appendTerminalLine('searching x402 endpoint index...');
-    const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}&limit=5&dry=true`);
-    const data = await res.json();
+    const result = await requestJson(`${API_BASE}/search?q=${encodeURIComponent(query)}&limit=5&dry=true`);
+    const data = result.data;
     appendTerminalJson({
       query: data.query || query,
       dry: data.dry ?? true,
@@ -1647,9 +1790,36 @@ async function runTerminalCommand(rawCommand) {
       error: data.error,
     });
     appendTerminalLine(
-      res.ok ? 'search complete. dry-run only; no payment sent.' : `search returned ${res.status}`,
-      res.ok ? 'terminal-ok' : 'terminal-warn',
+      result.ok ? 'search complete. dry-run only; no payment sent.' : `search returned ${result.status || 'unreachable'}`,
+      result.ok ? 'terminal-ok' : 'terminal-warn',
     );
+    return;
+  }
+
+  if (normalized.startsWith('price ')) {
+    const asset = command.slice(6).trim().toUpperCase();
+    if (!asset) {
+      appendTerminalLine('missing asset. Example: price eth', 'terminal-warn');
+      return;
+    }
+    await routeIntentDryRun(`what is the ${asset} price?`);
+    return;
+  }
+
+  if (normalized.startsWith('explain')) {
+    const intent = command.slice(7).trim() || 'what is the ETH price?';
+    appendTerminalLine('explaining routing decision...');
+    const result = await requestJson(`${API_BASE}/intent?q=${encodeURIComponent(intent)}&dry=true`);
+    appendTerminalJson(explainPayload(intent, result.ok ? result.data : null));
+    appendTerminalLine('explanation ready. dry-run only; no payment sent.', 'terminal-ok');
+    return;
+  }
+
+  if (normalized.startsWith('simulate payment')) {
+    const intent = command.slice('simulate payment'.length).trim() || 'what is the ETH price?';
+    appendTerminalLine('simulating x402 live execution path...');
+    appendTerminalJson(paymentSimulation(intent));
+    appendTerminalLine('simulation only. public live execution remains gated.', 'terminal-warn');
     return;
   }
 
@@ -1671,24 +1841,7 @@ async function runTerminalCommand(rawCommand) {
     return;
   }
 
-  appendTerminalLine('intent parsed.');
-  appendTerminalLine('mode: dry-run. no payment will be sent.');
-  appendTerminalLine('routing intent...');
-
-  try {
-    const res = await fetch(`${API_BASE}/intent?q=${encodeURIComponent(intent)}&dry=true`);
-    const data = await res.json();
-    appendTerminalJson(data);
-    if (data.success && data.endpoint?.name) {
-      appendTerminalLine(`selected endpoint: ${data.endpoint.name}`, 'terminal-ok');
-    }
-    appendTerminalLine(
-      data.success ? 'endpoint selected. dry-run only; no payment sent.' : `request failed: ${data.error || res.status}`,
-      data.success ? 'terminal-ok' : 'terminal-warn',
-    );
-  } catch {
-    routePreview(intent);
-  }
+  await routeIntentDryRun(intent);
 }
 
 if (terminalForm && terminalInput) {
