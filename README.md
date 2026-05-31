@@ -79,6 +79,7 @@ Common endpoints:
 ```http
 GET /
 GET /health
+GET /api/info
 GET /intent?q=what%20is%20the%20ETH%20price&budget=0.05&dry=true
 GET /search?q=crypto%20price&limit=5&dry=true
 GET /api/stats
@@ -91,6 +92,23 @@ Public agent files:
 - https://xoggai-agent.com/skill.md
 - https://xoggai-agent.com/llms.txt
 - https://xoggai-agent.com/openapi.json
+
+Minimal agent snippet:
+
+```ts
+const XOGGAI_API = 'https://xoggai-backend.onrender.com';
+
+export async function routeIntent(intent: string, budget = 0.05) {
+  const url = new URL(`${XOGGAI_API}/intent`);
+  url.searchParams.set('q', intent);
+  url.searchParams.set('budget', String(budget));
+  url.searchParams.set('dry', 'true');
+
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`XoggAI route failed: ${res.status}`);
+  return res.json();
+}
+```
 
 ## Terminal Commands
 

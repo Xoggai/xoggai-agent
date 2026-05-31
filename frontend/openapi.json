@@ -98,6 +98,14 @@
         }
       }
     },
+    "/api/info": {
+      "get": {
+        "summary": "Service information",
+        "responses": {
+          "200": { "description": "Public service metadata, mode, docs, and endpoint links" }
+        }
+      }
+    },
     "/api/feed": {
       "get": {
         "summary": "Live routing event feed",

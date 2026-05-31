@@ -7,6 +7,7 @@ import { rateLimitMiddleware } from './middleware/rateLimit.js'
 import { endpointsRoute } from './routes/endpoints.js'
 import { feedRoute } from './routes/feed.js'
 import { healthRoute } from './routes/health.js'
+import { infoRoute } from './routes/info.js'
 import { intentRoute } from './routes/intent.js'
 import { searchRoute } from './routes/search.js'
 import { statsRoute } from './routes/stats.js'
@@ -30,6 +31,7 @@ app.get('/', (c) =>
     docs: 'https://xoggai-agent.com/docs',
     repository: 'https://github.com/Xoggai/xoggai-agent',
     endpoints: {
+      info: '/api/info',
       health: '/health',
       intent: '/intent?q=what%20is%20the%20ETH%20price&budget=0.05&dry=true',
       search: '/search?q=crypto%20price&limit=5&dry=true',
@@ -42,6 +44,7 @@ app.get('/', (c) =>
 
 app.route('/intent', intentRoute)
 app.route('/search', searchRoute)
+app.route('/api/info', infoRoute)
 app.route('/api/stats', statsRoute)
 app.route('/api/feed', feedRoute)
 app.route('/api/endpoints', endpointsRoute)

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>XoggAI Docs - Agent Files</title>
+<title>XoggAI Docs - Quickstart</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
 <link rel="shortcut icon" href="/favicon.svg" type="image/svg+xml"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
@@ -257,6 +257,47 @@ h1{
   font-family:var(--font-mono);
   font-size:0.82rem;
   margin-bottom:0.55rem;
+}
+.snippet-panel{
+  border:1px solid var(--border2);
+  background:rgba(4,12,8,0.9);
+}
+.snippet-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:1rem;
+  padding:0.95rem 1rem;
+  border-bottom:1px solid var(--border);
+}
+.snippet-top span{
+  color:var(--muted2);
+  font-family:var(--font-mono);
+  font-size:0.7rem;
+}
+.snippet-top button{
+  border:1px solid var(--border2);
+  background:var(--bg2);
+  color:var(--text);
+  font-family:var(--font-mono);
+  font-size:0.68rem;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  padding:0.55rem 0.75rem;
+  cursor:pointer;
+}
+.snippet-top button:hover{
+  color:var(--orange);
+  border-color:var(--orange);
+}
+.snippet-panel pre{
+  margin:0;
+  padding:1rem;
+  overflow:auto;
+  color:#b7dac5;
+  font-family:var(--font-mono);
+  font-size:0.76rem;
+  line-height:1.7;
 }
 .docs-grid{
   display:grid;
@@ -574,6 +615,37 @@ footer a:hover{color:var(--orange)}
     </div>
   </section>
 
+  <section class="guide-stack" aria-label="Agent snippet">
+    <div class="section-head">
+      <h2>Agent snippet</h2>
+      <p>Paste this into an agent, script, or backend job to route natural-language intent through XoggAI in dry-run mode.</p>
+    </div>
+    <div class="snippet-panel">
+      <div class="snippet-top">
+        <span>xoggai-agent-starter.ts</span>
+        <button type="button" id="copySnippet">Copy snippet</button>
+      </div>
+      <pre><code id="agentSnippetCode">const XOGGAI_API = 'https://xoggai-backend.onrender.com';
+
+export async function routeIntent(intent, budget = 0.05) {
+  const url = new URL(`${XOGGAI_API}/intent`);
+  url.searchParams.set('q', intent);
+  url.searchParams.set('budget', String(budget));
+  url.searchParams.set('dry', 'true');
+
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`XoggAI route failed: ${res.status}`);
+  }
+
+  return res.json();
+}
+
+const route = await routeIntent('what is the ETH price?');
+console.log(route.endpoint);</code></pre>
+    </div>
+  </section>
+
   <section class="guide-stack" aria-label="Execution model">
     <div class="section-head">
       <h2>Execution model</h2>
@@ -616,6 +688,11 @@ footer a:hover{color:var(--orange)}
         <code>GET /search</code>
         <strong>Search endpoints</strong>
         <p>Returns ranked endpoint candidates for a query.</p>
+      </article>
+      <article class="api-card">
+        <code>GET /api/info</code>
+        <strong>Service info</strong>
+        <p>Returns public backend mode, docs links, network, and live-execution status.</p>
       </article>
       <article class="api-card">
         <code>GET /api/stats</code>
@@ -724,6 +801,8 @@ const descEl = document.getElementById('panelDesc');
 const kickerEl = document.getElementById('panelKicker');
 const rawEl = document.getElementById('rawDoc');
 const copyEl = document.getElementById('copyDoc');
+const copySnippetEl = document.getElementById('copySnippet');
+const agentSnippetCodeEl = document.getElementById('agentSnippetCode');
 const cache = {};
 let currentDoc = DOCS.skill;
 
@@ -907,6 +986,17 @@ copyEl.addEventListener('click', async () => {
   } catch {
     copyEl.textContent = 'Open raw';
     setTimeout(() => { copyEl.textContent = 'Copy'; }, 1200);
+  }
+});
+
+copySnippetEl?.addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(agentSnippetCodeEl?.textContent || '');
+    copySnippetEl.textContent = 'Copied';
+    setTimeout(() => { copySnippetEl.textContent = 'Copy snippet'; }, 1200);
+  } catch {
+    copySnippetEl.textContent = 'Select code';
+    setTimeout(() => { copySnippetEl.textContent = 'Copy snippet'; }, 1200);
   }
 });
 

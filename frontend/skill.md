@@ -24,6 +24,12 @@ Search endpoint index:
 GET /search?q=crypto%20price&limit=5&dry=true
 ```
 
+Service info:
+
+```http
+GET /api/info
+```
+
 ## Production
 
 Base URL:

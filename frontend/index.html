@@ -426,6 +426,58 @@ section{ position:relative;z-index:1; }
 .manifesto-text .hl{ color:var(--orange); }
 
 /* =====================
+   SAFETY
+   ===================== */
+.safety{
+  padding:6rem 2rem;
+  max-width:1100px;margin:0 auto;
+}
+.safety-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:2rem;
+  margin-bottom:2rem;
+}
+.safety-copy{
+  color:var(--muted2);
+  line-height:1.7;
+  max-width:460px;
+}
+.safety-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+  border-radius:12px;
+  overflow:hidden;
+}
+.safety-card{
+  background:rgba(10,26,18,0.86);
+  padding:1.6rem;
+}
+.safety-kicker{
+  display:block;
+  color:var(--orange);
+  font-family:var(--font-mono);
+  font-size:0.62rem;
+  letter-spacing:0.11em;
+  text-transform:uppercase;
+  margin-bottom:0.85rem;
+}
+.safety-title{
+  font-size:1.05rem;
+  font-weight:700;
+  margin-bottom:0.55rem;
+}
+.safety-desc{
+  color:var(--muted2);
+  line-height:1.65;
+  font-size:0.84rem;
+}
+
+/* =====================
    ARCHITECTURE
    ===================== */
 .arch{
@@ -791,6 +843,8 @@ footer{
 /* RESPONSIVE */
 @media(max-width:820px){
   .arch-grid{ grid-template-columns:1fr; }
+  .safety-head{ display:grid;gap:1rem; }
+  .safety-grid{ grid-template-columns:1fr; }
   .how-grid{ grid-template-columns:1fr; }
   .nav-links{ display:none; }
   .demo-box{ position:static; }
@@ -1072,6 +1126,34 @@ footer{
     but as a routing layer where agents can discover the right x402 API before execution.
     Today it runs safe dry-runs. Tomorrow it can coordinate paid calls when wallet controls are ready.
   </p>
+</section>
+
+<!-- ===================== SAFETY ===================== -->
+<section class="safety reveal" id="safety">
+  <div class="safety-head">
+    <div>
+      <p class="section-label">// safe by default</p>
+      <h2 class="arch-title">Agent execution needs guardrails.</h2>
+    </div>
+    <p class="safety-copy">XoggAI separates discovery from execution. Agents can inspect the best x402 route first, then live payment remains behind explicit wallet and budget controls.</p>
+  </div>
+  <div class="safety-grid">
+    <article class="safety-card">
+      <span class="safety-kicker">01 / preview</span>
+      <h3 class="safety-title">Dry-run before spend</h3>
+      <p class="safety-desc">Public routing returns endpoint fit, pricing, latency, and schema without sending payment or calling a paid upstream.</p>
+    </article>
+    <article class="safety-card">
+      <span class="safety-kicker">02 / wallet</span>
+      <h3 class="safety-title">Caller-controlled execution</h3>
+      <p class="safety-desc">Live x402 calls require a caller wallet path. XoggAI does not pay for user API calls by default.</p>
+    </article>
+    <article class="safety-card">
+      <span class="safety-kicker">03 / budget</span>
+      <h3 class="safety-title">Budget-aware routing</h3>
+      <p class="safety-desc">Agents pass intent and budget context, so endpoint selection can stay visible before any live execution switch is enabled.</p>
+    </article>
+  </div>
 </section>
 
 <!-- ===================== ARCHITECTURE ===================== -->
@@ -1742,18 +1824,18 @@ async function runTerminalCommand(rawCommand) {
 
   if (normalized === 'status') {
     appendTerminalLine('checking backend and public counters...');
-    const [health, stats] = await Promise.all([
+    const [info, health, stats] = await Promise.all([
+      requestJson(`${API_BASE}/api/info`),
       requestJson(`${API_BASE}/health`),
       requestJson(`${API_BASE}/api/stats`),
     ]);
     appendTerminalJson({
+      service: info.ok ? info.data : { error: info.data.error || 'unavailable' },
       backend: {
         reachable: health.ok,
         status: health.status || 'unreachable',
         body: health.data,
       },
-      mode: 'dry-run public preview',
-      liveExecution: 'gated',
       stats: stats.ok ? stats.data : { error: stats.data.error || 'unavailable' },
     });
     appendTerminalLine(health.ok ? 'status ready.' : 'backend unavailable from this browser.', health.ok ? 'terminal-ok' : 'terminal-warn');

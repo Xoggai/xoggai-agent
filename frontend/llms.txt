@@ -9,6 +9,7 @@ Public mode is dry-run first. `Connect Agent` means connecting an existing agent
 Production base URL: https://xoggai-backend.onrender.com
 
 - `GET /health`
+- `GET /api/info`
 - `GET /intent?q=<intent>&budget=0.05&dry=true`
 - `GET /search?q=<query>&limit=10&dry=true`
 - `GET /api/stats`
@@ -16,4 +17,4 @@ Production base URL: https://xoggai-backend.onrender.com
 - `GET /api/endpoints`
 
 Use `dry=true` for route selection without upstream execution or payment.
-Public terminal commands include `health`, `stats`, `endpoints`, `search <query>`, `route <intent>`, `docs`, `openapi`, and `clear`.
+Public terminal commands include `connect`, `status`, `price <asset>`, `explain <intent>`, `simulate payment`, `search <query>`, `route <intent>`, `docs`, `openapi`, and `clear`.
