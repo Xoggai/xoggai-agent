@@ -225,6 +225,7 @@ X402_WALLET_PRIVATE_KEY=0x...
 X402_WALLET_ADDRESS=0x...
 ALLOW_LIVE_EXECUTION=false
 EXECUTION_SIMULATION_ENABLED=false
+X402_PREPARE_ENABLED=false
 BETA_EXECUTION_KEY=<server-side-secret-at-least-32-characters>
 MAX_EXECUTION_BUDGET_USDC=0.05
 EXECUTION_ENDPOINT_ALLOWLIST=<comma-separated-endpoint-uuids>
@@ -236,6 +237,9 @@ For an isolated Base Sepolia simulation environment, review
 [`render.beta.yaml`](render.beta.yaml) and
 [`docs/BETA_ENDPOINT_AUDIT.md`](docs/BETA_ENDPOINT_AUDIT.md). The beta template
 ships with an empty endpoint allowlist by design and does not enable payments.
+When `X402_PREPARE_ENABLED=true`, `POST /execute/prepare` can fetch and validate
+the audited endpoint's unpaid 402 challenge. This prepare-only route never
+creates a signature, retries with payment credentials, or sends a transaction.
 The backend intentionally refuses to start with this flag set to `true` until
 the live payment implementation exists and passes a separate audit.
 Enable execution simulation independently and only in a controlled beta

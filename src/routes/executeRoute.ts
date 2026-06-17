@@ -1,7 +1,8 @@
-import { randomUUID, timingSafeEqual } from 'node:crypto'
+import { randomUUID } from 'node:crypto'
 import { Hono } from 'hono'
 import { z } from 'zod'
 import { evaluateExecutionPolicy } from '../services/executionPolicy.js'
+import { betaAccessValid } from '../services/betaAccess.js'
 
 const schema = z.object({
   intent: z.string().min(3).max(500),
@@ -29,14 +30,6 @@ export type ExecuteRouteDependencies = {
   findEndpoint: (id: string) => Promise<ExecutionEndpoint | undefined>
   createRequestId?: () => string
   logPolicy?: (details: Record<string, unknown>) => void
-}
-
-function betaAccessValid(candidate: string | undefined, expectedKey: string | undefined) {
-  if (!candidate || !expectedKey) return false
-
-  const actual = Buffer.from(candidate)
-  const expected = Buffer.from(expectedKey)
-  return actual.length === expected.length && timingSafeEqual(actual, expected)
 }
 
 export function createExecuteRoute(dependencies: ExecuteRouteDependencies) {

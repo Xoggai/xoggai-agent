@@ -35,6 +35,10 @@ const envSchema = z.object({
     .enum(['true', 'false'])
     .transform((value) => value === 'true')
     .default('false'),
+  X402_PREPARE_ENABLED: z
+    .enum(['true', 'false'])
+    .transform((value) => value === 'true')
+    .default('false'),
   BETA_EXECUTION_KEY: z.preprocess(
     (value) => (value === '' ? undefined : value),
     z.string().min(32).optional(),

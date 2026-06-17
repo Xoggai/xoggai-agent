@@ -10,6 +10,7 @@ import { feedRoute } from './routes/feed.js'
 import { healthRoute } from './routes/health.js'
 import { infoRoute } from './routes/info.js'
 import { intentRoute } from './routes/intent.js'
+import { prepareExecutionRoute } from './routes/prepareExecution.js'
 import { searchRoute } from './routes/search.js'
 import { statsRoute } from './routes/stats.js'
 import { ratingWorker } from './services/ratingEngine.js'
@@ -22,6 +23,7 @@ app.use('*', corsMiddleware)
 app.use('/intent', rateLimitMiddleware)
 app.use('/search', rateLimitMiddleware)
 app.use('/execute', rateLimitMiddleware)
+app.use('/execute/*', rateLimitMiddleware)
 
 app.get('/', (c) =>
   c.json({
@@ -59,6 +61,7 @@ app.get('/', (c) =>
         'GET /intent?q=what%20is%20the%20ETH%20price&budget=0.05&dry=true',
       searchEndpoints: 'GET /search?q=crypto%20price&limit=5&dry=true',
       simulateExecution: 'POST /execute (requires x-beta-key)',
+      preparePayment: 'POST /execute/prepare (requires x-beta-key)',
     },
     endpoints: {
       info: '/api/info',
@@ -69,6 +72,7 @@ app.get('/', (c) =>
       feed: '/api/feed',
       endpoints: '/api/endpoints',
       execute: '/execute',
+      preparePayment: '/execute/prepare',
     },
     note: 'Public preview keeps live x402 execution gated. Use dry=true for safe routing previews.',
   }),
@@ -77,6 +81,7 @@ app.get('/', (c) =>
 app.route('/intent', intentRoute)
 app.route('/search', searchRoute)
 app.route('/execute', executeRoute)
+app.route('/execute/prepare', prepareExecutionRoute)
 app.route('/api/info', infoRoute)
 app.route('/api/stats', statsRoute)
 app.route('/api/feed', feedRoute)

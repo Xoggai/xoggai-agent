@@ -43,6 +43,8 @@ services:
         value: "false"
       - key: EXECUTION_SIMULATION_ENABLED
         value: "true"
+      - key: X402_PREPARE_ENABLED
+        value: "true"
       - key: BETA_EXECUTION_KEY
         sync: false
       - key: MAX_EXECUTION_BUDGET_USDC

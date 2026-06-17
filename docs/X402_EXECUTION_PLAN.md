@@ -80,6 +80,11 @@ Simulation uses `EXECUTION_SIMULATION_ENABLED=true`. This is independent from
 implemented and separately audited.
 The backend currently refuses to start if `ALLOW_LIVE_EXECUTION=true`.
 
+Challenge inspection is a separate prepare-only stage. When
+`X402_PREPARE_ENABLED=true`, `POST /execute/prepare` fetches the pinned audited
+resource without payment credentials and validates its HTTP 402 requirement.
+It does not sign or submit a payment.
+
 Call this endpoint from a trusted server or agent runtime. Never embed the beta
 key in the public website or other browser-delivered code. `GET /intent` stays
 routing-only and rejects `dry=false`.
