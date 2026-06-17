@@ -1035,7 +1035,7 @@ footer{
 
 <!-- ===================== NAV ===================== -->
 <nav>
-  <a class="nav-logo" href="#">
+  <a class="nav-logo" href="/">
     <!-- ACCURATE LOGO: chip with X, traces going all directions, circle endpoints -->
     <svg width="38" height="38" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="chip-logo logo-svg">
 
@@ -1492,7 +1492,7 @@ footer{
     <div class="cta-btns">
       <button class="btn-secondary" type="button" onclick="copyAgentSnippet(this)">Copy agent snippet</button>
       <button class="btn-secondary" type="button" onclick="downloadStarter()">Download starter</button>
-      <a class="btn-secondary" href="/docs#openapi">OpenAPI</a>
+      <a class="btn-secondary" href="/docs">OpenAPI</a>
     </div>
 
     <div class="compat-row">
@@ -1509,9 +1509,9 @@ footer{
 <footer>
   <span class="footer-brand">XoggAI</span>
   <div class="footer-links">
-    <a href="/docs#skill">skill.md</a>
-    <a href="/docs#llms">llms.txt</a>
-    <a href="/docs#openapi">openapi.json</a>
+    <a href="/docs">skill.md</a>
+    <a href="/docs">llms.txt</a>
+    <a href="/docs">openapi.json</a>
     <a href="https://www.x402.org/">x402</a>
     <a href="https://github.com/Xoggai/xoggai-agent" aria-label="XoggAI GitHub">GitHub</a>
     <a href="https://x.com/xoggai">𝕏</a>
@@ -1540,13 +1540,31 @@ function syncApiEndpointText() {
   if (el) el.textContent = `${API_BASE}/intent?q=...`;
 }
 
+function setupCleanAnchorScroll() {
+  document.querySelectorAll('a[href^="#"]').forEach((link) => {
+    link.addEventListener('click', (event) => {
+      const targetId = link.getAttribute('href')?.slice(1);
+      if (!targetId) return;
+
+      const target = document.getElementById(targetId);
+      if (!target) return;
+
+      event.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (window.history?.replaceState) {
+        history.replaceState(null, '', `${location.pathname}${location.search}`);
+      }
+    });
+  });
+}
+
 function copyApiEndpoint(btn) {
   doCopy(btn, `GET ${API_BASE}/intent?q=what+is+the+ETH+price&dry=true`);
 }
 
 function copySkillUrl(btn) {
   const origin = location.protocol === 'file:' ? 'https://xoggai-agent.com' : location.origin;
-  doCopy(btn, `${origin}/docs#skill`);
+  doCopy(btn, `${origin}/docs`);
 }
 
 function agentSnippet() {
@@ -1600,6 +1618,7 @@ async function loadStats() {
 }
 
 window.addEventListener('load', () => {
+  setupCleanAnchorScroll();
   syncApiEndpointText();
   setTimeout(loadStats, 500);
 });
@@ -1738,9 +1757,9 @@ function docsPayload() {
   const origin = location.protocol === 'file:' ? 'https://xoggai-agent.com' : location.origin;
   return {
     docs: `${origin}/docs`,
-    skill: `${origin}/docs#skill`,
-    llms: `${origin}/docs#llms`,
-    openapi: `${origin}/docs#openapi`,
+    skill: `${origin}/skill.md`,
+    llms: `${origin}/llms.txt`,
+    openapi: `${origin}/openapi.json`,
     raw: {
       skill: `${origin}/skill.md`,
       llms: `${origin}/llms.txt`,

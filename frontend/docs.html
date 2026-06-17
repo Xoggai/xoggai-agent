@@ -992,6 +992,28 @@ function docFromHash() {
   return DOCS.skill;
 }
 
+function cleanUrl() {
+  if (window.history?.replaceState) {
+    history.replaceState(null, '', `${location.pathname}${location.search}`);
+  }
+}
+
+function setupCleanAnchorScroll() {
+  document.querySelectorAll('a[href^="#"]').forEach((link) => {
+    link.addEventListener('click', (event) => {
+      const targetId = link.getAttribute('href')?.slice(1);
+      if (!targetId) return;
+
+      const target = document.getElementById(targetId);
+      if (!target) return;
+
+      event.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      cleanUrl();
+    });
+  });
+}
+
 async function loadDoc(doc) {
   currentDoc = doc;
   titleEl.textContent = doc.title;
@@ -1020,7 +1042,7 @@ async function loadDoc(doc) {
 document.querySelectorAll('.doc-tab').forEach((tab) => {
   tab.addEventListener('click', () => {
     const doc = DOCS[tab.dataset.doc] || DOCS.skill;
-    history.replaceState(null, '', `#${doc.key}`);
+    cleanUrl();
     loadDoc(doc);
   });
 });
@@ -1049,7 +1071,9 @@ copySnippetEl?.addEventListener('click', async () => {
 });
 
 window.addEventListener('hashchange', () => loadDoc(docFromHash()));
+setupCleanAnchorScroll();
 loadDoc(docFromHash());
+cleanUrl();
 </script>
 </body>
 </html>
