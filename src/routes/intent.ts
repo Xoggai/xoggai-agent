@@ -8,7 +8,7 @@ const schema = z.object({
   dry: z
     .enum(['true', 'false'])
     .transform((value) => value === 'true')
-    .default('false'),
+    .default('true'),
 })
 
 export const intentRoute = new Hono().get('/', async (c) => {
@@ -18,5 +18,13 @@ export const intentRoute = new Hono().get('/', async (c) => {
   }
 
   const result = await intentRouter(parsed.data)
-  return c.json(result, result.success ? 200 : result.error === 'budget_exceeded' ? 402 : 404)
+  const status = result.success
+    ? 200
+    : result.error === 'budget_exceeded'
+      ? 402
+      : result.error === 'live_execution_requires_execute_endpoint'
+        ? 403
+        : 404
+
+  return c.json(result, status)
 })

@@ -107,4 +107,3 @@ Closed beta can move toward public beta only when:
 - Error handling was clear to testers.
 - No private keys, API keys, or payment credentials appeared in logs.
 - Tester feedback confirms the execution flow is understandable.
-

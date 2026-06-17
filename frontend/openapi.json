@@ -40,11 +40,12 @@
             "name": "dry",
             "in": "query",
             "required": false,
-            "schema": { "type": "boolean", "default": false }
+            "schema": { "type": "boolean", "default": true }
           }
         ],
         "responses": {
           "200": { "description": "Intent routed successfully" },
+          "403": { "description": "Live execution must use the controlled execution endpoint" },
           "402": { "description": "Budget exceeded" },
           "404": { "description": "No endpoint found" }
         }
@@ -82,11 +83,50 @@
             "name": "dry",
             "in": "query",
             "required": false,
-            "schema": { "type": "boolean", "default": false }
+            "schema": { "type": "boolean", "default": true }
           }
         ],
         "responses": {
           "200": { "description": "Ranked endpoint results" }
+        }
+      }
+    },
+    "/execute": {
+      "post": {
+        "summary": "Evaluate closed-beta execution policy",
+        "description": "Server-side policy simulation only. Never expose the beta key in browser code. This endpoint never sends payment or calls the selected upstream API.",
+        "parameters": [
+          {
+            "name": "x-beta-key",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["intent", "endpointId", "budget"],
+                "properties": {
+                  "intent": { "type": "string", "minLength": 3, "maxLength": 500 },
+                  "endpointId": { "type": "string", "format": "uuid" },
+                  "budget": { "type": "number", "exclusiveMinimum": 0, "maximum": 10 },
+                  "mode": { "type": "string", "const": "simulation", "default": "simulation" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Policy passed; no payment was sent" },
+          "400": { "description": "Invalid request" },
+          "401": { "description": "Invalid beta access" },
+          "403": { "description": "Execution policy blocked the request" },
+          "404": { "description": "Endpoint not found" },
+          "503": { "description": "Beta access is not configured" }
         }
       }
     },

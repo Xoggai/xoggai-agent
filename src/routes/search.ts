@@ -16,7 +16,7 @@ const schema = z.object({
   dry: z
     .enum(['true', 'false'])
     .transform((value) => value === 'true')
-    .default('false'),
+    .default('true'),
 })
 
 type SearchRow = {

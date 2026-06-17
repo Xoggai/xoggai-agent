@@ -1,6 +1,6 @@
 # XoggAI
 
-XoggAI is an intent router for x402 APIs. Agents send natural-language intents to `/intent`; XoggAI embeds the intent, searches registered x402 endpoints, reranks candidates, and optionally executes the selected endpoint through x402 payment.
+XoggAI is an intent router for x402 APIs. Agents send natural-language intents to `/intent`; XoggAI embeds the intent, searches registered x402 endpoints, and reranks candidates for inspection before execution.
 
 Public mode is dry-run first. `Connect Agent` means connecting an existing agent to XoggAI routing, not deploying a new agent or making XoggAI subsidize the caller's API payments.
 
@@ -17,4 +17,5 @@ Production base URL: https://xoggai-backend.onrender.com
 - `GET /api/endpoints`
 
 Use `dry=true` for route selection without upstream execution or payment.
+`GET /intent` never executes a paid call. Controlled execution is a separate, gated server-side flow.
 Public terminal commands include `connect`, `status`, `price <asset>`, `explain <intent>`, `simulate payment`, `search <query>`, `route <intent>`, `docs`, `openapi`, and `clear`.

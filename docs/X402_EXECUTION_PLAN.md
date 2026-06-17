@@ -53,7 +53,7 @@ Live execution must not start without:
 
 ## Backend Contract
 
-Suggested beta endpoint:
+The first implementation of the beta endpoint is policy simulation only:
 
 ```http
 POST /execute
@@ -65,34 +65,40 @@ Request shape:
 ```json
 {
   "intent": "what is the ETH price?",
-  "endpointId": "market-data-eth-price",
+  "endpointId": "11111111-1111-4111-8111-111111111111",
   "budget": 0.05,
-  "dry": false
+  "mode": "simulation"
 }
 ```
 
-Response shape:
+It requires an `x-beta-key` header, checks the endpoint allowlist and budget
+limits, and returns `paymentSent: false`. It does not import the x402 payment
+handler or call the selected upstream API.
+
+Call this endpoint from a trusted server or agent runtime. Never embed the beta
+key in the public website or other browser-delivered code. `GET /intent` stays
+routing-only and rejects `dry=false`.
+
+Simulation response shape:
 
 ```json
 {
   "success": true,
-  "mode": "beta-live",
+  "mode": "simulation",
   "intent": "what is the ETH price?",
   "endpoint": {
-    "id": "market-data-eth-price",
+    "id": "11111111-1111-4111-8111-111111111111",
     "name": "Market Data ETH Price",
     "url": "https://example.com/x402/price"
   },
-  "payment": {
-    "verified": true,
-    "settled": true,
-    "amount": 0.01,
-    "network": "base-mainnet",
-    "reference": "TODO"
-  },
-  "result": {}
+  "eligibleForLive": true,
+  "blockedBy": [],
+  "paymentSent": false
 }
 ```
+
+Live execution remains a later phase and must use a separate code path after
+the simulation policy has been verified in closed beta.
 
 ## Guardrails
 
@@ -168,4 +174,3 @@ Avoid:
 - `fully live x402 execution`
 - `autonomous paid execution is public`
 - `XoggAI pays for user API calls`
-

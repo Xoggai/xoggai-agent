@@ -25,6 +25,12 @@ const envSchema = z.object({
     .enum(['true', 'false'])
     .transform((value) => value === 'true')
     .default('false'),
+  BETA_EXECUTION_KEY: z.preprocess(
+    (value) => (value === '' ? undefined : value),
+    z.string().min(32).optional(),
+  ),
+  MAX_EXECUTION_BUDGET_USDC: z.coerce.number().positive().max(10).default(0.05),
+  LIVE_ENDPOINT_ALLOWLIST: z.string().default(''),
 })
 
 const parsed = envSchema.safeParse(process.env)
@@ -44,5 +50,13 @@ export function hasLiveX402Wallet() {
   return (
     !env.X402_WALLET_PRIVATE_KEY.includes('placeholder') &&
     !env.X402_WALLET_ADDRESS.includes('placeholder')
+  )
+}
+
+export function liveEndpointAllowlist() {
+  return new Set(
+    env.LIVE_ENDPOINT_ALLOWLIST.split(',')
+      .map((value) => value.trim())
+      .filter(Boolean),
   )
 }

@@ -39,6 +39,8 @@ https://xoggai-backend.onrender.com
 ```
 
 Keep `dry=true` until the agent wallet and x402 payment path are intentionally enabled.
+Do not place beta execution keys in browser or client-side code. `GET /intent`
+is routing-only; controlled execution uses a separate server-side endpoint.
 
 Common terminal commands:
 

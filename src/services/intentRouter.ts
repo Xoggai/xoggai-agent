@@ -1,18 +1,14 @@
 import { sql } from 'drizzle-orm'
-import { env, hasLiveAnthropicKey } from '../env.js'
+import { hasLiveAnthropicKey } from '../env.js'
 import {
   ANTHROPIC_ROUTER_MODEL,
   anthropic,
   extractAnthropicText,
 } from '../lib/anthropic.js'
 import { db } from '../db/client.js'
-import { routingEvents } from '../db/schema.js'
 import { embed } from '../lib/embeddings.js'
-import { ratingQueue } from '../lib/queue.js'
 import { rowsOf } from '../lib/query.js'
-import { feedPublisher } from './feedPublisher.js'
 import type { EndpointCandidate, IntentResult } from './types.js'
-import { x402Handler } from './x402Handler.js'
 
 type CandidateRow = {
   id: string
@@ -116,10 +112,10 @@ export async function intentRouter(opts: {
   budget: number
   dry: boolean
 }): Promise<IntentResult> {
-  if (!opts.dry && !env.ALLOW_LIVE_EXECUTION) {
+  if (!opts.dry) {
     return {
       success: false,
-      error: 'live_execution_disabled',
+      error: 'live_execution_requires_execute_endpoint',
       intent: opts.q,
     }
   }
@@ -145,49 +141,5 @@ export async function intentRouter(opts: {
 
   const best = await llmRerank(opts.q, candidates)
 
-  if (opts.dry) {
-    return { success: true, intent: opts.q, endpoint: best, dry: true }
-  }
-
-  const result = await x402Handler({ endpoint: best, intent: opts.q })
-
-  const [event] = await db
-    .insert(routingEvents)
-    .values({
-      intent: opts.q,
-      endpointId: best.id,
-      endpointUrl: best.url,
-      latencyMs: result.latencyMs,
-      priceUsdc: result.priceUsdc,
-      txHash: result.txHash,
-      status: result.success ? 'success' : 'error',
-      errorMessage: result.success ? null : result.error,
-      rawResponse: result.success ? result.data : result.data ?? { error: result.error },
-    })
-    .returning()
-
-  void ratingQueue
-    .add('rate', { eventId: event.id, intent: opts.q, response: result.success ? result.data : result })
-    .catch((error: unknown) => {
-      console.error('Failed to enqueue rating job', error)
-    })
-
-  await feedPublisher.publish({
-    score: null,
-    endpoint: best.url,
-    latencyMs: result.latencyMs,
-    status: result.success ? 'success' : 'error',
-  })
-
-  return {
-    success: result.success,
-    intent: opts.q,
-    endpoint: best,
-    data: result.success ? result.data : result.data,
-    priceUsdc: result.priceUsdc,
-    txHash: result.txHash,
-    latencyMs: result.latencyMs,
-    eventId: event.id,
-    ...(result.success ? {} : { error: result.error }),
-  } as IntentResult
+  return { success: true, intent: opts.q, endpoint: best, dry: true }
 }

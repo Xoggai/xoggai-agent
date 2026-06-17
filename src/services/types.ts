@@ -50,24 +50,6 @@ export type IntentResult =
       eventId?: string
     }
 
-export type X402Result =
-  | {
-      success: true
-      data: unknown
-      latencyMs: number
-      priceUsdc: number
-      txHash: string | null
-    }
-  | {
-      success: false
-      error: string
-      status?: number
-      data?: unknown
-      latencyMs: number
-      priceUsdc?: number
-      txHash?: string | null
-    }
-
 export type FeedEvent = {
   score: number | null
   endpoint: string
