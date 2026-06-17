@@ -1,67 +1,100 @@
-# Beta Endpoint Audit
+# Base Sepolia Endpoint Audit
 
 Audit date: 2026-06-18
 
 ## Decision
 
-**Not approved for the Base Sepolia closed-beta allowlist.**
+**Conditionally approved for simulation and one future capped testnet payment.**
 
-The CoinGecko Simple Price endpoint is a real, reachable x402 v2 resource, but
-its observed EVM payment option is Base mainnet. The closed-beta template uses
-Base Sepolia, so enabling this endpoint would create a network mismatch.
+The War-Tracker event article endpoint returned a live x402 v2 HTTP 402
+challenge containing a valid Base Sepolia payment option. It is suitable as the
+first closed-beta candidate, but it is not approved for unattended or mainnet
+execution.
 
-No payment was sent during this audit. The check stopped at the unauthenticated
-HTTP 402 response.
+No payment was sent during this audit. The check stopped after validating the
+unauthenticated challenge, public service metadata, and health endpoint.
 
-## Candidate
+## Selected Candidate
 
 | Field | Observed value |
 | --- | --- |
-| Name | CoinGecko Simple Price |
-| Request | `GET https://pro-api.coingecko.com/api/v3/x402/simple/price?ids=ethereum&vs_currencies=usd` |
-| Response | `402 Payment Required` |
+| Service | War-Tracker Event Article |
+| Method | `GET` |
+| Resource | `https://war-tracker.com/share/397003/military-withdrawal-qasrak-syria` |
+| Health | `GET https://war-tracker.com/healthz` returned HTTP 200 |
+| Challenge | HTTP `402 Payment Required` |
 | Protocol | x402 v2 |
 | Payment header | `PAYMENT-REQUIRED` present |
 | Scheme | `exact` |
-| EVM network | `eip155:8453` (Base mainnet) |
-| Asset | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` (Base USDC) |
-| Amount | `10000` atomic units, or `0.01` USDC |
+| Network | `eip155:84532` (Base Sepolia) |
+| Asset | `0x036CbD53842c5426634e7929541eC2318f3dCF7e` (Base Sepolia USDC) |
+| Amount | `2000` atomic units, or `0.002` USDC |
+| Recipient | `0xF50C0D73C68EF2d8B3388Ec060ED39edCeb62BAF` |
 | Timeout | 60 seconds |
-| Response type | JSON |
+| Response | HTML by default; JSON when `Accept: application/json` is sent |
+| Contact | `sales@war-tracker.com` |
 
-The payment requirement also advertised a Solana option. Neither advertised
-option is Base Sepolia (`eip155:84532`).
+The challenge also advertises mainnet payment options. A future client must
+select the requirement matching both `eip155:84532` and the Base Sepolia USDC
+asset exactly. It must never select the first item blindly.
+
+## Metadata Cross-Check
+
+- PayAI Bazaar discovery listed the resource as x402 v2 on `eip155:84532`.
+- The endpoint's live HTTP 402 challenge independently confirmed the same
+  network and asset.
+- `/healthz`, `/x402.json`, `/.well-known/api-catalog`, `/llms.txt`, and the
+  OpenAPI document were reachable without payment.
+- The Bazaar entry and live challenge agree on the Sepolia amount and
+  recipient.
+
+There is one material inconsistency: `/x402.json` presents Base mainnet as the
+service's primary network and lists a `$0.001` route price, while the Sepolia
+requirement advertised through PayAI is `0.002` USDC. Treat the live challenge
+as authoritative for a request, and reject any requirement above the configured
+`0.005` USDC beta cap.
 
 ## Expected Response Shape
 
-The endpoint's Bazaar metadata describes a JSON object keyed by coin ID. The
-coin value includes fields such as USD price and optional market data selected
-by query parameters. This shape was read from the unpaid x402 metadata and was
-not verified through a paid request.
+With `Accept: application/json`, the service documents an event object with
+fields including:
 
-## Safety Decision
+- event id and canonical URL
+- date, event type, location, and country
+- headline, summary, and article paragraphs
+- confidence and media metadata
+- schema.org JSON-LD graph
 
-- Keep `EXECUTION_ENDPOINT_ALLOWLIST` empty in `render.beta.yaml`.
-- Keep `ALLOW_LIVE_EXECUTION=false`.
-- Permit route policy simulation only; it never calls the upstream endpoint.
-- Re-audit if the endpoint advertises `eip155:84532` or a separate Base Sepolia
-  test resource becomes available.
-- Disable the candidate immediately if its price, asset, network, recipient, or
-  response contract changes.
+This shape was verified against the public OpenAPI and challenge metadata, not
+through a paid response.
 
-## Acceptance Criteria For A Replacement
+## Guardrails For The Next Phase
 
-A beta endpoint can be allowlisted only after all of these are observed:
+1. Keep `ALLOW_LIVE_EXECUTION=false` until the payment client is implemented.
+2. Keep the public deployment and wallet isolated from the beta deployment.
+3. Select only `exact` + `eip155:84532` + the audited USDC contract.
+4. Require the quoted amount to be at most `0.005` USDC.
+5. Verify the recipient and resource URL against this audit before signing.
+6. Send `Accept: application/json` for the eventual test request.
+7. Perform at most one manually approved testnet payment.
+8. Record verification, settlement, response status, and payment reference.
+9. Stop immediately if any network, asset, amount, recipient, or schema differs.
 
-1. HTTP 402 with an x402 v2 `PAYMENT-REQUIRED` header.
-2. `exact` scheme on `eip155:84532`.
-3. Base Sepolia USDC asset `0x036CbD53842c5426634e7929541eC2318f3dCF7e`.
-4. Price at or below `0.005` USDC per request.
-5. Stable JSON response schema and an identifiable operator/contact.
-6. One capped testnet payment followed by verification and settlement logs.
+`EXECUTION_ENDPOINT_ALLOWLIST` remains empty for now because XoggAI does not yet
+have a payment client or a seeded stable endpoint UUID for this resource.
 
-## Protocol References
+## Rejected Alternative
+
+`POST https://demo.aiapi.ch/v1/analyze` also returned a clean x402 v2 Base
+Sepolia challenge using the correct USDC contract. Its quoted price was `0.01`
+USDC, above the current `0.005` beta cap, so it was rejected for the first test.
+
+## References
 
 - x402 Foundation repository: https://github.com/x402-foundation/x402
+- Bazaar discovery documentation: https://github.com/x402-foundation/x402/blob/main/docs/extensions/bazaar.mdx
 - Network and token support: https://github.com/x402-foundation/x402/blob/main/docs/core-concepts/network-and-token-support.mdx
-- Facilitator guidance: https://github.com/x402-foundation/x402/blob/main/docs/dev-tools/facilitators.md
+- x402.org facilitator support: https://www.x402.org/facilitator/supported
+- Candidate payment policy: https://war-tracker.com/x402.json
+- Candidate API catalog: https://war-tracker.com/.well-known/api-catalog
+- Candidate OpenAPI: https://war-tracker.com/api/v1/openapi.json
