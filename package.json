@@ -14,8 +14,9 @@
     "frontend:serve": "python -m http.server 5173",
     "netlify:prepare": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/prepare-netlify.ps1",
     "seed": "tsx src/db/seed.ts",
-    "test": "npm run build --silent && node dist/services/executionPolicy.test.js && node dist/services/x402PaymentPreview.test.js && node dist/routes/execute.integration.test.js && node dist/routes/prepareExecution.integration.test.js",
-    "test:execution-simulation": "node scripts/test-execution-simulation.mjs"
+    "test": "npm run build --silent && node dist/services/executionPolicy.test.js && node dist/services/x402PaymentPreview.test.js && node dist/routes/execute.integration.test.js && node dist/routes/prepareExecution.integration.test.js && node scripts/test-x402-prepare-cli.test.mjs",
+    "test:execution-simulation": "node scripts/test-execution-simulation.mjs",
+    "test:x402-prepare": "node scripts/test-x402-prepare.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.24.3",

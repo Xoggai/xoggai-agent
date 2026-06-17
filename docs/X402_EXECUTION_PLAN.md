@@ -85,6 +85,11 @@ Challenge inspection is a separate prepare-only stage. When
 resource without payment credentials and validates its HTTP 402 requirement.
 It does not sign or submit a payment.
 
+Operators can inspect this stage with `npm run test:x402-prepare`. The command
+accepts only HTTPS backends (except localhost), caps its requested budget at
+`0.005` USDC, and fails unless the response explicitly confirms that no
+signature or payment was created.
+
 Call this endpoint from a trusted server or agent runtime. Never embed the beta
 key in the public website or other browser-delivered code. `GET /intent` stays
 routing-only and rejects `dry=false`.

@@ -254,6 +254,19 @@ $env:TEST_ENDPOINT_ID='<allowlisted-endpoint-uuid>'
 npm run test:execution-simulation
 ```
 
+Inspect the pinned Base Sepolia payment challenge without signing or paying:
+
+```powershell
+$env:XOGGAI_API_BASE='https://your-beta-backend.example.com'
+$env:BETA_EXECUTION_KEY='<server-side-secret-at-least-32-characters>'
+$env:TEST_X402_BUDGET='0.005'
+npm run test:x402-prepare
+```
+
+The command exits unless the backend confirms `prepare-only`,
+`paymentSigned=false`, and `paymentSent=false`. It does not require wallet
+funds. Keep the beta key in the operator terminal or secret manager only.
+
 ## Repository Map
 
 - `src/` - backend API source.
