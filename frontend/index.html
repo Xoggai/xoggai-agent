@@ -6,7 +6,7 @@
 <title>XoggAI - Intelligence Becomes Action</title>
 <meta name="description" content="XoggAI routes plain-English AI agent intents to ranked x402 API endpoints with dry-run previews before live execution."/>
 <link rel="canonical" href="https://xoggai-agent.com/"/>
-<meta name="theme-color" content="#060f0b"/>
+<meta name="theme-color" content="#06150d"/>
 <meta property="og:type" content="website"/>
 <meta property="og:site_name" content="XoggAI"/>
 <meta property="og:title" content="XoggAI - Intelligence Becomes Action"/>
@@ -18,22 +18,22 @@
 <meta name="twitter:title" content="XoggAI - Intelligence Becomes Action"/>
 <meta name="twitter:description" content="Dry-run x402 intent routing for AI agents, with live execution gated for later."/>
 <meta name="twitter:image" content="https://xoggai-agent.com/assets/xoggai-preview.png"/>
-<link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
-<link rel="shortcut icon" href="/favicon.svg" type="image/svg+xml"/>
+<link rel="icon" href="/favicon.png" type="image/png"/>
+<link rel="shortcut icon" href="/favicon.png" type="image/png"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#060f0b;
-  --bg2:#0a1a12;
-  --bg3:#0f2218;
-  --orange:#f97316;
-  --orange2:#fb923c;
-  --text:#e8f5ee;
-  --muted:#5a7a68;
-  --muted2:#8aad99;
-  --border:#182e22;
-  --border2:#1f3d2c;
+  --bg:#06150d;
+  --bg2:#0b2116;
+  --bg3:#10291c;
+  --accent:#7cffb2;
+  --accent2:#46e3c0;
+  --text:#f7fbf6;
+  --muted:#73917e;
+  --muted2:#b7cbbf;
+  --border:#1a3627;
+  --border2:#28533b;
   --font-display:'Syne',sans-serif;
   --font-mono:'Space Mono',monospace;
 }
@@ -51,8 +51,8 @@ body::before{
   content:'';
   position:fixed;inset:0;
   background-image:
-    linear-gradient(rgba(249,115,22,0.03) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(249,115,22,0.03) 1px,transparent 1px);
+    linear-gradient(rgba(124,255,178,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(124,255,178,0.03) 1px,transparent 1px);
   background-size:64px 64px;
   pointer-events:none;z-index:0;
   animation:gridDrift 36s linear infinite;
@@ -66,7 +66,7 @@ body::before{
 .ambient-flow::before{
   content:'';position:absolute;inset:-30%;
   background:
-    linear-gradient(115deg,transparent 30%,rgba(249,115,22,0.09) 48%,rgba(94,234,212,0.045) 50%,transparent 66%);
+    linear-gradient(115deg,transparent 30%,rgba(124,255,178,0.09) 48%,rgba(94,234,212,0.045) 50%,transparent 66%);
   opacity:0.8;
   transform:translate3d(-35%,0,0);
   animation:heroSweep 14s ease-in-out infinite;
@@ -74,25 +74,25 @@ body::before{
 .flow-line{
   position:absolute;top:var(--top);left:-40vw;
   width:var(--width,30vw);height:2px;
-  background:linear-gradient(90deg,transparent,rgba(249,115,22,0.85),rgba(94,234,212,0.42),transparent);
+  background:linear-gradient(90deg,transparent,rgba(124,255,178,0.85),rgba(94,234,212,0.42),transparent);
   opacity:0;
   transform:translate3d(-45vw,0,0) rotate(var(--angle,0deg));
   animation:dataLane var(--duration,13s) linear infinite;
   animation-delay:var(--delay,0s);
-  filter:drop-shadow(0 0 10px rgba(249,115,22,0.75));
+  filter:drop-shadow(0 0 10px rgba(124,255,178,0.75));
 }
 .flow-node{
   position:absolute;left:var(--left);top:var(--top);
   width:7px;height:7px;border-radius:50%;
-  background:var(--orange);
+  background:var(--accent);
   opacity:0;
-  box-shadow:0 0 18px rgba(249,115,22,0.95);
+  box-shadow:0 0 18px rgba(124,255,178,0.95);
   animation:fieldNode 4.4s ease-in-out infinite;
   animation-delay:var(--delay,0s);
 }
 .flow-node::after{
   content:'';position:absolute;inset:-9px;
-  border:1px solid rgba(249,115,22,0.34);
+  border:1px solid rgba(124,255,178,0.34);
   border-radius:50%;
   transform:scale(0.4);
   opacity:0;
@@ -147,8 +147,8 @@ body::before{
 
 /* Chip body pulse */
 @keyframes chipPulse {
-  0%,100%{ filter:drop-shadow(0 0 4px rgba(249,115,22,0.4)); }
-  50%{ filter:drop-shadow(0 0 12px rgba(249,115,22,0.9)); }
+  0%,100%{ filter:drop-shadow(0 0 4px rgba(124,255,178,0.4)); }
+  50%{ filter:drop-shadow(0 0 12px rgba(124,255,178,0.9)); }
 }
 
 /* Trace travel animation - data packets moving along traces */
@@ -168,10 +168,51 @@ body::before{
 /* X letter glow */
 @keyframes xGlow {
   0%,100%{ opacity:0.85; }
-  50%{ opacity:1; filter:drop-shadow(0 0 6px rgba(249,115,22,1)); }
+  50%{ opacity:1; filter:drop-shadow(0 0 6px rgba(124,255,178,1)); }
+}
+@keyframes logoBreath {
+  0%,100%{
+    transform:translateY(0) scale(1);
+    filter:drop-shadow(0 0 6px rgba(247,251,246,0.12));
+  }
+  45%{
+    transform:translateY(-1px) scale(1.035);
+    filter:
+      drop-shadow(0 0 9px rgba(247,251,246,0.28))
+      drop-shadow(0 0 14px rgba(45,212,191,0.12));
+  }
+}
+@keyframes logoSignal {
+  0%,100%{ box-shadow:0 0 0 0 rgba(247,251,246,0); }
+  42%{ box-shadow:0 0 0 2px rgba(247,251,246,0.05), 0 0 22px rgba(45,212,191,0.10); }
+  62%{ box-shadow:0 0 0 8px rgba(247,251,246,0); }
+}
+@keyframes wordmarkGlow {
+  0%,100%{
+    color:var(--text);
+    text-shadow:0 0 0 rgba(247,251,246,0);
+  }
+  48%{
+    color:#ffffff;
+    text-shadow:0 0 12px rgba(247,251,246,0.18), 0 0 20px rgba(45,212,191,0.10);
+  }
+}
+@keyframes wordmarkSweep {
+  0%,18%{ transform:translateX(-120%); opacity:0; }
+  38%{ opacity:0.8; }
+  62%,100%{ transform:translateX(120%); opacity:0; }
 }
 
-.chip-logo { animation: chipPulse 3s ease-in-out infinite; }
+.chip-logo {
+  width:40px;
+  height:40px;
+  background:url('/assets/xoggai-logo.png') center/contain no-repeat;
+  animation:logoBreath 3.2s ease-in-out infinite, logoSignal 3.2s ease-in-out infinite;
+  filter:drop-shadow(0 0 8px rgba(247,251,246,0.16));
+  border-radius:12px;
+  transform-origin:center;
+}
+.chip-logo * { opacity:0 !important; }
 .chip-node { animation: nodeBlink 2s ease-in-out infinite; }
 .chip-node:nth-child(2n){ animation-delay:0.4s; }
 .chip-node:nth-child(3n){ animation-delay:0.8s; }
@@ -181,7 +222,7 @@ body::before{
 
 /* Data packet traveling along a path */
 .trace-packet {
-  stroke: #f97316;
+  stroke: #7cffb2;
   stroke-width: 2.5;
   stroke-linecap: round;
   fill: none;
@@ -209,8 +250,22 @@ nav{
   text-decoration:none;
 }
 .nav-logo-text{
+  position:relative;
+  display:inline-block;
+  overflow:hidden;
   font-size:1.25rem;font-weight:800;color:var(--text);
   letter-spacing:-0.02em;
+  animation:wordmarkGlow 3.2s ease-in-out infinite;
+}
+.nav-logo-text::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  width:42%;
+  background:linear-gradient(90deg,transparent,rgba(247,251,246,0.32),transparent);
+  transform:translateX(-120%);
+  animation:wordmarkSweep 4.8s ease-in-out infinite;
+  pointer-events:none;
 }
 .nav-links{
   display:flex;gap:2.5rem;list-style:none;
@@ -221,9 +276,9 @@ nav{
   letter-spacing:0.08em;text-transform:uppercase;
   transition:color 0.2s;font-family:var(--font-mono);
 }
-.nav-links a:hover{ color:var(--orange); }
+.nav-links a:hover{ color:var(--accent); }
 .nav-cta{
-  background:var(--orange);color:#050a06;
+  background:var(--accent);color:#03100a;
   padding:0.5rem 1.375rem;border-radius:6px;
   font-size:0.8rem;font-weight:700;
   text-decoration:none;letter-spacing:0.04em;
@@ -231,9 +286,9 @@ nav{
   text-transform:uppercase;
 }
 .nav-cta:hover{
-  background:var(--orange2);
+  background:var(--accent2);
   transform:translateY(-1px);
-  box-shadow:0 6px 20px rgba(249,115,22,0.35);
+  box-shadow:0 6px 20px rgba(124,255,178,0.35);
 }
 
 /* SECTIONS */
@@ -263,10 +318,10 @@ section{ position:relative;z-index:1; }
 }
 .ticker-dot{
   width:5px;height:5px;border-radius:50%;
-  background:var(--orange);flex-shrink:0;
+  background:var(--accent);flex-shrink:0;
   animation:tickerDotPulse 1.5s ease-in-out infinite;
 }
-.ticker-score{ color:var(--orange);font-weight:700; }
+.ticker-score{ color:var(--accent);font-weight:700; }
 @keyframes tickerScroll{
   from{ transform:translateX(0); }
   to{ transform:translateX(-50%); }
@@ -287,9 +342,9 @@ section{ position:relative;z-index:1; }
 }
 .hero-badge{
   display:inline-flex;align-items:center;gap:0.5rem;
-  background:rgba(249,115,22,0.08);
-  border:1px solid rgba(249,115,22,0.22);
-  color:var(--orange);
+  background:rgba(124,255,178,0.08);
+  border:1px solid rgba(124,255,178,0.22);
+  color:var(--accent);
   padding:0.375rem 1rem;border-radius:999px;
   font-size:0.7rem;font-weight:700;
   letter-spacing:0.12em;text-transform:uppercase;
@@ -297,7 +352,7 @@ section{ position:relative;z-index:1; }
   animation:fadeUp 0.9s ease both;
 }
 .badge-dot{
-  width:6px;height:6px;background:var(--orange);
+  width:6px;height:6px;background:var(--accent);
   border-radius:50%;animation:badgePulse 2s infinite;
 }
 @keyframes badgePulse{ 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
@@ -308,7 +363,7 @@ section{ position:relative;z-index:1; }
   letter-spacing:-0.045em;margin-bottom:1.5rem;
   animation:fadeUp 0.9s 0.1s ease both;
 }
-.hero-title .accent{ color:var(--orange); }
+.hero-title .accent{ color:var(--accent); }
 
 .hero-sub{
   font-size:clamp(1rem,2vw,1.2rem);
@@ -323,7 +378,7 @@ section{ position:relative;z-index:1; }
   animation:fadeUp 0.9s 0.3s ease both;
 }
 .btn-primary{
-  background:var(--orange);color:#050a06;
+  background:var(--accent);color:#03100a;
   padding:0.875rem 2rem;border-radius:8px;
   font-size:0.95rem;font-weight:700;text-decoration:none;
   display:inline-flex;align-items:center;gap:0.5rem;
@@ -331,8 +386,8 @@ section{ position:relative;z-index:1; }
   border:0;cursor:pointer;font-family:var(--font-display);
 }
 .btn-primary:hover{
-  background:var(--orange2);transform:translateY(-2px);
-  box-shadow:0 10px 30px rgba(249,115,22,0.3);
+  background:var(--accent2);transform:translateY(-2px);
+  box-shadow:0 10px 30px rgba(124,255,178,0.3);
 }
 .btn-secondary{
   background:transparent;color:var(--text);
@@ -343,7 +398,7 @@ section{ position:relative;z-index:1; }
   transition:all 0.25s;
   cursor:pointer;font-family:var(--font-display);
 }
-.btn-secondary:hover{ border-color:var(--orange);color:var(--orange); }
+.btn-secondary:hover{ border-color:var(--accent);color:var(--accent); }
 
 .trust-strip{
   display:flex;gap:0.65rem;flex-wrap:wrap;justify-content:center;
@@ -396,7 +451,7 @@ section{ position:relative;z-index:1; }
 }
 .stat-num{
   font-size:1.875rem;font-weight:800;
-  color:var(--orange);font-family:var(--font-mono);
+  color:var(--accent);font-family:var(--font-mono);
   display:block;line-height:1;
 }
 .stat-label{
@@ -414,7 +469,7 @@ section{ position:relative;z-index:1; }
 }
 .section-label{
   font-size:0.65rem;letter-spacing:0.18em;
-  text-transform:uppercase;color:var(--orange);
+  text-transform:uppercase;color:var(--accent);
   font-weight:700;margin-bottom:1.25rem;
   font-family:var(--font-mono);
 }
@@ -423,7 +478,7 @@ section{ position:relative;z-index:1; }
   line-height:1.75;color:var(--muted2);font-weight:400;
 }
 .manifesto-text strong{ color:var(--text);font-weight:700; }
-.manifesto-text .hl{ color:var(--orange); }
+.manifesto-text .hl{ color:var(--accent); }
 
 /* =====================
    SAFETY
@@ -459,7 +514,7 @@ section{ position:relative;z-index:1; }
 }
 .safety-kicker{
   display:block;
-  color:var(--orange);
+  color:var(--accent);
   font-family:var(--font-mono);
   font-size:0.62rem;
   letter-spacing:0.11em;
@@ -504,13 +559,13 @@ section{ position:relative;z-index:1; }
 .arch-card:hover{ background:var(--bg3); }
 .arch-num{
   font-family:var(--font-mono);font-size:0.65rem;
-  color:var(--orange);letter-spacing:0.1em;
+  color:var(--accent);letter-spacing:0.1em;
   margin-bottom:1.25rem;opacity:0.6;
 }
 .arch-icon-wrap{
   width:46px;height:46px;border-radius:10px;
-  background:rgba(249,115,22,0.08);
-  border:1px solid rgba(249,115,22,0.18);
+  background:rgba(124,255,178,0.08);
+  border:1px solid rgba(124,255,178,0.18);
   display:flex;align-items:center;justify-content:center;
   margin-bottom:1.25rem;
 }
@@ -534,8 +589,8 @@ section{ position:relative;z-index:1; }
   margin-bottom:0.25rem;font-family:var(--font-mono);
 }
 .eq-val{ font-size:1rem;font-weight:700;color:var(--text); }
-.eq-op{ font-size:1.5rem;color:var(--orange);font-weight:700;opacity:0.4; }
-.eq-res{ font-size:1.1rem;font-weight:800;color:var(--orange); }
+.eq-op{ font-size:1.5rem;color:var(--accent);font-weight:700;opacity:0.4; }
+.eq-res{ font-size:1.1rem;font-weight:800;color:var(--accent); }
 
 /* =====================
    HOW IT WORKS
@@ -564,12 +619,12 @@ section{ position:relative;z-index:1; }
   display:flex;align-items:center;justify-content:center;
   flex-shrink:0;
   font-family:var(--font-mono);font-size:0.7rem;
-  color:var(--orange);font-weight:700;
+  color:var(--accent);font-weight:700;
   transition:all 0.3s;
 }
 .step:hover .step-num{
-  background:var(--orange);color:#050a06;
-  border-color:var(--orange);
+  background:var(--accent);color:#03100a;
+  border-color:var(--accent);
 }
 .step-body{ padding-top:0.625rem; }
 .step-title{ font-size:1rem;font-weight:700;margin-bottom:0.375rem; }
@@ -599,15 +654,15 @@ section{ position:relative;z-index:1; }
   font-size:0.775rem;line-height:1.9;
 }
 .c-comment{ color:var(--muted); }
-.c-kw{ color:#f97316; }
+.c-kw{ color:#7cffb2; }
 .c-var{ color:#5eead4; }
 .c-str{ color:#86efac; }
 .c-num{ color:#fcd34d; }
-.c-fn{ color:#fb923c; }
+.c-fn{ color:#46e3c0; }
 .c-txt{ color:var(--text); }
 .demo-cursor{
   display:inline-block;width:7px;height:13px;
-  background:var(--orange);
+  background:var(--accent);
   animation:cursorBlink 1s step-end infinite;
   vertical-align:middle;margin-left:2px;
 }
@@ -634,13 +689,13 @@ section{ position:relative;z-index:1; }
   transition:all 0.3s;cursor:default;
 }
 .cap-card:hover{
-  border-color:rgba(249,115,22,0.35);
+  border-color:rgba(124,255,178,0.35);
   background:var(--bg3);
   transform:translateY(-3px);
   box-shadow:0 12px 32px rgba(0,0,0,0.3);
 }
 .cap-arrow{
-  font-size:1.25rem;color:var(--orange);
+  font-size:1.25rem;color:var(--accent);
   margin-bottom:0.875rem;font-weight:800;
   display:block;transition:transform 0.3s;
 }
@@ -660,7 +715,7 @@ section{ position:relative;z-index:1; }
   font-weight:700;line-height:1.4;
   letter-spacing:-0.025em;margin-bottom:1.75rem;
 }
-.vision-quote .hl{ color:var(--orange); }
+.vision-quote .hl{ color:var(--accent); }
 .vision-desc{
   color:var(--muted2);line-height:1.75;
   margin-bottom:3rem;font-size:1rem;
@@ -671,7 +726,7 @@ section{ position:relative;z-index:1; }
 .vs-item{ text-align:center; }
 .vs-num{
   font-size:2rem;font-weight:800;
-  color:var(--orange);font-family:var(--font-mono);
+  color:var(--accent);font-family:var(--font-mono);
   display:block;line-height:1;
 }
 .vs-lbl{
@@ -707,7 +762,7 @@ section{ position:relative;z-index:1; }
   justify-content:space-between;
   max-width:440px;margin:0 auto 0.625rem;text-align:left;
 }
-.code-line .kw{ color:var(--orange); }
+.code-line .kw{ color:var(--accent); }
 .code-line .path{ color:#5eead4; }
 .copy-btn{
   background:none;border:none;cursor:pointer;
@@ -716,7 +771,7 @@ section{ position:relative;z-index:1; }
   text-transform:uppercase;transition:color 0.2s;
   padding:0;
 }
-.copy-btn:hover{ color:var(--orange); }
+.copy-btn:hover{ color:var(--accent); }
 .agent-console{
   max-width:760px;margin:1.75rem auto 0;text-align:left;
 }
@@ -734,8 +789,8 @@ section{ position:relative;z-index:1; }
 }
 .terminal-dots{ display:flex;gap:0.45rem;align-items:center; }
 .terminal-dot{ width:8px;height:8px;border-radius:999px;background:var(--muted); }
-.terminal-dot:nth-child(1){ background:var(--orange); }
-.terminal-dot:nth-child(2){ background:var(--orange2); }
+.terminal-dot:nth-child(1){ background:var(--accent); }
+.terminal-dot:nth-child(2){ background:var(--accent2); }
 .terminal-dot:nth-child(3){ background:#2dd4bf; }
 .terminal-log{
   min-height:300px;max-height:360px;overflow:auto;
@@ -750,7 +805,7 @@ section{ position:relative;z-index:1; }
 .terminal-time{ color:var(--muted);opacity:0.62; }
 .terminal-prompt{ color:#2dd4bf;font-weight:700; }
 .terminal-ok{ color:#86efac; }
-.terminal-warn{ color:var(--orange); }
+.terminal-warn{ color:var(--accent); }
 .terminal-json{
   margin:0.55rem 0 0.8rem 6.15rem;
   border-left:1px solid var(--border2);
@@ -769,7 +824,7 @@ section{ position:relative;z-index:1; }
   color:var(--text);font-family:var(--font-mono);font-size:0.8rem;
 }
 .terminal-run{
-  border:none;background:var(--orange);color:#120804;
+  border:none;background:var(--accent);color:#03100a;
   font-family:var(--font-mono);font-size:0.68rem;font-weight:700;
   letter-spacing:0.08em;text-transform:uppercase;
   padding:0.55rem 0.75rem;cursor:pointer;
@@ -786,7 +841,7 @@ section{ position:relative;z-index:1; }
   font-family:var(--font-mono);font-size:0.68rem;
   padding:0.45rem 0.7rem;cursor:pointer;
 }
-.terminal-command:hover{ border-color:var(--orange);color:var(--orange); }
+.terminal-command:hover{ border-color:var(--accent);color:var(--accent); }
 .cta-btns{
   display:flex;gap:1rem;justify-content:center;
   flex-wrap:wrap;margin-top:1.75rem;
@@ -821,7 +876,7 @@ footer{
   text-decoration:none;font-family:var(--font-mono);
   letter-spacing:0.04em;transition:color 0.2s;
 }
-.footer-links a:hover{ color:var(--orange); }
+.footer-links a:hover{ color:var(--accent); }
 .footer-tag{
   font-size:0.65rem;color:var(--muted);
   font-family:var(--font-mono);opacity:0.45;
@@ -949,64 +1004,64 @@ footer{
 
       <!-- TRACES (behind chip body) -->
       <!-- Top-left trace -->
-      <polyline points="34,28 34,18 20,18" stroke="#f97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <polyline points="34,28 34,18 20,18" stroke="#7cffb2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
       <!-- Top-center-left trace -->
-      <line x1="42" y1="22" x2="42" y2="6" stroke="#f97316" stroke-width="3" stroke-linecap="round"/>
+      <line x1="42" y1="22" x2="42" y2="6" stroke="#7cffb2" stroke-width="3" stroke-linecap="round"/>
       <!-- Top-center-right trace -->
-      <line x1="56" y1="22" x2="56" y2="6" stroke="#f97316" stroke-width="3" stroke-linecap="round"/>
+      <line x1="56" y1="22" x2="56" y2="6" stroke="#7cffb2" stroke-width="3" stroke-linecap="round"/>
       <!-- Top-right trace -->
-      <polyline points="64,28 64,16 76,16" stroke="#f97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <polyline points="64,28 64,16 76,16" stroke="#7cffb2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
 
       <!-- Left-top trace -->
-      <polyline points="28,36 16,36 16,26" stroke="#f97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <polyline points="28,36 16,36 16,26" stroke="#7cffb2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
       <!-- Left-center trace -->
-      <line x1="22" y1="50" x2="6" y2="50" stroke="#f97316" stroke-width="3" stroke-linecap="round"/>
+      <line x1="22" y1="50" x2="6" y2="50" stroke="#7cffb2" stroke-width="3" stroke-linecap="round"/>
       <!-- Left-bottom trace -->
-      <polyline points="28,62 14,62 14,74" stroke="#f97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <polyline points="28,62 14,62 14,74" stroke="#7cffb2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
       <!-- Left-lower trace -->
-      <polyline points="28,70 20,70 20,82" stroke="#f97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <polyline points="28,70 20,70 20,82" stroke="#7cffb2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
 
       <!-- Right-top trace -->
-      <polyline points="72,36 84,36 84,24" stroke="#f97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <polyline points="72,36 84,36 84,24" stroke="#7cffb2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
       <!-- Right-center trace -->
-      <line x1="78" y1="50" x2="94" y2="50" stroke="#f97316" stroke-width="3" stroke-linecap="round"/>
+      <line x1="78" y1="50" x2="94" y2="50" stroke="#7cffb2" stroke-width="3" stroke-linecap="round"/>
       <!-- Right-center-lower trace -->
-      <polyline points="72,58 86,58 86,70" stroke="#f97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <polyline points="72,58 86,58 86,70" stroke="#7cffb2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
       <!-- Right-lower trace -->
-      <polyline points="72,68 80,68 80,80" stroke="#f97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <polyline points="72,68 80,68 80,80" stroke="#7cffb2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
 
       <!-- Bottom-left trace -->
-      <polyline points="38,78 38,90 26,90" stroke="#f97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <polyline points="38,78 38,90 26,90" stroke="#7cffb2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
       <!-- Bottom-right trace -->
-      <polyline points="60,78 60,92 72,92" stroke="#f97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <polyline points="60,78 60,92 72,92" stroke="#7cffb2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
 
       <!-- ANIMATED DATA PACKETS on traces -->
       <!-- Top-center-left -->
-      <line x1="42" y1="22" x2="42" y2="6" stroke="#f97316" stroke-width="2.5" stroke-linecap="round" fill="none"
+      <line x1="42" y1="22" x2="42" y2="6" stroke="#7cffb2" stroke-width="2.5" stroke-linecap="round" fill="none"
         stroke-dasharray="5 30" opacity="0">
         <animate attributeName="stroke-dashoffset" from="40" to="0" dur="2.5s" begin="0s" repeatCount="indefinite"/>
         <animate attributeName="opacity" values="0;1;1;0" dur="2.5s" begin="0s" repeatCount="indefinite"/>
       </line>
       <!-- Right-center -->
-      <line x1="78" y1="50" x2="94" y2="50" stroke="#f97316" stroke-width="2.5" stroke-linecap="round" fill="none"
+      <line x1="78" y1="50" x2="94" y2="50" stroke="#7cffb2" stroke-width="2.5" stroke-linecap="round" fill="none"
         stroke-dasharray="5 25" opacity="0">
         <animate attributeName="stroke-dashoffset" from="35" to="0" dur="2s" begin="0.6s" repeatCount="indefinite"/>
         <animate attributeName="opacity" values="0;1;1;0" dur="2s" begin="0.6s" repeatCount="indefinite"/>
       </line>
       <!-- Left-center -->
-      <line x1="22" y1="50" x2="6" y2="50" stroke="#f97316" stroke-width="2.5" stroke-linecap="round" fill="none"
+      <line x1="22" y1="50" x2="6" y2="50" stroke="#7cffb2" stroke-width="2.5" stroke-linecap="round" fill="none"
         stroke-dasharray="5 25" opacity="0">
         <animate attributeName="stroke-dashoffset" from="35" to="0" dur="2.2s" begin="1.2s" repeatCount="indefinite"/>
         <animate attributeName="opacity" values="0;1;1;0" dur="2.2s" begin="1.2s" repeatCount="indefinite"/>
       </line>
       <!-- Top-right -->
-      <polyline points="64,28 64,16 76,16" stroke="#f97316" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"
+      <polyline points="64,28 64,16 76,16" stroke="#7cffb2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"
         stroke-dasharray="5 40" opacity="0">
         <animate attributeName="stroke-dashoffset" from="45" to="0" dur="2.8s" begin="1.8s" repeatCount="indefinite"/>
         <animate attributeName="opacity" values="0;1;1;0" dur="2.8s" begin="1.8s" repeatCount="indefinite"/>
       </polyline>
       <!-- Bottom-right -->
-      <polyline points="60,78 60,92 72,92" stroke="#f97316" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"
+      <polyline points="60,78 60,92 72,92" stroke="#7cffb2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"
         stroke-dasharray="5 40" opacity="0">
         <animate attributeName="stroke-dashoffset" from="45" to="0" dur="2.3s" begin="0.3s" repeatCount="indefinite"/>
         <animate attributeName="opacity" values="0;1;1;0" dur="2.3s" begin="0.3s" repeatCount="indefinite"/>
@@ -1014,36 +1069,36 @@ footer{
 
       <!-- CHIP OUTER BODY -->
       <rect x="22" y="22" width="56" height="56" rx="8" ry="8"
-        stroke="#f97316" stroke-width="3" fill="none"/>
+        stroke="#7cffb2" stroke-width="3" fill="none"/>
 
       <!-- CHIP INNER BORDER (double-border effect like logo) -->
       <rect x="28" y="28" width="44" height="44" rx="5" ry="5"
-        stroke="#f97316" stroke-width="1.5" fill="rgba(249,115,22,0.04)"/>
+        stroke="#7cffb2" stroke-width="1.5" fill="rgba(124,255,178,0.04)"/>
 
       <!-- X LETTER -->
       <g class="chip-x">
-        <line x1="38" y1="38" x2="62" y2="62" stroke="#f97316" stroke-width="4" stroke-linecap="round"/>
-        <line x1="62" y1="38" x2="38" y2="62" stroke="#f97316" stroke-width="4" stroke-linecap="round"/>
+        <line x1="38" y1="38" x2="62" y2="62" stroke="#7cffb2" stroke-width="4" stroke-linecap="round"/>
+        <line x1="62" y1="38" x2="38" y2="62" stroke="#7cffb2" stroke-width="4" stroke-linecap="round"/>
       </g>
 
       <!-- NODE CIRCLES at trace endpoints -->
-      <circle class="chip-node" cx="20" cy="18" r="3" fill="#f97316"/>
-      <circle class="chip-node" cx="42" cy="6"  r="3" fill="#f97316"/>
-      <circle class="chip-node" cx="56" cy="6"  r="3" fill="#f97316"/>
-      <circle class="chip-node" cx="76" cy="16" r="3" fill="#f97316"/>
+      <circle class="chip-node" cx="20" cy="18" r="3" fill="#7cffb2"/>
+      <circle class="chip-node" cx="42" cy="6"  r="3" fill="#7cffb2"/>
+      <circle class="chip-node" cx="56" cy="6"  r="3" fill="#7cffb2"/>
+      <circle class="chip-node" cx="76" cy="16" r="3" fill="#7cffb2"/>
 
-      <circle class="chip-node" cx="16" cy="26" r="3" fill="#f97316"/>
-      <circle class="chip-node" cx="6"  cy="50" r="3" fill="#f97316"/>
-      <circle class="chip-node" cx="14" cy="74" r="3" fill="#f97316"/>
-      <circle class="chip-node" cx="20" cy="82" r="3" fill="#f97316"/>
+      <circle class="chip-node" cx="16" cy="26" r="3" fill="#7cffb2"/>
+      <circle class="chip-node" cx="6"  cy="50" r="3" fill="#7cffb2"/>
+      <circle class="chip-node" cx="14" cy="74" r="3" fill="#7cffb2"/>
+      <circle class="chip-node" cx="20" cy="82" r="3" fill="#7cffb2"/>
 
-      <circle class="chip-node" cx="84" cy="24" r="3" fill="#f97316"/>
-      <circle class="chip-node" cx="94" cy="50" r="3" fill="#f97316"/>
-      <circle class="chip-node" cx="86" cy="70" r="3" fill="#f97316"/>
-      <circle class="chip-node" cx="80" cy="80" r="3" fill="#f97316"/>
+      <circle class="chip-node" cx="84" cy="24" r="3" fill="#7cffb2"/>
+      <circle class="chip-node" cx="94" cy="50" r="3" fill="#7cffb2"/>
+      <circle class="chip-node" cx="86" cy="70" r="3" fill="#7cffb2"/>
+      <circle class="chip-node" cx="80" cy="80" r="3" fill="#7cffb2"/>
 
-      <circle class="chip-node" cx="26" cy="90" r="3" fill="#f97316"/>
-      <circle class="chip-node" cx="72" cy="92" r="3" fill="#f97316"/>
+      <circle class="chip-node" cx="26" cy="90" r="3" fill="#7cffb2"/>
+      <circle class="chip-node" cx="72" cy="92" r="3" fill="#7cffb2"/>
     </svg>
     <span class="nav-logo-text">XoggAI</span>
   </a>
@@ -1168,8 +1223,8 @@ footer{
       <div class="arch-num">01 / THINK</div>
       <div class="arch-icon-wrap">
         <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-          <circle cx="11" cy="11" r="3.5" stroke="#f97316" stroke-width="1.5"/>
-          <path d="M11 2.5v2M11 17.5v2M2.5 11h2M17.5 11h2M4.9 4.9l1.4 1.4M15.7 15.7l1.4 1.4M4.9 17.1l1.4-1.4M15.7 6.3l1.4-1.4" stroke="#f97316" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="11" cy="11" r="3.5" stroke="#7cffb2" stroke-width="1.5"/>
+          <path d="M11 2.5v2M11 17.5v2M2.5 11h2M17.5 11h2M4.9 4.9l1.4 1.4M15.7 15.7l1.4 1.4M4.9 17.1l1.4-1.4M15.7 6.3l1.4-1.4" stroke="#7cffb2" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
       </div>
       <div class="arch-card-title">LLM Infrastructure</div>
@@ -1180,7 +1235,7 @@ footer{
       <div class="arch-num">02 / TRANSACT</div>
       <div class="arch-icon-wrap">
         <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-          <path d="M3 8h16M3 8l3.5-3.5M3 8l3.5 3.5M19 14H3M19 14l-3.5-3.5M19 14l-3.5 3.5" stroke="#f97316" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M3 8h16M3 8l3.5-3.5M3 8l3.5 3.5M19 14H3M19 14l-3.5-3.5M19 14l-3.5 3.5" stroke="#7cffb2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </div>
       <div class="arch-card-title">X402 Protocol</div>
@@ -1191,10 +1246,10 @@ footer{
       <div class="arch-num">03 / SCALE</div>
       <div class="arch-icon-wrap">
         <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-          <rect x="2.5" y="2.5" width="7" height="7" rx="1.5" stroke="#f97316" stroke-width="1.5"/>
-          <rect x="12.5" y="2.5" width="7" height="7" rx="1.5" stroke="#f97316" stroke-width="1.5"/>
-          <rect x="2.5" y="12.5" width="7" height="7" rx="1.5" stroke="#f97316" stroke-width="1.5"/>
-          <rect x="12.5" y="12.5" width="7" height="7" rx="1.5" stroke="#f97316" stroke-width="1.5"/>
+          <rect x="2.5" y="2.5" width="7" height="7" rx="1.5" stroke="#7cffb2" stroke-width="1.5"/>
+          <rect x="12.5" y="2.5" width="7" height="7" rx="1.5" stroke="#7cffb2" stroke-width="1.5"/>
+          <rect x="2.5" y="12.5" width="7" height="7" rx="1.5" stroke="#7cffb2" stroke-width="1.5"/>
+          <rect x="12.5" y="12.5" width="7" height="7" rx="1.5" stroke="#7cffb2" stroke-width="1.5"/>
         </svg>
       </div>
       <div class="arch-card-title">Base Ecosystem</div>
@@ -1261,9 +1316,9 @@ footer{
     <!-- CODE DEMO -->
     <div class="demo-box">
       <div class="demo-header">
-        <div class="demo-dot" style="background:#f97316"></div>
-        <div class="demo-dot" style="background:#fb923c;opacity:0.5"></div>
-        <div class="demo-dot" style="background:#fdba74;opacity:0.3"></div>
+        <div class="demo-dot" style="background:#7cffb2"></div>
+        <div class="demo-dot" style="background:#46e3c0;opacity:0.5"></div>
+        <div class="demo-dot" style="background:#bfffd7;opacity:0.3"></div>
         <span class="demo-filename">xoggai-agent.ts</span>
       </div>
       <div class="demo-body">
@@ -1566,7 +1621,7 @@ function doCopy(btn, text) {
   navigator.clipboard.writeText(text).catch(() => {});
   const orig = btn.textContent;
   btn.textContent = 'COPIED!';
-  btn.style.color = 'var(--orange)';
+  btn.style.color = 'var(--accent)';
   setTimeout(() => {
     btn.textContent = orig;
     btn.style.color = '';
