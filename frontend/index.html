@@ -414,6 +414,12 @@ section{ position:relative;z-index:1; }
   min-width:136px;
   text-align:left;
 }
+.trust-item.primary{
+  border-color:rgba(124,255,178,0.32);
+  background:
+    linear-gradient(180deg,rgba(124,255,178,0.08),rgba(10,26,18,0.68));
+  box-shadow:0 0 26px rgba(70,227,192,0.06);
+}
 .trust-item strong{
   display:block;
   font-family:var(--font-mono);
@@ -1191,11 +1197,11 @@ footer{
     <a href="#how" class="btn-secondary">See how it works</a>
   </div>
 
-  <div class="trust-strip" aria-label="XoggAI public preview status">
-    <div class="trust-item"><strong><span class="trust-dot"></span>Backend live</strong><span>Render API</span></div>
-    <div class="trust-item"><strong>Dry-run first</strong><span>No payment sent</span></div>
-    <div class="trust-item"><strong>Open docs</strong><span>Skill + OpenAPI</span></div>
-    <div class="trust-item"><strong>GitHub public</strong><span>Source repo</span></div>
+  <div class="trust-strip" aria-label="XoggAI public preview safety status">
+    <div class="trust-item primary"><strong><span class="trust-dot"></span>Preview mode</strong><span>Public router live</span></div>
+    <div class="trust-item"><strong>Dry-run first</strong><span>Inspect before spend</span></div>
+    <div class="trust-item"><strong>No payment sent</strong><span>Default public path</span></div>
+    <div class="trust-item"><strong>Execution gated</strong><span>Wallet + budget later</span></div>
   </div>
 
   <div class="stats-row">
