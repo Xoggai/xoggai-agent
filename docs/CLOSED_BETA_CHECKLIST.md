@@ -22,6 +22,8 @@ Public preview must stay dry-run first until every item below is complete.
 - Confirm all secrets are stored in Render or the deployment provider, never committed.
 - Confirm `BETA_EXECUTION_KEY` is only available to trusted server-side callers.
 - Confirm `EXECUTION_ENDPOINT_ALLOWLIST` contains only reviewed endpoint UUIDs.
+- Start from `render.beta.yaml`; its allowlist is intentionally empty until a
+  Base Sepolia endpoint passes `docs/BETA_ENDPOINT_AUDIT.md`.
 
 ## Wallet And Payment Safety
 

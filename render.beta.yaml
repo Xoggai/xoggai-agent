@@ -1,0 +1,62 @@
+# Closed-beta template only. Creating this file does not deploy resources.
+# Keep the public render.yaml deployment separate and simulation-disabled.
+services:
+  - type: web
+    name: xoggai-backend-beta
+    runtime: docker
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3000"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: xoggai-beta-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: xoggai-beta-kv
+          type: keyvalue
+          property: connectionString
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ANTHROPIC_BASE_URL
+        sync: false
+      - key: ANTHROPIC_ROUTER_MODEL
+        value: claude-sonnet-4-5
+      - key: ANTHROPIC_RATING_MODEL
+        value: claude-haiku-4-5-20251001
+      - key: X402_NETWORK
+        value: base-sepolia
+      - key: RATE_LIMIT_WINDOW_MS
+        value: "60000"
+      - key: RATE_LIMIT_MAX
+        value: "20"
+      - key: STATS_CACHE_TTL
+        value: "30"
+      - key: SEARCH_CACHE_TTL
+        value: "60"
+      - key: ALLOW_LIVE_EXECUTION
+        value: "false"
+      - key: EXECUTION_SIMULATION_ENABLED
+        value: "true"
+      - key: BETA_EXECUTION_KEY
+        sync: false
+      - key: MAX_EXECUTION_BUDGET_USDC
+        value: "0.005"
+      # Intentionally empty until a Base Sepolia endpoint passes the audit.
+      - key: EXECUTION_ENDPOINT_ALLOWLIST
+        value: ""
+  - type: keyvalue
+    name: xoggai-beta-kv
+    plan: free
+    ipAllowList: []
+
+databases:
+  - name: xoggai-beta-db
+    plan: free
+    databaseName: xoggai_beta
+    user: xoggai_beta

@@ -231,6 +231,11 @@ EXECUTION_ENDPOINT_ALLOWLIST=<comma-separated-endpoint-uuids>
 ```
 
 Keep `ALLOW_LIVE_EXECUTION=false` for public demos.
+
+For an isolated Base Sepolia simulation environment, review
+[`render.beta.yaml`](render.beta.yaml) and
+[`docs/BETA_ENDPOINT_AUDIT.md`](docs/BETA_ENDPOINT_AUDIT.md). The beta template
+ships with an empty endpoint allowlist by design and does not enable payments.
 The backend intentionally refuses to start with this flag set to `true` until
 the live payment implementation exists and passes a separate audit.
 Enable execution simulation independently and only in a controlled beta

@@ -13,8 +13,14 @@ const envSchema = z.object({
   ),
   ANTHROPIC_ROUTER_MODEL: z.string().min(1).default('claude-sonnet-4-5'),
   ANTHROPIC_RATING_MODEL: z.string().min(1).default('claude-haiku-4-5-20251001'),
-  X402_WALLET_PRIVATE_KEY: z.string().min(1),
-  X402_WALLET_ADDRESS: z.string().min(1),
+  X402_WALLET_PRIVATE_KEY: z.preprocess(
+    (value) => (value === '' ? undefined : value),
+    z.string().min(1).optional(),
+  ),
+  X402_WALLET_ADDRESS: z.preprocess(
+    (value) => (value === '' ? undefined : value),
+    z.string().min(1).optional(),
+  ),
   X402_NETWORK: z.enum(['base-mainnet', 'base-sepolia']).default('base-mainnet'),
   ALLOWED_ORIGINS: z.string().min(1),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
@@ -58,8 +64,10 @@ export function hasLiveAnthropicKey() {
 
 export function hasLiveX402Wallet() {
   return (
-    !env.X402_WALLET_PRIVATE_KEY.includes('placeholder') &&
-    !env.X402_WALLET_ADDRESS.includes('placeholder')
+    Boolean(env.X402_WALLET_PRIVATE_KEY) &&
+    Boolean(env.X402_WALLET_ADDRESS) &&
+    !env.X402_WALLET_PRIVATE_KEY?.includes('placeholder') &&
+    !env.X402_WALLET_ADDRESS?.includes('placeholder')
   )
 }
 
