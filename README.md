@@ -1,47 +1,53 @@
-# XoggAI Agent
+<p align="center">
+  <img src="frontend/assets/xoggai-logo.png" alt="XoggAI" width="96"/>
+</p>
 
-[![Website](https://img.shields.io/badge/website-live-f97316?style=flat-square)](https://xoggai-agent.com)
-[![Backend](https://img.shields.io/badge/backend-render-46e3c0?style=flat-square)](https://xoggai-backend.onrender.com)
-[![Docs](https://img.shields.io/badge/docs-agent%20files-8aad99?style=flat-square)](https://xoggai-agent.com/docs)
-[![Mode](https://img.shields.io/badge/mode-dry--run%20preview-0f2218?style=flat-square)](https://xoggai-agent.com)
+<h1 align="center">XoggAI</h1>
 
-XoggAI routes plain-English AI agent intents to ranked x402 API endpoints.
+<p align="center">
+  Intelligence becomes action.
+</p>
 
-Agents send an intent, receive an endpoint preview with price, latency, rating, URL, and schema, then decide when to move from dry-run routing into wallet-gated execution.
+<p align="center">
+  <a href="https://xoggai-agent.com"><img alt="Website" src="https://img.shields.io/badge/website-live-7cffb2?style=flat-square&labelColor=06150d"></a>
+  <a href="https://xoggai-agent.com/docs"><img alt="Docs" src="https://img.shields.io/badge/docs-agent%20files-46e3c0?style=flat-square&labelColor=06150d"></a>
+  <a href="https://xoggai-backend.onrender.com"><img alt="Backend" src="https://img.shields.io/badge/backend-render-9fb7a8?style=flat-square&labelColor=06150d"></a>
+  <a href="https://xoggai-agent.com"><img alt="Mode" src="https://img.shields.io/badge/mode-dry--run%20preview-f7fbf6?style=flat-square&labelColor=06150d"></a>
+</p>
 
-Live site: https://xoggai-agent.com  
-Backend API: https://xoggai-backend.onrender.com  
-Docs UI: https://xoggai-agent.com/docs
+XoggAI is a dry-run-first intent router for AI agents and x402 APIs.
+
+Agents send a plain-English intent, inspect ranked endpoint previews, and decide when execution should move from discovery into a wallet-gated path.
+
+**Live product:** https://xoggai-agent.com  
+**Docs UI:** https://xoggai-agent.com/docs  
+**Backend API:** https://xoggai-backend.onrender.com
 
 ![XoggAI public preview](docs/assets/xoggai-preview.png)
 
-## Quick Test
+## Product
 
-```powershell
-curl.exe https://xoggai-backend.onrender.com/health
-curl.exe "https://xoggai-backend.onrender.com/intent?q=what%20is%20the%20ETH%20price&budget=0.05&dry=true"
-```
+AI agents should not execute blindly.
 
-Expected behavior: dry-run responses only. Public demos do not send payment.
-
-## Current Status
-
-XoggAI is a public preview.
-
-- Live: frontend, backend, terminal demo, docs UI.
-- Default mode: dry-run routing.
-- Safe by default: no payment is sent during dry-runs.
-- Not enabled publicly yet: live x402 payment execution.
-
-## GitHub About
-
-Recommended repository metadata:
+XoggAI gives agents a routing layer between natural-language intent and x402 API execution:
 
 ```text
-Description: Dry-run intent router that connects AI agents to ranked x402 API endpoints.
-Website: https://xoggai-agent.com
-Topics: ai-agents, x402, base, intent-routing, typescript, hono, netlify, render
+intent
+-> ranked x402 endpoint preview
+-> route metadata
+-> explicit execution decision
 ```
+
+The public product is live as a preview. The default mode is dry-run routing, so users can inspect route fit, cost, latency, rating, URL, and schema before enabling any paid execution path.
+
+## Live Preview
+
+- Website: https://xoggai-agent.com
+- Terminal demo: https://xoggai-agent.com/#agent-console
+- Docs UI: https://xoggai-agent.com/docs
+- OpenAPI: https://xoggai-agent.com/openapi.json
+- Agent skill: https://xoggai-agent.com/skill.md
+- LLM context: https://xoggai-agent.com/llms.txt
 
 ## What Connect Agent Means
 
@@ -57,6 +63,14 @@ existing agent
 -> ranked x402 endpoint preview
 -> developer/agent decides whether to execute later
 ```
+
+## Public Preview Boundary
+
+- Live today: frontend, backend, terminal demo, docs UI, endpoint previews.
+- Default mode: dry-run routing.
+- Safe by default: dry-runs do not send payment.
+- Not public yet: live x402 paid execution.
+- Future live execution requires explicit wallet and budget controls.
 
 ## How It Works
 
@@ -97,12 +111,6 @@ GET /api/feed
 GET /api/endpoints
 ```
 
-Public agent files:
-
-- https://xoggai-agent.com/skill.md
-- https://xoggai-agent.com/llms.txt
-- https://xoggai-agent.com/openapi.json
-
 Minimal agent snippet:
 
 ```ts
@@ -119,6 +127,15 @@ export async function routeIntent(intent: string, budget = 0.05) {
   return res.json();
 }
 ```
+
+## Quick Test
+
+```powershell
+curl.exe https://xoggai-backend.onrender.com/health
+curl.exe "https://xoggai-backend.onrender.com/intent?q=what%20is%20the%20ETH%20price&budget=0.05&dry=true"
+```
+
+Expected behavior: dry-run responses only. Public demos do not send payment.
 
 ## Terminal Commands
 
