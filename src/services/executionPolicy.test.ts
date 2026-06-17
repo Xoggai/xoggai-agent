@@ -8,7 +8,7 @@ const input = {
 }
 
 const config = {
-  liveExecutionEnabled: true,
+  simulationEnabled: true,
   betaAccessConfigured: true,
   betaAccessValid: true,
   maxBudgetUsdc: 0.05,
@@ -16,15 +16,15 @@ const config = {
 }
 
 assert.deepEqual(evaluateExecutionPolicy(input, config), {
-  eligibleForLive: true,
+  simulationPassed: true,
   blockedBy: [],
 })
 
 const disabled = evaluateExecutionPolicy(input, {
   ...config,
-  liveExecutionEnabled: false,
+  simulationEnabled: false,
 })
-assert.ok(disabled.blockedBy.includes('live_execution_disabled'))
+assert.ok(disabled.blockedBy.includes('execution_simulation_disabled'))
 
 const invalidKey = evaluateExecutionPolicy(input, {
   ...config,

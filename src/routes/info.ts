@@ -11,6 +11,7 @@ export const infoRoute = new Hono().get('/', (c) => {
     environment: env.NODE_ENV,
     network: env.X402_NETWORK,
     liveExecutionEnabled: env.ALLOW_LIVE_EXECUTION,
+    executionSimulationEnabled: env.EXECUTION_SIMULATION_ENABLED,
     defaultExecution: 'dry-run',
     safety: {
       dryRunDefault: true,

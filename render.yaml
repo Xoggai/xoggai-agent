@@ -43,6 +43,10 @@ services:
         value: "60"
       - key: ALLOW_LIVE_EXECUTION
         value: "false"
+      - key: EXECUTION_SIMULATION_ENABLED
+        value: "false"
+      - key: MAX_EXECUTION_BUDGET_USDC
+        value: "0.05"
   - type: keyvalue
     name: xoggai-kv
     plan: free

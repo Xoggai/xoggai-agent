@@ -94,7 +94,7 @@
     "/execute": {
       "post": {
         "summary": "Evaluate closed-beta execution policy",
-        "description": "Server-side policy simulation only. Never expose the beta key in browser code. This endpoint never sends payment or calls the selected upstream API.",
+        "description": "Server-side policy simulation only. Requires EXECUTION_SIMULATION_ENABLED=true, independently of live execution. Never expose the beta key in browser code. This endpoint never sends payment or calls the selected upstream API.",
         "parameters": [
           {
             "name": "x-beta-key",
@@ -126,7 +126,7 @@
           "401": { "description": "Invalid beta access" },
           "403": { "description": "Execution policy blocked the request" },
           "404": { "description": "Endpoint not found" },
-          "503": { "description": "Beta access is not configured" }
+          "503": { "description": "Simulation is disabled or beta access is not configured" }
         }
       }
     },

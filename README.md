@@ -224,9 +224,26 @@ ANTHROPIC_RATING_MODEL=claude-haiku-4-5-20251001
 X402_WALLET_PRIVATE_KEY=0x...
 X402_WALLET_ADDRESS=0x...
 ALLOW_LIVE_EXECUTION=false
+EXECUTION_SIMULATION_ENABLED=false
+BETA_EXECUTION_KEY=<server-side-secret-at-least-32-characters>
+MAX_EXECUTION_BUDGET_USDC=0.05
+EXECUTION_ENDPOINT_ALLOWLIST=<comma-separated-endpoint-uuids>
 ```
 
 Keep `ALLOW_LIVE_EXECUTION=false` for public demos.
+The backend intentionally refuses to start with this flag set to `true` until
+the live payment implementation exists and passes a separate audit.
+Enable execution simulation independently and only in a controlled beta
+environment. Never expose `BETA_EXECUTION_KEY` in browser code.
+
+Run the server-side simulation smoke test with:
+
+```powershell
+$env:XOGGAI_API_BASE='https://your-beta-backend.example.com'
+$env:BETA_EXECUTION_KEY='<server-side-secret-at-least-32-characters>'
+$env:TEST_ENDPOINT_ID='<allowlisted-endpoint-uuid>'
+npm run test:execution-simulation
+```
 
 ## Repository Map
 

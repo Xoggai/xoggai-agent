@@ -31,6 +31,7 @@ app.get('/', (c) =>
     mode: 'public-preview',
     defaultExecution: 'dry-run',
     liveExecutionEnabled: env.ALLOW_LIVE_EXECUTION,
+    executionSimulationEnabled: env.EXECUTION_SIMULATION_ENABLED,
     network: env.X402_NETWORK,
     safety: {
       dryRunDefault: true,

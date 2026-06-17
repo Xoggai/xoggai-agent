@@ -11,6 +11,7 @@ Public preview must stay dry-run first until every item below is complete.
 - Testers understand that XoggAI routes x402 API calls and that live execution can spend caller funds.
 - Public website copy still says public preview and dry-run first.
 - `ALLOW_LIVE_EXECUTION=false` remains set for the public demo until a separate beta environment is ready.
+- Policy simulation uses `EXECUTION_SIMULATION_ENABLED=true` without changing `ALLOW_LIVE_EXECUTION`.
 
 ## Environment
 
@@ -19,6 +20,8 @@ Public preview must stay dry-run first until every item below is complete.
 - Use dedicated beta database, Redis, and logs when possible.
 - Confirm `ALLOWED_ORIGINS` only includes approved beta frontends.
 - Confirm all secrets are stored in Render or the deployment provider, never committed.
+- Confirm `BETA_EXECUTION_KEY` is only available to trusted server-side callers.
+- Confirm `EXECUTION_ENDPOINT_ALLOWLIST` contains only reviewed endpoint UUIDs.
 
 ## Wallet And Payment Safety
 
@@ -79,6 +82,8 @@ Public preview must stay dry-run first until every item below is complete.
 
 - Dry-run route still works.
 - Dry-run route never sends payment.
+- Execution simulation passes while `ALLOW_LIVE_EXECUTION=false`.
+- Execution simulation always returns `paymentSent: false`.
 - Live execution is blocked when `ALLOW_LIVE_EXECUTION=false`.
 - Live execution is blocked for non-beta callers.
 - Live execution is blocked for non-allowlisted endpoints.

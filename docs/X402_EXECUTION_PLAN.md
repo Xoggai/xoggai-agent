@@ -34,7 +34,7 @@ agent intent
 | State | Payment | Public availability | Notes |
 | --- | --- | --- | --- |
 | `dry-run` | none | live now | Default public mode. |
-| `simulation` | none | live now | Shows what live execution would require. |
+| `simulation` | none | closed beta | Shows what live execution would require. |
 | `beta-live` | caller funded | closed beta only | Requires allowlist, budget, logs, and explicit beta access. |
 | `public-live` | caller funded | not enabled | Requires more testing and public docs. |
 
@@ -75,6 +75,11 @@ It requires an `x-beta-key` header, checks the endpoint allowlist and budget
 limits, and returns `paymentSent: false`. It does not import the x402 payment
 handler or call the selected upstream API.
 
+Simulation uses `EXECUTION_SIMULATION_ENABLED=true`. This is independent from
+`ALLOW_LIVE_EXECUTION`, which must remain `false` until a real payment path is
+implemented and separately audited.
+The backend currently refuses to start if `ALLOW_LIVE_EXECUTION=true`.
+
 Call this endpoint from a trusted server or agent runtime. Never embed the beta
 key in the public website or other browser-delivered code. `GET /intent` stays
 routing-only and rejects `dry=false`.
@@ -91,7 +96,8 @@ Simulation response shape:
     "name": "Market Data ETH Price",
     "url": "https://example.com/x402/price"
   },
-  "eligibleForLive": true,
+  "simulationPassed": true,
+  "liveExecutionEnabled": false,
   "blockedBy": [],
   "paymentSent": false
 }
@@ -99,6 +105,15 @@ Simulation response shape:
 
 Live execution remains a later phase and must use a separate code path after
 the simulation policy has been verified in closed beta.
+
+Run the server-side simulation check with:
+
+```powershell
+$env:XOGGAI_API_BASE='http://localhost:3000'
+$env:BETA_EXECUTION_KEY='<at-least-32-characters>'
+$env:TEST_ENDPOINT_ID='<allowlisted-endpoint-uuid>'
+npm run test:execution-simulation
+```
 
 ## Guardrails
 

@@ -5,7 +5,7 @@ export type ExecutionPolicyInput = {
 }
 
 export type ExecutionPolicyConfig = {
-  liveExecutionEnabled: boolean
+  simulationEnabled: boolean
   betaAccessConfigured: boolean
   betaAccessValid: boolean
   maxBudgetUsdc: number
@@ -13,7 +13,7 @@ export type ExecutionPolicyConfig = {
 }
 
 export type ExecutionBlockReason =
-  | 'live_execution_disabled'
+  | 'execution_simulation_disabled'
   | 'beta_access_not_configured'
   | 'invalid_beta_access'
   | 'endpoint_not_allowlisted'
@@ -26,7 +26,7 @@ export function evaluateExecutionPolicy(
 ) {
   const blockedBy: ExecutionBlockReason[] = []
 
-  if (!config.liveExecutionEnabled) blockedBy.push('live_execution_disabled')
+  if (!config.simulationEnabled) blockedBy.push('execution_simulation_disabled')
   if (!config.betaAccessConfigured) blockedBy.push('beta_access_not_configured')
   if (config.betaAccessConfigured && !config.betaAccessValid) {
     blockedBy.push('invalid_beta_access')
@@ -42,7 +42,7 @@ export function evaluateExecutionPolicy(
   }
 
   return {
-    eligibleForLive: blockedBy.length === 0,
+    simulationPassed: blockedBy.length === 0,
     blockedBy,
   }
 }

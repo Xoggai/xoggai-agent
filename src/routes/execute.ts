@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { db } from '../db/client.js'
 import { endpoints } from '../db/schema.js'
-import { env, liveEndpointAllowlist } from '../env.js'
+import { env, executionEndpointAllowlist } from '../env.js'
 import { evaluateExecutionPolicy } from '../services/executionPolicy.js'
 
 const schema = z.object({
@@ -37,6 +37,20 @@ export const executeRoute = new Hono().post('/', async (c) => {
         paymentSent: false,
       },
       400,
+    )
+  }
+
+  if (!env.EXECUTION_SIMULATION_ENABLED) {
+    return c.json(
+      {
+        success: false,
+        mode: 'simulation',
+        requestId,
+        error: 'execution_simulation_disabled',
+        liveExecutionEnabled: env.ALLOW_LIVE_EXECUTION,
+        paymentSent: false,
+      },
+      503,
     )
   }
 
@@ -98,11 +112,11 @@ export const executeRoute = new Hono().post('/', async (c) => {
       budgetUsdc: parsed.data.budget,
     },
     {
-      liveExecutionEnabled: env.ALLOW_LIVE_EXECUTION,
+      simulationEnabled: env.EXECUTION_SIMULATION_ENABLED,
       betaAccessConfigured: Boolean(env.BETA_EXECUTION_KEY),
       betaAccessValid: true,
       maxBudgetUsdc: env.MAX_EXECUTION_BUDGET_USDC,
-      endpointAllowlist: liveEndpointAllowlist(),
+      endpointAllowlist: executionEndpointAllowlist(),
     },
   )
 
@@ -112,13 +126,13 @@ export const executeRoute = new Hono().post('/', async (c) => {
     endpointId: endpoint.id,
     budgetUsdc: parsed.data.budget,
     endpointPriceUsdc: endpoint.priceUsdc,
-    eligibleForLive: policy.eligibleForLive,
+    simulationPassed: policy.simulationPassed,
     blockedBy: policy.blockedBy,
   })
 
   return c.json(
     {
-      success: policy.eligibleForLive,
+      success: policy.simulationPassed,
       mode: 'simulation',
       requestId,
       intent: parsed.data.intent,
@@ -130,11 +144,12 @@ export const executeRoute = new Hono().post('/', async (c) => {
       },
       budgetUsdc: parsed.data.budget,
       maxBudgetUsdc: env.MAX_EXECUTION_BUDGET_USDC,
-      eligibleForLive: policy.eligibleForLive,
+      simulationPassed: policy.simulationPassed,
+      liveExecutionEnabled: env.ALLOW_LIVE_EXECUTION,
       blockedBy: policy.blockedBy,
       paymentSent: false,
       note: 'Policy simulation only. This endpoint never sends payment or calls the upstream API.',
     },
-    policy.eligibleForLive ? 200 : 403,
+    policy.simulationPassed ? 200 : 403,
   )
 })
