@@ -104,6 +104,7 @@ Common endpoints:
 GET /
 GET /health
 GET /api/info
+GET /api/execution-status
 GET /intent?q=what%20is%20the%20ETH%20price&budget=0.05&dry=true
 GET /search?q=crypto%20price&limit=5&dry=true
 GET /api/stats
@@ -269,6 +270,12 @@ The command exits unless the backend confirms `prepare-only`,
 a ticket id and challenge hash for operator review. It does not require wallet
 funds. Keep the beta key in the operator terminal or secret manager only.
 
+Check execution safety status:
+
+```powershell
+curl.exe "$env:XOGGAI_API_BASE/api/execution-status"
+```
+
 Approve a prepared ticket from a trusted operator environment only:
 
 ```powershell
@@ -301,6 +308,8 @@ send payment.
 - `examples/` - standalone integration examples.
 - `scripts/` - local helper scripts.
 - `docs/LAUNCH_CHECKLIST.md` - public launch checklist.
+- `docs/OPERATOR_RUNBOOK.md` - closed-beta prepare/approve/consume runbook.
+- `docs/CLOSED_BETA_CHECKLIST.md` - beta readiness checklist.
 - `SECURITY.md` - security and public preview safety notes.
 - `render.yaml` - Render Blueprint.
 - `netlify.toml` - Netlify static deploy config.

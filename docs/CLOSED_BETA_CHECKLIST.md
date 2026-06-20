@@ -24,6 +24,11 @@ Public preview must stay dry-run first until every item below is complete.
 - Confirm `EXECUTION_ENDPOINT_ALLOWLIST` contains only reviewed endpoint UUIDs.
 - Start from `render.beta.yaml`; its allowlist is intentionally empty until a
   Base Sepolia endpoint passes `docs/BETA_ENDPOINT_AUDIT.md`.
+- Confirm `/api/execution-status` reports:
+  - `liveExecutionEnabled: false`
+  - `paymentSigningEnabled: false`
+  - `paymentSendingEnabled: false`
+  - `safetyMode: dry-run-preview` or `ticket-rehearsal`
 
 ## Wallet And Payment Safety
 
@@ -56,6 +61,10 @@ Public preview must stay dry-run first until every item below is complete.
 ## Request Guardrails
 
 - Require `dry=false` or a dedicated live execution command for beta execution.
+- Require the ticket lifecycle before any future live payment:
+  - `PREPARED`
+  - `APPROVED`
+  - `CONSUMED`
 - Require explicit budget input for live execution.
 - Reject requests above the configured budget.
 - Reject requests when endpoint price is missing or malformed.
@@ -86,6 +95,11 @@ Public preview must stay dry-run first until every item below is complete.
 - Dry-run route never sends payment.
 - Execution simulation passes while `ALLOW_LIVE_EXECUTION=false`.
 - Execution simulation always returns `paymentSent: false`.
+- `POST /execute/prepare` creates a `PREPARED` ticket and returns `paymentSent: false`.
+- `POST /execute/approve` changes an unexpired ticket to `APPROVED` and returns `paymentSent: false`.
+- `POST /execute/consume` changes an approved ticket to `CONSUMED` and returns `paymentSent: false`.
+- Expired, consumed, missing, or wrong-status tickets are rejected.
+- `/api/execution-status` shows payment signing and sending disabled.
 - Live execution is blocked when `ALLOW_LIVE_EXECUTION=false`.
 - Live execution is blocked for non-beta callers.
 - Live execution is blocked for non-allowlisted endpoints.
@@ -98,6 +112,7 @@ Public preview must stay dry-run first until every item below is complete.
 ## Rollback Plan
 
 - Set `ALLOW_LIVE_EXECUTION=false`.
+- Set `X402_PREPARE_ENABLED=false`.
 - Remove beta frontend origin from `ALLOWED_ORIGINS`.
 - Remove endpoint allowlist entries.
 - Rotate beta wallet key if needed.
@@ -109,6 +124,7 @@ Public preview must stay dry-run first until every item below is complete.
 Closed beta can move toward public beta only when:
 
 - Live execution has completed successfully on an allowlisted endpoint.
+- Ticket rehearsal completed from prepare to approve to consume without payment.
 - Spend limits were enforced.
 - Dry-run behavior remained unchanged.
 - Error handling was clear to testers.

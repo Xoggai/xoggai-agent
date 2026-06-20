@@ -35,6 +35,7 @@ export const infoRoute = new Hono().get('/', (c) => {
     },
     sampleRequests: {
       health: 'GET /health',
+      executionStatus: 'GET /api/execution-status',
       routeIntent:
         'GET /intent?q=what%20is%20the%20ETH%20price&budget=0.05&dry=true',
       searchEndpoints: 'GET /search?q=crypto%20price&limit=5&dry=true',
@@ -47,6 +48,7 @@ export const infoRoute = new Hono().get('/', (c) => {
       root: '/',
       info: '/api/info',
       health: '/health',
+      executionStatus: '/api/execution-status',
       intent: '/intent?q=what%20is%20the%20ETH%20price&budget=0.05&dry=true',
       search: '/search?q=crypto%20price&limit=5&dry=true',
       stats: '/api/stats',

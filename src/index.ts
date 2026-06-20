@@ -8,6 +8,7 @@ import { approveExecutionRoute } from './routes/approveExecution.js'
 import { consumeExecutionRoute } from './routes/consumeExecution.js'
 import { endpointsRoute } from './routes/endpoints.js'
 import { executeRoute } from './routes/execute.js'
+import { executionStatusRoute } from './routes/executionStatus.js'
 import { feedRoute } from './routes/feed.js'
 import { healthRoute } from './routes/health.js'
 import { infoRoute } from './routes/info.js'
@@ -59,6 +60,7 @@ app.get('/', (c) =>
     },
     sampleRequests: {
       health: 'GET /health',
+      executionStatus: 'GET /api/execution-status',
       routeIntent:
         'GET /intent?q=what%20is%20the%20ETH%20price&budget=0.05&dry=true',
       searchEndpoints: 'GET /search?q=crypto%20price&limit=5&dry=true',
@@ -70,6 +72,7 @@ app.get('/', (c) =>
     endpoints: {
       info: '/api/info',
       health: '/health',
+      executionStatus: '/api/execution-status',
       intent: '/intent?q=what%20is%20the%20ETH%20price&budget=0.05&dry=true',
       search: '/search?q=crypto%20price&limit=5&dry=true',
       stats: '/api/stats',
@@ -91,6 +94,7 @@ app.route('/execute/prepare', prepareExecutionRoute)
 app.route('/execute/approve', approveExecutionRoute)
 app.route('/execute/consume', consumeExecutionRoute)
 app.route('/api/info', infoRoute)
+app.route('/api/execution-status', executionStatusRoute)
 app.route('/api/stats', statsRoute)
 app.route('/api/feed', feedRoute)
 app.route('/api/endpoints', endpointsRoute)
