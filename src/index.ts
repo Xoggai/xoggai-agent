@@ -4,6 +4,7 @@ import { env, hasLiveAnthropicKey, hasLiveX402Wallet } from './env.js'
 import { corsMiddleware } from './middleware/cors.js'
 import { loggerMiddleware } from './middleware/logger.js'
 import { rateLimitMiddleware } from './middleware/rateLimit.js'
+import { approveExecutionRoute } from './routes/approveExecution.js'
 import { endpointsRoute } from './routes/endpoints.js'
 import { executeRoute } from './routes/execute.js'
 import { feedRoute } from './routes/feed.js'
@@ -62,6 +63,7 @@ app.get('/', (c) =>
       searchEndpoints: 'GET /search?q=crypto%20price&limit=5&dry=true',
       simulateExecution: 'POST /execute (requires x-beta-key)',
       preparePayment: 'POST /execute/prepare (requires x-beta-key)',
+      approvePayment: 'POST /execute/approve (requires x-beta-key)',
     },
     endpoints: {
       info: '/api/info',
@@ -73,6 +75,7 @@ app.get('/', (c) =>
       endpoints: '/api/endpoints',
       execute: '/execute',
       preparePayment: '/execute/prepare',
+      approvePayment: '/execute/approve',
     },
     note: 'Public preview keeps live x402 execution gated. Use dry=true for safe routing previews.',
   }),
@@ -82,6 +85,7 @@ app.route('/intent', intentRoute)
 app.route('/search', searchRoute)
 app.route('/execute', executeRoute)
 app.route('/execute/prepare', prepareExecutionRoute)
+app.route('/execute/approve', approveExecutionRoute)
 app.route('/api/info', infoRoute)
 app.route('/api/stats', statsRoute)
 app.route('/api/feed', feedRoute)

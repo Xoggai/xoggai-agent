@@ -39,6 +39,8 @@ export const infoRoute = new Hono().get('/', (c) => {
         'GET /intent?q=what%20is%20the%20ETH%20price&budget=0.05&dry=true',
       searchEndpoints: 'GET /search?q=crypto%20price&limit=5&dry=true',
       simulateExecution: 'POST /execute (requires x-beta-key)',
+      preparePayment: 'POST /execute/prepare (requires x-beta-key)',
+      approvePayment: 'POST /execute/approve (requires x-beta-key)',
     },
     endpoints: {
       root: '/',
@@ -50,6 +52,8 @@ export const infoRoute = new Hono().get('/', (c) => {
       feed: '/api/feed',
       endpoints: '/api/endpoints',
       execute: '/execute',
+      preparePayment: '/execute/prepare',
+      approvePayment: '/execute/approve',
     },
     note: 'Public preview keeps live x402 execution gated. Use dry=true for safe routing previews.',
     commit:

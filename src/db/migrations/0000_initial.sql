@@ -66,8 +66,16 @@ CREATE TABLE IF NOT EXISTS payment_prepare_tickets (
   max_timeout_seconds integer NOT NULL,
   created_at timestamp NOT NULL DEFAULT now(),
   expires_at timestamp NOT NULL,
+  approved_at timestamp,
+  approved_by text,
   consumed_at timestamp
 );
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS approved_at timestamp;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS approved_by text;
 
 CREATE INDEX IF NOT EXISTS payment_prepare_tickets_status_idx
   ON payment_prepare_tickets (status);

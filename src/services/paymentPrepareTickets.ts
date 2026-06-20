@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { and, eq } from 'drizzle-orm'
 import { db } from '../db/client.js'
 import { paymentPrepareTickets } from '../db/schema.js'
 
@@ -25,6 +26,27 @@ export type PreparedPaymentTicket = {
   status: 'PREPARED'
   challengeHash: string
   expiresAt: string
+}
+
+export type ApprovedPaymentTicket = {
+  id: string
+  status: 'APPROVED'
+  challengeHash: string
+  approvedAt: string
+  expiresAt: string
+}
+
+export class PaymentTicketApprovalError extends Error {
+  constructor(
+    public readonly code:
+      | 'payment_ticket_not_found'
+      | 'payment_ticket_expired'
+      | 'payment_ticket_already_approved'
+      | 'payment_ticket_consumed'
+      | 'payment_ticket_not_prepared',
+  ) {
+    super(code)
+  }
 }
 
 export function hashPaymentChallenge(paymentRequiredHeader: string) {
@@ -75,5 +97,84 @@ export async function createPreparedPaymentTicket({
     status: 'PREPARED',
     challengeHash: ticket.challengeHash,
     expiresAt: ticket.expiresAt.toISOString(),
+  }
+}
+
+export async function approvePreparedPaymentTicket({
+  ticketId,
+  approvedBy,
+  now = new Date(),
+}: {
+  ticketId: string
+  approvedBy?: string
+  now?: Date
+}): Promise<ApprovedPaymentTicket> {
+  const [ticket] = await db
+    .select({
+      id: paymentPrepareTickets.id,
+      status: paymentPrepareTickets.status,
+      challengeHash: paymentPrepareTickets.challengeHash,
+      expiresAt: paymentPrepareTickets.expiresAt,
+      consumedAt: paymentPrepareTickets.consumedAt,
+    })
+    .from(paymentPrepareTickets)
+    .where(eq(paymentPrepareTickets.id, ticketId))
+    .limit(1)
+
+  if (!ticket) {
+    throw new PaymentTicketApprovalError('payment_ticket_not_found')
+  }
+
+  if (ticket.consumedAt) {
+    throw new PaymentTicketApprovalError('payment_ticket_consumed')
+  }
+
+  if (ticket.status === 'APPROVED') {
+    throw new PaymentTicketApprovalError('payment_ticket_already_approved')
+  }
+
+  if (ticket.status !== 'PREPARED') {
+    throw new PaymentTicketApprovalError('payment_ticket_not_prepared')
+  }
+
+  if (ticket.expiresAt <= now) {
+    throw new PaymentTicketApprovalError('payment_ticket_expired')
+  }
+
+  const [approved] = await db
+    .update(paymentPrepareTickets)
+    .set({
+      status: 'APPROVED',
+      approvedAt: now,
+      approvedBy: approvedBy ?? null,
+    })
+    .where(
+      and(
+        eq(paymentPrepareTickets.id, ticketId),
+        eq(paymentPrepareTickets.status, 'PREPARED'),
+      ),
+    )
+    .returning({
+      id: paymentPrepareTickets.id,
+      status: paymentPrepareTickets.status,
+      challengeHash: paymentPrepareTickets.challengeHash,
+      approvedAt: paymentPrepareTickets.approvedAt,
+      expiresAt: paymentPrepareTickets.expiresAt,
+    })
+
+  if (
+    !approved ||
+    approved.status !== 'APPROVED' ||
+    !approved.approvedAt
+  ) {
+    throw new PaymentTicketApprovalError('payment_ticket_not_prepared')
+  }
+
+  return {
+    id: approved.id,
+    status: 'APPROVED',
+    challengeHash: approved.challengeHash,
+    approvedAt: approved.approvedAt.toISOString(),
+    expiresAt: approved.expiresAt.toISOString(),
   }
 }

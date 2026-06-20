@@ -115,6 +115,25 @@ The ticket is an approval artifact, not payment authorization. Future live
 execution must require an unexpired, manually approved, one-time ticket before
 any wallet signing path is allowed.
 
+Ticket approval is also server-side only:
+
+```http
+POST /execute/approve
+Content-Type: application/json
+x-beta-key: <operator-secret>
+```
+
+```json
+{
+  "ticketId": "11111111-1111-4111-8111-111111111111",
+  "approvedBy": "operator"
+}
+```
+
+Approval changes an unexpired ticket from `PREPARED` to `APPROVED`. It still
+returns `paymentSigned=false` and `paymentSent=false`. Expired, consumed,
+missing, already approved, or non-prepared tickets are rejected.
+
 Call this endpoint from a trusted server or agent runtime. Never embed the beta
 key in the public website or other browser-delivered code. `GET /intent` stays
 routing-only and rejects `dry=false`.
@@ -156,6 +175,7 @@ npm run test:execution-simulation
 - Require explicit live mode for any payment path.
 - Require a fresh approval ticket before any future live payment.
 - Treat prepare tickets as one-time-use records.
+- Keep approval server-side; never expose approval keys in browser code.
 - Block live execution when `ALLOW_LIVE_EXECUTION=false`.
 - Block live execution for unknown endpoints.
 - Block live execution when budget is missing.

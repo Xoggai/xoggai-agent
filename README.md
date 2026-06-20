@@ -269,6 +269,18 @@ The command exits unless the backend confirms `prepare-only`,
 a ticket id and challenge hash for operator review. It does not require wallet
 funds. Keep the beta key in the operator terminal or secret manager only.
 
+Approve a prepared ticket from a trusted operator environment only:
+
+```powershell
+curl.exe -X POST "$env:XOGGAI_API_BASE/execute/approve" `
+  -H "content-type: application/json" `
+  -H "x-beta-key: $env:BETA_EXECUTION_KEY" `
+  --data "{\"ticketId\":\"<prepared-ticket-id>\",\"approvedBy\":\"operator\"}"
+```
+
+Approval changes the ticket status to `APPROVED`; it still does not sign or
+send payment.
+
 ## Repository Map
 
 - `src/` - backend API source.

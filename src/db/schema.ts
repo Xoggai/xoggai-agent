@@ -89,6 +89,8 @@ export const paymentPrepareTickets = pgTable(
     maxTimeoutSeconds: integer('max_timeout_seconds').notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     expiresAt: timestamp('expires_at').notNull(),
+    approvedAt: timestamp('approved_at'),
+    approvedBy: text('approved_by'),
     consumedAt: timestamp('consumed_at'),
   },
   (t) => ({
