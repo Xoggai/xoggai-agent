@@ -238,10 +238,11 @@ For an isolated Base Sepolia simulation environment, review
 [`docs/BETA_ENDPOINT_AUDIT.md`](docs/BETA_ENDPOINT_AUDIT.md). The beta template
 ships with an empty endpoint allowlist by design and does not enable payments.
 When `X402_PREPARE_ENABLED=true`, `POST /execute/prepare` can fetch and validate
-the audited endpoint's unpaid 402 challenge. This prepare-only route never
-creates a signature, retries with payment credentials, or sends a transaction.
-The backend intentionally refuses to start with this flag set to `true` until
-the live payment implementation exists and passes a separate audit.
+the audited endpoint's unpaid 402 challenge and store a short-lived
+`PREPARED` approval ticket. This prepare-only route never creates a signature,
+retries with payment credentials, or sends a transaction.
+The backend still refuses to start with `ALLOW_LIVE_EXECUTION=true` until the
+live payment implementation exists and passes a separate audit.
 Enable execution simulation independently and only in a controlled beta
 environment. Never expose `BETA_EXECUTION_KEY` in browser code.
 
@@ -264,7 +265,8 @@ npm run test:x402-prepare
 ```
 
 The command exits unless the backend confirms `prepare-only`,
-`paymentSigned=false`, and `paymentSent=false`. It does not require wallet
+`paymentSigned=false`, and `paymentSent=false`. A successful response includes
+a ticket id and challenge hash for operator review. It does not require wallet
 funds. Keep the beta key in the operator terminal or secret manager only.
 
 ## Repository Map

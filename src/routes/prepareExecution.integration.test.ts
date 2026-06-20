@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict'
 import { Hono } from 'hono'
 import { auditedX402Candidate } from '../config/auditedX402.js'
+import {
+  hashPaymentChallenge,
+  type PreparedPaymentTicketInput,
+} from '../services/paymentPrepareTickets.js'
 import { createPrepareExecutionRoute } from './prepareExecutionRoute.js'
 
 const betaKey = 'beta-key-for-prepare-route-tests'
@@ -30,9 +34,15 @@ function createApp(
     betaExecutionKey: string | undefined
     status: number
     paymentRequired: string | undefined
+    savePreparedPayment: false | 'throw'
+    savedInputs: PreparedPaymentTicketInput[]
   }> = {},
 ) {
   const app = new Hono()
+  const paymentRequired =
+    'paymentRequired' in overrides
+      ? overrides.paymentRequired
+      : paymentRequiredHeader()
   app.route(
     '/execute/prepare',
     createPrepareExecutionRoute({
@@ -45,12 +55,26 @@ function createApp(
       async fetchChallenge() {
         return {
           status: overrides.status ?? 402,
-          paymentRequired:
-            'paymentRequired' in overrides
-              ? overrides.paymentRequired
-              : paymentRequiredHeader(),
+          paymentRequired,
         }
       },
+      savePreparedPayment:
+        overrides.savePreparedPayment === false
+          ? undefined
+          : async (input) => {
+              if (overrides.savePreparedPayment === 'throw') {
+                throw new Error('payment_prepare_ticket_not_created')
+              }
+              overrides.savedInputs?.push(input)
+              return {
+                id: '11111111-1111-4111-8111-111111111111',
+                status: 'PREPARED',
+                challengeHash: hashPaymentChallenge(
+                  input.paymentRequiredHeader,
+                ),
+                expiresAt: '2026-06-20T12:01:00.000Z',
+              }
+            },
       createRequestId: () => 'prepare-request-id',
     }),
   )
@@ -104,11 +128,30 @@ async function request(
 }
 
 {
-  const { response, json } = await request({})
+  const savedInputs: PreparedPaymentTicketInput[] = []
+  const { response, json } = await request({ savedInputs })
   assert.equal(response.status, 200)
   assert.equal(json.success, true)
   assert.equal(json.mode, 'prepare-only')
   assert.equal(json.paymentPrepared, true)
+  assert.equal(json.paymentSigned, false)
+  assert.equal(json.paymentSent, false)
+  assert.deepEqual(json.ticket, {
+    id: '11111111-1111-4111-8111-111111111111',
+    status: 'PREPARED',
+    challengeHash: hashPaymentChallenge(paymentRequiredHeader()),
+    expiresAt: '2026-06-20T12:01:00.000Z',
+  })
+  assert.equal(savedInputs.length, 1)
+  assert.equal(savedInputs[0]?.requestId, 'prepare-request-id')
+  assert.equal(savedInputs[0]?.budgetUsdc, 0.005)
+  assert.equal(savedInputs[0]?.preview.resourceUrl, auditedX402Candidate.resourceUrl)
+}
+
+{
+  const { response, json } = await request({ savePreparedPayment: 'throw' })
+  assert.equal(response.status, 502)
+  assert.equal(json.error, 'payment_prepare_ticket_not_created')
   assert.equal(json.paymentSigned, false)
   assert.equal(json.paymentSent, false)
 }

@@ -83,12 +83,37 @@ The backend currently refuses to start if `ALLOW_LIVE_EXECUTION=true`.
 Challenge inspection is a separate prepare-only stage. When
 `X402_PREPARE_ENABLED=true`, `POST /execute/prepare` fetches the pinned audited
 resource without payment credentials and validates its HTTP 402 requirement.
-It does not sign or submit a payment.
+It then stores a short-lived approval ticket with status `PREPARED`. It does
+not sign or submit a payment.
 
 Operators can inspect this stage with `npm run test:x402-prepare`. The command
 accepts only HTTPS backends (except localhost), caps its requested budget at
 `0.005` USDC, and fails unless the response explicitly confirms that no
 signature or payment was created.
+
+Prepare response shape:
+
+```json
+{
+  "success": true,
+  "mode": "prepare-only",
+  "requestId": "prepared-request-id",
+  "budgetUsdc": 0.005,
+  "paymentPrepared": true,
+  "paymentSigned": false,
+  "paymentSent": false,
+  "ticket": {
+    "id": "11111111-1111-4111-8111-111111111111",
+    "status": "PREPARED",
+    "challengeHash": "sha256-of-payment-required-header",
+    "expiresAt": "2026-06-20T12:01:00.000Z"
+  }
+}
+```
+
+The ticket is an approval artifact, not payment authorization. Future live
+execution must require an unexpired, manually approved, one-time ticket before
+any wallet signing path is allowed.
 
 Call this endpoint from a trusted server or agent runtime. Never embed the beta
 key in the public website or other browser-delivered code. `GET /intent` stays
@@ -129,6 +154,8 @@ npm run test:execution-simulation
 
 - Keep dry-run as the default.
 - Require explicit live mode for any payment path.
+- Require a fresh approval ticket before any future live payment.
+- Treat prepare tickets as one-time-use records.
 - Block live execution when `ALLOW_LIVE_EXECUTION=false`.
 - Block live execution for unknown endpoints.
 - Block live execution when budget is missing.

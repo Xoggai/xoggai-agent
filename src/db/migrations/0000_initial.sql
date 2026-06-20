@@ -50,3 +50,30 @@ CREATE TABLE IF NOT EXISTS stats (
 );
 
 INSERT INTO stats (id) VALUES (1) ON CONFLICT (id) DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS payment_prepare_tickets (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  request_id text NOT NULL,
+  status text NOT NULL DEFAULT 'PREPARED',
+  challenge_hash text NOT NULL,
+  resource_url text NOT NULL,
+  network text NOT NULL,
+  asset text NOT NULL,
+  recipient text NOT NULL,
+  amount_atomic text NOT NULL,
+  amount_usdc real NOT NULL,
+  budget_usdc real NOT NULL,
+  max_timeout_seconds integer NOT NULL,
+  created_at timestamp NOT NULL DEFAULT now(),
+  expires_at timestamp NOT NULL,
+  consumed_at timestamp
+);
+
+CREATE INDEX IF NOT EXISTS payment_prepare_tickets_status_idx
+  ON payment_prepare_tickets (status);
+
+CREATE INDEX IF NOT EXISTS payment_prepare_tickets_expires_at_idx
+  ON payment_prepare_tickets (expires_at);
+
+CREATE INDEX IF NOT EXISTS payment_prepare_tickets_challenge_hash_idx
+  ON payment_prepare_tickets (challenge_hash);

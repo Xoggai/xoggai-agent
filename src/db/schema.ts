@@ -71,3 +71,33 @@ export const stats = pgTable('stats', {
   hoursSaved: real('hours_saved').notNull().default(0),
   updatedAt: timestamp('updated_at').defaultNow(),
 })
+
+export const paymentPrepareTickets = pgTable(
+  'payment_prepare_tickets',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    requestId: text('request_id').notNull(),
+    status: text('status').notNull().default('PREPARED'),
+    challengeHash: text('challenge_hash').notNull(),
+    resourceUrl: text('resource_url').notNull(),
+    network: text('network').notNull(),
+    asset: text('asset').notNull(),
+    recipient: text('recipient').notNull(),
+    amountAtomic: text('amount_atomic').notNull(),
+    amountUsdc: real('amount_usdc').notNull(),
+    budgetUsdc: real('budget_usdc').notNull(),
+    maxTimeoutSeconds: integer('max_timeout_seconds').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    expiresAt: timestamp('expires_at').notNull(),
+    consumedAt: timestamp('consumed_at'),
+  },
+  (t) => ({
+    statusIdx: index('payment_prepare_tickets_status_idx').on(t.status),
+    expiresAtIdx: index('payment_prepare_tickets_expires_at_idx').on(
+      t.expiresAt,
+    ),
+    challengeHashIdx: index('payment_prepare_tickets_challenge_hash_idx').on(
+      t.challengeHash,
+    ),
+  }),
+)

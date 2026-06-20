@@ -7,6 +7,10 @@ import {
   preparePaymentPreview,
   type PaymentPreviewPolicy,
 } from '../services/x402PaymentPreview.js'
+import type {
+  PreparedPaymentTicket,
+  PaymentPreview,
+} from '../services/paymentPrepareTickets.js'
 
 const requestSchema = z.object({
   budget: z.number().positive().max(10),
@@ -17,6 +21,12 @@ export type PrepareExecutionDependencies = {
   betaExecutionKey?: string
   policy: PaymentPreviewPolicy
   fetchChallenge: () => Promise<{ status: number; paymentRequired?: string }>
+  savePreparedPayment?: (input: {
+    requestId: string
+    paymentRequiredHeader: string
+    budgetUsdc: number
+    preview: PaymentPreview
+  }) => Promise<PreparedPaymentTicket>
   createRequestId?: () => string
 }
 
@@ -112,6 +122,14 @@ export function createPrepareExecutionRoute(
         parsed.data.budget,
         dependencies.policy,
       )
+      const ticket = dependencies.savePreparedPayment
+        ? await dependencies.savePreparedPayment({
+            requestId,
+            paymentRequiredHeader: challenge.paymentRequired,
+            budgetUsdc: parsed.data.budget,
+            preview,
+          })
+        : undefined
 
       return c.json({
         success: true,
@@ -119,16 +137,22 @@ export function createPrepareExecutionRoute(
         requestId,
         budgetUsdc: parsed.data.budget,
         preview,
+        ticket,
         paymentPrepared: true,
         paymentSigned: false,
         paymentSent: false,
-        note: 'Challenge validated. No signature or payment was created.',
+        note: ticket
+          ? 'Challenge validated and approval ticket created. No signature or payment was created.'
+          : 'Challenge validated. No signature or payment was created.',
       })
     } catch (error) {
       const code =
         error instanceof PaymentPreviewError
           ? error.code
-          : 'upstream_challenge_unreachable'
+          : error instanceof Error &&
+              error.message === 'payment_prepare_ticket_not_created'
+            ? 'payment_prepare_ticket_not_created'
+            : 'upstream_challenge_unreachable'
       return c.json(
         {
           success: false,

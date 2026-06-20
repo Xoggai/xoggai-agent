@@ -1,5 +1,6 @@
 import { auditedX402Candidate } from '../config/auditedX402.js'
 import { env } from '../env.js'
+import { createPreparedPaymentTicket } from '../services/paymentPrepareTickets.js'
 import { createPrepareExecutionRoute } from './prepareExecutionRoute.js'
 
 export const prepareExecutionRoute = createPrepareExecutionRoute({
@@ -19,4 +20,5 @@ export const prepareExecutionRoute = createPrepareExecutionRoute({
       paymentRequired: response.headers.get('payment-required') ?? undefined,
     }
   },
+  savePreparedPayment: createPreparedPaymentTicket,
 })
