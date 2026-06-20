@@ -19,7 +19,7 @@ it as a one-time-use checkpoint for future live execution.
 Before every rehearsal:
 
 ```powershell
-curl.exe "$env:XOGGAI_API_BASE/api/execution-status"
+npm run x402:operator -- status
 ```
 
 Expected:
@@ -43,7 +43,7 @@ stores a short-lived `PREPARED` ticket.
 
 ```powershell
 $env:TEST_X402_BUDGET='0.005'
-npm run test:x402-prepare
+npm run x402:operator -- prepare
 ```
 
 Expected:
@@ -68,10 +68,8 @@ Record:
 Approve only after the prepared ticket details match the audit.
 
 ```powershell
-curl.exe -X POST "$env:XOGGAI_API_BASE/execute/approve" `
-  -H "content-type: application/json" `
-  -H "x-beta-key: $env:BETA_EXECUTION_KEY" `
-  --data "{\"ticketId\":\"<prepared-ticket-id>\",\"approvedBy\":\"operator\"}"
+$env:X402_OPERATOR='operator'
+npm run x402:operator -- approve <prepared-ticket-id>
 ```
 
 Expected:
@@ -90,10 +88,8 @@ Consume marks the approved ticket as used. This is the dry handoff point that
 future live execution must pass before wallet signing exists.
 
 ```powershell
-curl.exe -X POST "$env:XOGGAI_API_BASE/execute/consume" `
-  -H "content-type: application/json" `
-  -H "x-beta-key: $env:BETA_EXECUTION_KEY" `
-  --data "{\"ticketId\":\"<approved-ticket-id>\",\"consumedBy\":\"operator\"}"
+$env:X402_OPERATOR='operator'
+npm run x402:operator -- consume <approved-ticket-id>
 ```
 
 Expected:

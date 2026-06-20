@@ -262,7 +262,7 @@ Inspect the pinned Base Sepolia payment challenge without signing or paying:
 $env:XOGGAI_API_BASE='https://your-beta-backend.example.com'
 $env:BETA_EXECUTION_KEY='<server-side-secret-at-least-32-characters>'
 $env:TEST_X402_BUDGET='0.005'
-npm run test:x402-prepare
+npm run x402:operator -- prepare
 ```
 
 The command exits unless the backend confirms `prepare-only`,
@@ -273,16 +273,13 @@ funds. Keep the beta key in the operator terminal or secret manager only.
 Check execution safety status:
 
 ```powershell
-curl.exe "$env:XOGGAI_API_BASE/api/execution-status"
+npm run x402:operator -- status
 ```
 
 Approve a prepared ticket from a trusted operator environment only:
 
 ```powershell
-curl.exe -X POST "$env:XOGGAI_API_BASE/execute/approve" `
-  -H "content-type: application/json" `
-  -H "x-beta-key: $env:BETA_EXECUTION_KEY" `
-  --data "{\"ticketId\":\"<prepared-ticket-id>\",\"approvedBy\":\"operator\"}"
+npm run x402:operator -- approve <prepared-ticket-id>
 ```
 
 Approval changes the ticket status to `APPROVED`; it still does not sign or
@@ -291,10 +288,7 @@ send payment.
 Consume an approved ticket before the future live execution handoff:
 
 ```powershell
-curl.exe -X POST "$env:XOGGAI_API_BASE/execute/consume" `
-  -H "content-type: application/json" `
-  -H "x-beta-key: $env:BETA_EXECUTION_KEY" `
-  --data "{\"ticketId\":\"<approved-ticket-id>\",\"consumedBy\":\"operator\"}"
+npm run x402:operator -- consume <approved-ticket-id>
 ```
 
 Consumption changes the ticket status to `CONSUMED`; it still does not sign or
