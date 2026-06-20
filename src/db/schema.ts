@@ -92,6 +92,7 @@ export const paymentPrepareTickets = pgTable(
     approvedAt: timestamp('approved_at'),
     approvedBy: text('approved_by'),
     consumedAt: timestamp('consumed_at'),
+    consumedBy: text('consumed_by'),
   },
   (t) => ({
     statusIdx: index('payment_prepare_tickets_status_idx').on(t.status),

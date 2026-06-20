@@ -36,6 +36,14 @@ export type ApprovedPaymentTicket = {
   expiresAt: string
 }
 
+export type ConsumedPaymentTicket = {
+  id: string
+  status: 'CONSUMED'
+  challengeHash: string
+  consumedAt: string
+  expiresAt: string
+}
+
 export class PaymentTicketApprovalError extends Error {
   constructor(
     public readonly code:
@@ -44,6 +52,18 @@ export class PaymentTicketApprovalError extends Error {
       | 'payment_ticket_already_approved'
       | 'payment_ticket_consumed'
       | 'payment_ticket_not_prepared',
+  ) {
+    super(code)
+  }
+}
+
+export class PaymentTicketConsumeError extends Error {
+  constructor(
+    public readonly code:
+      | 'payment_ticket_not_found'
+      | 'payment_ticket_expired'
+      | 'payment_ticket_consumed'
+      | 'payment_ticket_not_approved',
   ) {
     super(code)
   }
@@ -176,5 +196,80 @@ export async function approvePreparedPaymentTicket({
     challengeHash: approved.challengeHash,
     approvedAt: approved.approvedAt.toISOString(),
     expiresAt: approved.expiresAt.toISOString(),
+  }
+}
+
+export async function consumeApprovedPaymentTicket({
+  ticketId,
+  consumedBy,
+  now = new Date(),
+}: {
+  ticketId: string
+  consumedBy?: string
+  now?: Date
+}): Promise<ConsumedPaymentTicket> {
+  const [ticket] = await db
+    .select({
+      id: paymentPrepareTickets.id,
+      status: paymentPrepareTickets.status,
+      challengeHash: paymentPrepareTickets.challengeHash,
+      expiresAt: paymentPrepareTickets.expiresAt,
+      consumedAt: paymentPrepareTickets.consumedAt,
+    })
+    .from(paymentPrepareTickets)
+    .where(eq(paymentPrepareTickets.id, ticketId))
+    .limit(1)
+
+  if (!ticket) {
+    throw new PaymentTicketConsumeError('payment_ticket_not_found')
+  }
+
+  if (ticket.consumedAt || ticket.status === 'CONSUMED') {
+    throw new PaymentTicketConsumeError('payment_ticket_consumed')
+  }
+
+  if (ticket.status !== 'APPROVED') {
+    throw new PaymentTicketConsumeError('payment_ticket_not_approved')
+  }
+
+  if (ticket.expiresAt <= now) {
+    throw new PaymentTicketConsumeError('payment_ticket_expired')
+  }
+
+  const [consumed] = await db
+    .update(paymentPrepareTickets)
+    .set({
+      status: 'CONSUMED',
+      consumedAt: now,
+      consumedBy: consumedBy ?? null,
+    })
+    .where(
+      and(
+        eq(paymentPrepareTickets.id, ticketId),
+        eq(paymentPrepareTickets.status, 'APPROVED'),
+      ),
+    )
+    .returning({
+      id: paymentPrepareTickets.id,
+      status: paymentPrepareTickets.status,
+      challengeHash: paymentPrepareTickets.challengeHash,
+      consumedAt: paymentPrepareTickets.consumedAt,
+      expiresAt: paymentPrepareTickets.expiresAt,
+    })
+
+  if (
+    !consumed ||
+    consumed.status !== 'CONSUMED' ||
+    !consumed.consumedAt
+  ) {
+    throw new PaymentTicketConsumeError('payment_ticket_not_approved')
+  }
+
+  return {
+    id: consumed.id,
+    status: 'CONSUMED',
+    challengeHash: consumed.challengeHash,
+    consumedAt: consumed.consumedAt.toISOString(),
+    expiresAt: consumed.expiresAt.toISOString(),
   }
 }

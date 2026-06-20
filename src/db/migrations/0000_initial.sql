@@ -68,7 +68,8 @@ CREATE TABLE IF NOT EXISTS payment_prepare_tickets (
   expires_at timestamp NOT NULL,
   approved_at timestamp,
   approved_by text,
-  consumed_at timestamp
+  consumed_at timestamp,
+  consumed_by text
 );
 
 ALTER TABLE payment_prepare_tickets
@@ -76,6 +77,9 @@ ALTER TABLE payment_prepare_tickets
 
 ALTER TABLE payment_prepare_tickets
   ADD COLUMN IF NOT EXISTS approved_by text;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS consumed_by text;
 
 CREATE INDEX IF NOT EXISTS payment_prepare_tickets_status_idx
   ON payment_prepare_tickets (status);

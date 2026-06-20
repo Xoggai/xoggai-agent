@@ -41,6 +41,7 @@ export const infoRoute = new Hono().get('/', (c) => {
       simulateExecution: 'POST /execute (requires x-beta-key)',
       preparePayment: 'POST /execute/prepare (requires x-beta-key)',
       approvePayment: 'POST /execute/approve (requires x-beta-key)',
+      consumePayment: 'POST /execute/consume (requires x-beta-key)',
     },
     endpoints: {
       root: '/',
@@ -54,6 +55,7 @@ export const infoRoute = new Hono().get('/', (c) => {
       execute: '/execute',
       preparePayment: '/execute/prepare',
       approvePayment: '/execute/approve',
+      consumePayment: '/execute/consume',
     },
     note: 'Public preview keeps live x402 execution gated. Use dry=true for safe routing previews.',
     commit:

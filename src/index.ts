@@ -5,6 +5,7 @@ import { corsMiddleware } from './middleware/cors.js'
 import { loggerMiddleware } from './middleware/logger.js'
 import { rateLimitMiddleware } from './middleware/rateLimit.js'
 import { approveExecutionRoute } from './routes/approveExecution.js'
+import { consumeExecutionRoute } from './routes/consumeExecution.js'
 import { endpointsRoute } from './routes/endpoints.js'
 import { executeRoute } from './routes/execute.js'
 import { feedRoute } from './routes/feed.js'
@@ -64,6 +65,7 @@ app.get('/', (c) =>
       simulateExecution: 'POST /execute (requires x-beta-key)',
       preparePayment: 'POST /execute/prepare (requires x-beta-key)',
       approvePayment: 'POST /execute/approve (requires x-beta-key)',
+      consumePayment: 'POST /execute/consume (requires x-beta-key)',
     },
     endpoints: {
       info: '/api/info',
@@ -76,6 +78,7 @@ app.get('/', (c) =>
       execute: '/execute',
       preparePayment: '/execute/prepare',
       approvePayment: '/execute/approve',
+      consumePayment: '/execute/consume',
     },
     note: 'Public preview keeps live x402 execution gated. Use dry=true for safe routing previews.',
   }),
@@ -86,6 +89,7 @@ app.route('/search', searchRoute)
 app.route('/execute', executeRoute)
 app.route('/execute/prepare', prepareExecutionRoute)
 app.route('/execute/approve', approveExecutionRoute)
+app.route('/execute/consume', consumeExecutionRoute)
 app.route('/api/info', infoRoute)
 app.route('/api/stats', statsRoute)
 app.route('/api/feed', feedRoute)

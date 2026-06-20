@@ -281,6 +281,18 @@ curl.exe -X POST "$env:XOGGAI_API_BASE/execute/approve" `
 Approval changes the ticket status to `APPROVED`; it still does not sign or
 send payment.
 
+Consume an approved ticket before the future live execution handoff:
+
+```powershell
+curl.exe -X POST "$env:XOGGAI_API_BASE/execute/consume" `
+  -H "content-type: application/json" `
+  -H "x-beta-key: $env:BETA_EXECUTION_KEY" `
+  --data "{\"ticketId\":\"<approved-ticket-id>\",\"consumedBy\":\"operator\"}"
+```
+
+Consumption changes the ticket status to `CONSUMED`; it still does not sign or
+send payment.
+
 ## Repository Map
 
 - `src/` - backend API source.

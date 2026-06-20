@@ -134,6 +134,26 @@ Approval changes an unexpired ticket from `PREPARED` to `APPROVED`. It still
 returns `paymentSigned=false` and `paymentSent=false`. Expired, consumed,
 missing, already approved, or non-prepared tickets are rejected.
 
+Consumption is the final dry operator step:
+
+```http
+POST /execute/consume
+Content-Type: application/json
+x-beta-key: <operator-secret>
+```
+
+```json
+{
+  "ticketId": "11111111-1111-4111-8111-111111111111",
+  "consumedBy": "operator"
+}
+```
+
+Consumption changes an unexpired approved ticket from `APPROVED` to `CONSUMED`.
+It still returns `paymentSigned=false` and `paymentSent=false`. This gives the
+future live execution path a one-time-use checkpoint before wallet signing is
+introduced.
+
 Call this endpoint from a trusted server or agent runtime. Never embed the beta
 key in the public website or other browser-delivered code. `GET /intent` stays
 routing-only and rejects `dry=false`.
@@ -176,6 +196,7 @@ npm run test:execution-simulation
 - Require a fresh approval ticket before any future live payment.
 - Treat prepare tickets as one-time-use records.
 - Keep approval server-side; never expose approval keys in browser code.
+- Consume approved tickets before any future live payment handoff.
 - Block live execution when `ALLOW_LIVE_EXECUTION=false`.
 - Block live execution for unknown endpoints.
 - Block live execution when budget is missing.
