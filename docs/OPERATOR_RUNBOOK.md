@@ -2,6 +2,9 @@
 
 Use this runbook for XoggAI closed-beta execution rehearsals.
 
+For the first controlled funded Base Sepolia upstream run, start with the
+dedicated Phase 5 checklist in `docs/PHASE5_TESTNET_EXECUTION.md`.
+
 This flow does not sign a payment and does not send payment. It validates the
 audited x402 challenge, creates an approval ticket, approves it, then consumes
 it as a one-time-use checkpoint for future live execution.
@@ -44,6 +47,15 @@ Expected:
 
 Stop if `liveExecutionEnabled`, `paymentSigningEnabled`, or
 `paymentSendingEnabled` is `true`.
+
+Before the Phase 5 upstream execution rehearsal, run the stricter preflight:
+
+```powershell
+$env:X402_CONFIRM_UPSTREAM_EXECUTION='EXECUTE_X402_BASE_SEPOLIA'
+npm run phase5:preflight
+```
+
+Stop if `ready` is not `true`.
 
 ## 1. Prepare
 

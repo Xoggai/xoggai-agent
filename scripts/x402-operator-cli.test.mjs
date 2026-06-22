@@ -38,6 +38,70 @@ function jsonResponse(body, status = 200) {
 }
 
 {
+  const phase5Env = {
+    ...env,
+    XOGGAI_API_BASE: 'https://xoggai-backend.onrender.com',
+    X402_CONFIRM_UPSTREAM_EXECUTION: 'EXECUTE_X402_BASE_SEPOLIA',
+  }
+  const output = await runOperatorCli({
+    argv: ['phase5-preflight'],
+    env: phase5Env,
+    log: () => {},
+    async fetchImpl(url, options) {
+      assert.equal(
+        url.toString(),
+        'https://xoggai-backend.onrender.com/api/execution-status',
+      )
+      assert.equal(options.method, 'GET')
+      return jsonResponse({
+        status: 'ok',
+        safetyMode: 'testnet-upstream-execution',
+        network: 'base-sepolia',
+        prepareEnabled: true,
+        ticketSigningEnabled: true,
+        ticketVerificationEnabled: true,
+        ticketSettlementEnabled: false,
+        upstreamExecutionEnabled: true,
+        liveExecutionEnabled: false,
+        paymentSendingEnabled: true,
+        walletConfigured: true,
+        betaAccessConfigured: true,
+        maxExecutionBudgetUsdc: 0.005,
+      })
+    },
+  })
+
+  assert.equal(output.ready, true)
+  assert.equal(output.blockedBy.length, 0)
+}
+
+await assert.rejects(
+  runOperatorCli({
+    argv: ['phase5-preflight'],
+    env,
+    log: () => {},
+    async fetchImpl() {
+      return jsonResponse({
+        status: 'ok',
+        safetyMode: 'ticket-rehearsal',
+        network: 'base-mainnet',
+        prepareEnabled: true,
+        ticketSigningEnabled: false,
+        ticketVerificationEnabled: false,
+        ticketSettlementEnabled: false,
+        upstreamExecutionEnabled: false,
+        liveExecutionEnabled: false,
+        paymentSendingEnabled: false,
+        walletConfigured: false,
+        betaAccessConfigured: true,
+        maxExecutionBudgetUsdc: 0.05,
+      })
+    },
+  }),
+  /Phase 5 preflight blocked/,
+)
+
+{
   const output = await runOperatorCli({
     argv: ['prepare'],
     env,

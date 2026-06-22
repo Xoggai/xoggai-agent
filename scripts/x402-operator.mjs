@@ -1,6 +1,7 @@
 import { pathToFileURL } from 'node:url'
 
 const MAX_PREPARE_BUDGET_USDC = 0.005
+const PHASE5_CONFIRMATION = 'EXECUTE_X402_BASE_SEPOLIA'
 
 function apiBaseFromEnv(env) {
   const apiBase = env.XOGGAI_API_BASE || 'http://localhost:3000'
@@ -28,6 +29,21 @@ function endpoint(baseUrl, path) {
   return new URL(path, `${baseUrl.toString().replace(/\/$/, '')}/`)
 }
 
+async function fetchExecutionStatus({ baseUrl, fetchImpl }) {
+  const response = await fetchImpl(endpoint(baseUrl, '/api/execution-status'), {
+    method: 'GET',
+    redirect: 'error',
+    signal: AbortSignal.timeout(10_000),
+  })
+  const body = await parseJsonResponse(response, 'Execution status')
+  if (!response.ok) {
+    throw new Error(
+      `Execution status failed (${response.status}): ${JSON.stringify(body)}`,
+    )
+  }
+  return body
+}
+
 async function parseJsonResponse(response, label) {
   const responseText = await response.text()
   try {
@@ -50,6 +66,141 @@ function assertNoPayment(body) {
 function assertNotSent(body) {
   if (body.paymentSent !== false) {
     throw new Error('Safety assertion failed: paymentSent must be false')
+  }
+}
+
+function addPhase5Check(checks, blockedBy, name, pass, detail) {
+  checks.push({ name, pass, detail })
+  if (!pass) {
+    blockedBy.push(`${name}: ${detail}`)
+  }
+}
+
+function buildPhase5Preflight({ baseUrl, status, env }) {
+  const checks = []
+  const blockedBy = []
+  const budget = Number(status.maxExecutionBudgetUsdc)
+  const betaKey = env.BETA_EXECUTION_KEY || ''
+
+  addPhase5Check(
+    checks,
+    blockedBy,
+    'api_base',
+    baseUrl.protocol === 'https:' ||
+      ['localhost', '127.0.0.1'].includes(baseUrl.hostname),
+    `${baseUrl.toString().replace(/\/$/, '')} must be HTTPS unless local`,
+  )
+  addPhase5Check(
+    checks,
+    blockedBy,
+    'safety_mode',
+    status.safetyMode === 'testnet-upstream-execution',
+    `expected testnet-upstream-execution, got ${status.safetyMode}`,
+  )
+  addPhase5Check(
+    checks,
+    blockedBy,
+    'network',
+    status.network === 'base-sepolia',
+    `expected base-sepolia, got ${status.network}`,
+  )
+  addPhase5Check(
+    checks,
+    blockedBy,
+    'prepare_enabled',
+    status.prepareEnabled === true,
+    'X402_PREPARE_ENABLED must be true',
+  )
+  addPhase5Check(
+    checks,
+    blockedBy,
+    'signing_enabled',
+    status.ticketSigningEnabled === true,
+    'X402_SIGNING_ENABLED must be true',
+  )
+  addPhase5Check(
+    checks,
+    blockedBy,
+    'verification_enabled',
+    status.ticketVerificationEnabled === true,
+    'X402_VERIFY_ENABLED must be true',
+  )
+  addPhase5Check(
+    checks,
+    blockedBy,
+    'upstream_execution_enabled',
+    status.upstreamExecutionEnabled === true,
+    'X402_UPSTREAM_EXECUTION_ENABLED must be true',
+  )
+  addPhase5Check(
+    checks,
+    blockedBy,
+    'standalone_settlement_disabled',
+    status.ticketSettlementEnabled === false,
+    'X402_SETTLEMENT_ENABLED must stay false for Phase 5 upstream execution',
+  )
+  addPhase5Check(
+    checks,
+    blockedBy,
+    'live_execution_disabled',
+    status.liveExecutionEnabled === false,
+    'ALLOW_LIVE_EXECUTION must stay false',
+  )
+  addPhase5Check(
+    checks,
+    blockedBy,
+    'payment_sending_enabled',
+    status.paymentSendingEnabled === true,
+    'payment sending should be enabled only through upstream execution',
+  )
+  addPhase5Check(
+    checks,
+    blockedBy,
+    'wallet_configured',
+    status.walletConfigured === true,
+    'Render must have an isolated Base Sepolia wallet key and address',
+  )
+  addPhase5Check(
+    checks,
+    blockedBy,
+    'beta_access_configured',
+    status.betaAccessConfigured === true,
+    'Render must have BETA_EXECUTION_KEY configured',
+  )
+  addPhase5Check(
+    checks,
+    blockedBy,
+    'local_beta_key',
+    betaKey.length >= 32,
+    'local BETA_EXECUTION_KEY must contain at least 32 characters',
+  )
+  addPhase5Check(
+    checks,
+    blockedBy,
+    'budget_cap',
+    Number.isFinite(budget) && budget > 0 && budget <= MAX_PREPARE_BUDGET_USDC,
+    `MAX_EXECUTION_BUDGET_USDC must be <= ${MAX_PREPARE_BUDGET_USDC}`,
+  )
+  addPhase5Check(
+    checks,
+    blockedBy,
+    'operator_confirmation',
+    env.X402_CONFIRM_UPSTREAM_EXECUTION === PHASE5_CONFIRMATION,
+    `X402_CONFIRM_UPSTREAM_EXECUTION must equal ${PHASE5_CONFIRMATION}`,
+  )
+
+  return {
+    ready: blockedBy.length === 0,
+    mode: 'phase5-preflight',
+    apiBase: baseUrl.toString().replace(/\/$/, ''),
+    target: 'one audited Base Sepolia upstream x402 execution',
+    checks,
+    blockedBy,
+    nextCommand:
+      blockedBy.length === 0
+        ? 'npm run x402:operator -- prepare && approve/consume the ticket, then sign-verify-execute <ticketId>'
+        : 'fix blockedBy items, redeploy/restart backend, then rerun phase5-preflight',
+    ts: Date.now(),
   }
 }
 
@@ -100,21 +251,11 @@ export async function runOperatorCli({
   const baseUrl = apiBaseFromEnv(env)
 
   if (command === 'status') {
-    const response = await fetchImpl(endpoint(baseUrl, '/api/execution-status'), {
-      method: 'GET',
-      redirect: 'error',
-      signal: AbortSignal.timeout(10_000),
-    })
-    const body = await parseJsonResponse(response, 'Execution status')
-    if (!response.ok) {
-      throw new Error(
-        `Execution status failed (${response.status}): ${JSON.stringify(body)}`,
-      )
-    }
+    const body = await fetchExecutionStatus({ baseUrl, fetchImpl })
     if (
       body.paymentSendingEnabled !== false &&
       env.X402_CONFIRM_SETTLEMENT !== 'SETTLE_BASE_SEPOLIA' &&
-      env.X402_CONFIRM_UPSTREAM_EXECUTION !== 'EXECUTE_X402_BASE_SEPOLIA'
+      env.X402_CONFIRM_UPSTREAM_EXECUTION !== PHASE5_CONFIRMATION
     ) {
       throw new Error(
         'Safety assertion failed: settlement is enabled without explicit local confirmation',
@@ -122,6 +263,16 @@ export async function runOperatorCli({
     }
     log(JSON.stringify(body, null, 2))
     return body
+  }
+
+  if (command === 'phase5-preflight') {
+    const status = await fetchExecutionStatus({ baseUrl, fetchImpl })
+    const report = buildPhase5Preflight({ baseUrl, status, env })
+    log(JSON.stringify(report, null, 2))
+    if (!report.ready) {
+      throw new Error(`Phase 5 preflight blocked: ${report.blockedBy.join('; ')}`)
+    }
+    return report
   }
 
   const betaKey = requireBetaKey(env)
@@ -386,10 +537,10 @@ export async function runOperatorCli({
       )
     }
     if (
-      env.X402_CONFIRM_UPSTREAM_EXECUTION !== 'EXECUTE_X402_BASE_SEPOLIA'
+      env.X402_CONFIRM_UPSTREAM_EXECUTION !== PHASE5_CONFIRMATION
     ) {
       throw new Error(
-        'X402_CONFIRM_UPSTREAM_EXECUTION must equal EXECUTE_X402_BASE_SEPOLIA',
+        `X402_CONFIRM_UPSTREAM_EXECUTION must equal ${PHASE5_CONFIRMATION}`,
       )
     }
 
@@ -445,7 +596,7 @@ export async function runOperatorCli({
       body: {
         ticketId,
         executedBy: env.X402_OPERATOR || 'operator-cli',
-        executionConfirmation: 'EXECUTE_X402_BASE_SEPOLIA',
+        executionConfirmation: PHASE5_CONFIRMATION,
         paymentPayload,
       },
       fetchImpl,
@@ -525,7 +676,7 @@ export async function runOperatorCli({
   }
 
   throw new Error(
-    'Unknown command. Use one of: status, prepare, approve <ticketId>, consume <ticketId>, sign <ticketId>, sign-verify <ticketId>, sign-verify-settle <ticketId>, sign-verify-execute <ticketId>',
+    'Unknown command. Use one of: status, phase5-preflight, prepare, approve <ticketId>, consume <ticketId>, sign <ticketId>, sign-verify <ticketId>, sign-verify-settle <ticketId>, sign-verify-execute <ticketId>',
   )
 }
 

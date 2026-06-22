@@ -352,6 +352,9 @@ The paid upstream execution phase is also implemented but disabled by default:
 
 ```powershell
 $env:X402_CONFIRM_UPSTREAM_EXECUTION='EXECUTE_X402_BASE_SEPOLIA'
+npm run phase5:preflight
+
+$env:X402_CONFIRM_UPSTREAM_EXECUTION='EXECUTE_X402_BASE_SEPOLIA'
 npm run x402:operator -- sign-verify-execute <consumed-ticket-id>
 ```
 
@@ -361,6 +364,9 @@ resource with a v2 `PAYMENT-SIGNATURE` header, records the upstream response
 hash and settlement response, and never retries terminal or unknown results
 automatically.
 
+Use `docs/PHASE5_TESTNET_EXECUTION.md` before running the first funded Base
+Sepolia upstream execution.
+
 ## Repository Map
 
 - `src/` - backend API source.
@@ -369,6 +375,7 @@ automatically.
 - `examples/` - standalone integration examples.
 - `scripts/` - local helper scripts.
 - `docs/LAUNCH_CHECKLIST.md` - public launch checklist.
+- `docs/PHASE5_TESTNET_EXECUTION.md` - first controlled Base Sepolia execution.
 - `docs/OPERATOR_RUNBOOK.md` - closed-beta ticket and signing runbook.
 - `docs/CLOSED_BETA_CHECKLIST.md` - beta readiness checklist.
 - `SECURITY.md` - security and public preview safety notes.

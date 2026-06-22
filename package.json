@@ -18,6 +18,7 @@
     "test:execution-simulation": "node scripts/test-execution-simulation.mjs",
     "test:x402-prepare": "node scripts/test-x402-prepare.mjs",
     "production:check": "node scripts/production-readiness-check.mjs",
+    "phase5:preflight": "node scripts/x402-operator.mjs phase5-preflight",
     "x402:operator": "node scripts/x402-operator.mjs"
   },
   "dependencies": {
