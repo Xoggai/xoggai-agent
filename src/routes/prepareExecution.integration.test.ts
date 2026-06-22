@@ -22,6 +22,7 @@ function paymentRequiredHeader(amount = '2000') {
           amount,
           payTo: auditedX402Candidate.recipient,
           maxTimeoutSeconds: auditedX402Candidate.maxTimeoutSeconds,
+          extra: { name: 'USDC', version: '2' },
         },
       ],
     }),

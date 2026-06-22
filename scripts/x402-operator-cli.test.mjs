@@ -111,6 +111,48 @@ function jsonResponse(body, status = 200) {
   assert.equal(output.paymentConsumed, true)
 }
 
+{
+  let logged = ''
+  const output = await runOperatorCli({
+    argv: ['sign', ticketId],
+    env,
+    log: (value) => {
+      logged = value
+    },
+    async fetchImpl(url, options) {
+      assert.equal(url.toString(), 'http://127.0.0.1:3000/execute/sign')
+      assert.deepEqual(JSON.parse(options.body), {
+        ticketId,
+        signedBy: 'test-operator',
+      })
+      return jsonResponse({
+        mode: 'sign-only',
+        paymentSigned: true,
+        paymentSent: false,
+        ticket: { id: ticketId, status: 'SIGNED' },
+        credential: {
+          signerAddress: '0x0000000000000000000000000000000000000001',
+          signatureHash: 'a'.repeat(64),
+          paymentPayload: {
+            x402Version: 2,
+            resource: { url: 'https://example.test/paid' },
+            accepted: { network: 'eip155:84532' },
+            payload: {
+              authorization: { value: '2000' },
+              signature: '0xsecret',
+            },
+          },
+        },
+      })
+    },
+  })
+
+  assert.equal(output.paymentSigned, true)
+  assert.equal(output.paymentSent, false)
+  assert.equal(logged.includes('0xsecret'), false)
+  assert.equal(logged.includes('[REDACTED]'), true)
+}
+
 await assert.rejects(
   runOperatorCli({
     argv: ['prepare'],
@@ -125,6 +167,21 @@ await assert.rejects(
       }),
   }),
   /paymentSigned and paymentSent must both be false/,
+)
+
+await assert.rejects(
+  runOperatorCli({
+    argv: ['sign', ticketId],
+    env,
+    log: () => {},
+    fetchImpl: async () =>
+      jsonResponse({
+        mode: 'sign-only',
+        paymentSigned: true,
+        paymentSent: true,
+      }),
+  }),
+  /paymentSent must be false/,
 )
 
 await assert.rejects(

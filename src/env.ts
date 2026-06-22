@@ -39,6 +39,10 @@ const envSchema = z.object({
     .enum(['true', 'false'])
     .transform((value) => value === 'true')
     .default('false'),
+  X402_SIGNING_ENABLED: z
+    .enum(['true', 'false'])
+    .transform((value) => value === 'true')
+    .default('false'),
   BETA_EXECUTION_KEY: z.preprocess(
     (value) => (value === '' ? undefined : value),
     z.string().min(32).optional(),
@@ -58,6 +62,35 @@ if (parsed.data.ALLOW_LIVE_EXECUTION) {
   throw new Error(
     'ALLOW_LIVE_EXECUTION=true is not supported until the payment path is implemented and audited',
   )
+}
+
+if (parsed.data.X402_SIGNING_ENABLED) {
+  if (!parsed.data.X402_PREPARE_ENABLED) {
+    throw new Error(
+      'X402_SIGNING_ENABLED=true requires X402_PREPARE_ENABLED=true',
+    )
+  }
+  if (parsed.data.X402_NETWORK !== 'base-sepolia') {
+    throw new Error(
+      'X402_SIGNING_ENABLED=true is restricted to base-sepolia',
+    )
+  }
+  if (
+    !parsed.data.X402_WALLET_PRIVATE_KEY ||
+    !parsed.data.X402_WALLET_ADDRESS
+  ) {
+    throw new Error(
+      'X402_SIGNING_ENABLED=true requires an isolated testnet wallet',
+    )
+  }
+  if (
+    !/^0x[0-9a-fA-F]{64}$/.test(parsed.data.X402_WALLET_PRIVATE_KEY) ||
+    !/^0x[0-9a-fA-F]{40}$/.test(parsed.data.X402_WALLET_ADDRESS)
+  ) {
+    throw new Error(
+      'X402 signing wallet key or address has an invalid EVM format',
+    )
+  }
 }
 
 export const env = parsed.data

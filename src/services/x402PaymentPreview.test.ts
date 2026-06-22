@@ -31,6 +31,7 @@ function challenge(overrides: RequirementOverrides = {}) {
         maxTimeoutSeconds:
           overrides.maxTimeoutSeconds ??
           auditedX402Candidate.maxTimeoutSeconds,
+        extra: { name: 'USDC', version: '2' },
       },
     ],
   }
@@ -57,6 +58,8 @@ const preview = preparePaymentPreview(
 assert.equal(preview.network, 'eip155:84532')
 assert.equal(preview.amountUsdc, 0.002)
 assert.equal(preview.recipient, auditedX402Candidate.recipient)
+assert.equal(preview.assetName, 'USDC')
+assert.equal(preview.assetVersion, '2')
 
 assert.throws(
   () =>

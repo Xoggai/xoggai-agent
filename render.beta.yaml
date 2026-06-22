@@ -31,6 +31,10 @@ services:
         value: claude-haiku-4-5-20251001
       - key: X402_NETWORK
         value: base-sepolia
+      - key: X402_WALLET_PRIVATE_KEY
+        sync: false
+      - key: X402_WALLET_ADDRESS
+        sync: false
       - key: RATE_LIMIT_WINDOW_MS
         value: "60000"
       - key: RATE_LIMIT_MAX
@@ -45,6 +49,8 @@ services:
         value: "true"
       - key: X402_PREPARE_ENABLED
         value: "true"
+      - key: X402_SIGNING_ENABLED
+        value: "false"
       - key: BETA_EXECUTION_KEY
         sync: false
       - key: MAX_EXECUTION_BUDGET_USDC

@@ -98,6 +98,10 @@ Public preview must stay dry-run first until every item below is complete.
 - `POST /execute/prepare` creates a `PREPARED` ticket and returns `paymentSent: false`.
 - `POST /execute/approve` changes an unexpired ticket to `APPROVED` and returns `paymentSent: false`.
 - `POST /execute/consume` changes an approved ticket to `CONSUMED` and returns `paymentSent: false`.
+- Optional `POST /execute/sign` accepts only an unexpired `CONSUMED` ticket,
+  changes it to `SIGNED`, and still returns `paymentSent: false`.
+- Signing is restricted to Base Sepolia and an isolated testnet wallet.
+- PostgreSQL stores only the signature hash, never the full credential.
 - Expired, consumed, missing, or wrong-status tickets are rejected.
 - `/api/execution-status` shows payment signing and sending disabled.
 - Live execution is blocked when `ALLOW_LIVE_EXECUTION=false`.
@@ -113,6 +117,7 @@ Public preview must stay dry-run first until every item below is complete.
 
 - Set `ALLOW_LIVE_EXECUTION=false`.
 - Set `X402_PREPARE_ENABLED=false`.
+- Set `X402_SIGNING_ENABLED=false`.
 - Remove beta frontend origin from `ALLOWED_ORIGINS`.
 - Remove endpoint allowlist entries.
 - Rotate beta wallet key if needed.

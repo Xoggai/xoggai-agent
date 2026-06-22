@@ -7,6 +7,13 @@ const paymentRequirementSchema = z.object({
   amount: z.string().regex(/^\d+$/),
   payTo: z.string(),
   maxTimeoutSeconds: z.number().int().positive(),
+  extra: z
+    .object({
+      name: z.string().min(1),
+      version: z.string().min(1),
+    })
+    .passthrough()
+    .optional(),
 })
 
 const challengeSchema = z.object({
@@ -93,5 +100,7 @@ export function preparePaymentPreview(
     amountUsdc: Number(amountAtomic) / 1_000_000,
     recipient: requirement.payTo,
     maxTimeoutSeconds: requirement.maxTimeoutSeconds,
+    assetName: requirement.extra?.name,
+    assetVersion: requirement.extra?.version,
   }
 }

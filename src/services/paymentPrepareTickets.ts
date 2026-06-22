@@ -11,6 +11,8 @@ export type PaymentPreview = {
   amountUsdc: number
   recipient: string
   maxTimeoutSeconds: number
+  assetName?: string
+  assetVersion?: string
 }
 
 export type PreparedPaymentTicketInput = {
@@ -44,6 +46,31 @@ export type ConsumedPaymentTicket = {
   expiresAt: string
 }
 
+export type SignablePaymentTicket = {
+  id: string
+  status: 'CONSUMED'
+  challengeHash: string
+  resourceUrl: string
+  network: string
+  asset: string
+  assetName: string
+  assetVersion: string
+  recipient: string
+  amountAtomic: string
+  maxTimeoutSeconds: number
+  expiresAt: string
+}
+
+export type SignedPaymentTicket = {
+  id: string
+  status: 'SIGNED'
+  challengeHash: string
+  signerAddress: string
+  signatureHash: string
+  signedAt: string
+  expiresAt: string
+}
+
 export class PaymentTicketApprovalError extends Error {
   constructor(
     public readonly code:
@@ -64,6 +91,19 @@ export class PaymentTicketConsumeError extends Error {
       | 'payment_ticket_expired'
       | 'payment_ticket_consumed'
       | 'payment_ticket_not_approved',
+  ) {
+    super(code)
+  }
+}
+
+export class PaymentTicketSigningError extends Error {
+  constructor(
+    public readonly code:
+      | 'payment_ticket_not_found'
+      | 'payment_ticket_expired'
+      | 'payment_ticket_not_consumed'
+      | 'payment_ticket_already_signed'
+      | 'payment_ticket_missing_signing_metadata',
   ) {
     super(code)
   }
@@ -98,6 +138,8 @@ export async function createPreparedPaymentTicket({
       amountUsdc: preview.amountUsdc,
       budgetUsdc,
       maxTimeoutSeconds: preview.maxTimeoutSeconds,
+      assetName: preview.assetName,
+      assetVersion: preview.assetVersion,
       createdAt: now,
       expiresAt,
     })
@@ -117,6 +159,112 @@ export async function createPreparedPaymentTicket({
     status: 'PREPARED',
     challengeHash: ticket.challengeHash,
     expiresAt: ticket.expiresAt.toISOString(),
+  }
+}
+
+export async function loadConsumedPaymentTicket({
+  ticketId,
+  now = new Date(),
+}: {
+  ticketId: string
+  now?: Date
+}): Promise<SignablePaymentTicket> {
+  const [ticket] = await db
+    .select()
+    .from(paymentPrepareTickets)
+    .where(eq(paymentPrepareTickets.id, ticketId))
+    .limit(1)
+
+  if (!ticket) {
+    throw new PaymentTicketSigningError('payment_ticket_not_found')
+  }
+  if (ticket.signedAt || ticket.status === 'SIGNED') {
+    throw new PaymentTicketSigningError('payment_ticket_already_signed')
+  }
+  if (ticket.status !== 'CONSUMED' || !ticket.consumedAt) {
+    throw new PaymentTicketSigningError('payment_ticket_not_consumed')
+  }
+  if (ticket.expiresAt <= now) {
+    throw new PaymentTicketSigningError('payment_ticket_expired')
+  }
+  if (!ticket.assetName || !ticket.assetVersion) {
+    throw new PaymentTicketSigningError(
+      'payment_ticket_missing_signing_metadata',
+    )
+  }
+
+  return {
+    id: ticket.id,
+    status: 'CONSUMED',
+    challengeHash: ticket.challengeHash,
+    resourceUrl: ticket.resourceUrl,
+    network: ticket.network,
+    asset: ticket.asset,
+    assetName: ticket.assetName,
+    assetVersion: ticket.assetVersion,
+    recipient: ticket.recipient,
+    amountAtomic: ticket.amountAtomic,
+    maxTimeoutSeconds: ticket.maxTimeoutSeconds,
+    expiresAt: ticket.expiresAt.toISOString(),
+  }
+}
+
+export async function markPaymentTicketSigned({
+  ticketId,
+  signerAddress,
+  signatureHash,
+  signedBy,
+  now = new Date(),
+}: {
+  ticketId: string
+  signerAddress: string
+  signatureHash: string
+  signedBy?: string
+  now?: Date
+}): Promise<SignedPaymentTicket> {
+  const [signed] = await db
+    .update(paymentPrepareTickets)
+    .set({
+      status: 'SIGNED',
+      signedAt: now,
+      signedBy: signedBy ?? null,
+      signerAddress,
+      signatureHash,
+    })
+    .where(
+      and(
+        eq(paymentPrepareTickets.id, ticketId),
+        eq(paymentPrepareTickets.status, 'CONSUMED'),
+      ),
+    )
+    .returning({
+      id: paymentPrepareTickets.id,
+      status: paymentPrepareTickets.status,
+      challengeHash: paymentPrepareTickets.challengeHash,
+      signerAddress: paymentPrepareTickets.signerAddress,
+      signatureHash: paymentPrepareTickets.signatureHash,
+      signedAt: paymentPrepareTickets.signedAt,
+      expiresAt: paymentPrepareTickets.expiresAt,
+    })
+
+  if (
+    !signed ||
+    signed.status !== 'SIGNED' ||
+    !signed.signerAddress ||
+    !signed.signatureHash ||
+    !signed.signedAt
+  ) {
+    throw new PaymentTicketSigningError('payment_ticket_already_signed')
+  }
+
+  return {
+    id: signed.id,
+    status: 'SIGNED',
+    challengeHash: signed.challengeHash,
+    signerAddress: signed.signerAddress,
+    signatureHash: signed.signatureHash,
+    signedAt: signed.signedAt.toISOString(),
+    expiresAt: signed.expiresAt.toISOString(),
   }
 }
 

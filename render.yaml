@@ -47,6 +47,8 @@ services:
         value: "false"
       - key: X402_PREPARE_ENABLED
         value: "false"
+      - key: X402_SIGNING_ENABLED
+        value: "false"
       - key: MAX_EXECUTION_BUDGET_USDC
         value: "0.05"
   - type: keyvalue

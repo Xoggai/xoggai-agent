@@ -227,6 +227,7 @@ X402_WALLET_ADDRESS=0x...
 ALLOW_LIVE_EXECUTION=false
 EXECUTION_SIMULATION_ENABLED=false
 X402_PREPARE_ENABLED=false
+X402_SIGNING_ENABLED=false
 BETA_EXECUTION_KEY=<server-side-secret-at-least-32-characters>
 MAX_EXECUTION_BUDGET_USDC=0.05
 EXECUTION_ENDPOINT_ALLOWLIST=<comma-separated-endpoint-uuids>
@@ -294,6 +295,19 @@ npm run x402:operator -- consume <approved-ticket-id>
 Consumption changes the ticket status to `CONSUMED`; it still does not sign or
 send payment.
 
+Optionally rehearse Base Sepolia signing after consumption:
+
+```powershell
+npm run x402:operator -- sign <consumed-ticket-id>
+```
+
+This requires `X402_SIGNING_ENABLED=true` and an isolated testnet wallet
+configured server-side. It creates an EIP-3009 payment credential and marks the
+ticket `SIGNED`, but never submits the credential to the paid resource or
+broadcasts a transaction. The CLI redacts the signature by default. Treat the
+full credential as sensitive because another caller could submit it before
+expiry.
+
 ## Repository Map
 
 - `src/` - backend API source.
@@ -302,7 +316,7 @@ send payment.
 - `examples/` - standalone integration examples.
 - `scripts/` - local helper scripts.
 - `docs/LAUNCH_CHECKLIST.md` - public launch checklist.
-- `docs/OPERATOR_RUNBOOK.md` - closed-beta prepare/approve/consume runbook.
+- `docs/OPERATOR_RUNBOOK.md` - closed-beta ticket and signing runbook.
 - `docs/CLOSED_BETA_CHECKLIST.md` - beta readiness checklist.
 - `SECURITY.md` - security and public preview safety notes.
 - `render.yaml` - Render Blueprint.

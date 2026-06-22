@@ -47,7 +47,21 @@ function assertNoPayment(body) {
   }
 }
 
-async function postJson({ baseUrl, path, betaKey, body, fetchImpl, label }) {
+function assertNotSent(body) {
+  if (body.paymentSent !== false) {
+    throw new Error('Safety assertion failed: paymentSent must be false')
+  }
+}
+
+async function postJson({
+  baseUrl,
+  path,
+  betaKey,
+  body,
+  fetchImpl,
+  label,
+  allowSignature = false,
+}) {
   const response = await fetchImpl(endpoint(baseUrl, path), {
     method: 'POST',
     headers: {
@@ -60,7 +74,11 @@ async function postJson({ baseUrl, path, betaKey, body, fetchImpl, label }) {
   })
 
   const parsed = await parseJsonResponse(response, label)
-  assertNoPayment(parsed)
+  if (allowSignature) {
+    assertNotSent(parsed)
+  } else {
+    assertNoPayment(parsed)
+  }
 
   if (!response.ok) {
     throw new Error(`${label} failed (${response.status}): ${JSON.stringify(parsed)}`)
@@ -90,9 +108,9 @@ export async function runOperatorCli({
         `Execution status failed (${response.status}): ${JSON.stringify(body)}`,
       )
     }
-    if (body.paymentSigningEnabled !== false || body.paymentSendingEnabled !== false) {
+    if (body.paymentSendingEnabled !== false) {
       throw new Error(
-        'Safety assertion failed: payment signing and sending must both be disabled',
+        'Safety assertion failed: payment sending must be disabled',
       )
     }
     log(JSON.stringify(body, null, 2))
@@ -190,8 +208,55 @@ export async function runOperatorCli({
     return body
   }
 
+  if (command === 'sign') {
+    const ticketId = argv[1] || env.X402_TICKET_ID
+    if (!ticketId) {
+      throw new Error('sign requires a ticket id argument or X402_TICKET_ID')
+    }
+
+    const { body } = await postJson({
+      baseUrl,
+      path: '/execute/sign',
+      betaKey,
+      body: {
+        ticketId,
+        signedBy: env.X402_OPERATOR || 'operator-cli',
+      },
+      fetchImpl,
+      label: 'Sign',
+      allowSignature: true,
+    })
+
+    if (body.mode !== 'sign-only' || body.paymentSigned !== true) {
+      throw new Error(`Unexpected sign response: ${JSON.stringify(body)}`)
+    }
+
+    const output =
+      env.X402_REVEAL_PAYMENT_CREDENTIAL === 'true'
+        ? body
+        : {
+            ...body,
+            credential: {
+              signerAddress: body.credential?.signerAddress,
+              signatureHash: body.credential?.signatureHash,
+              paymentPayload: {
+                x402Version: body.credential?.paymentPayload?.x402Version,
+                resource: body.credential?.paymentPayload?.resource,
+                accepted: body.credential?.paymentPayload?.accepted,
+                payload: {
+                  authorization:
+                    body.credential?.paymentPayload?.payload?.authorization,
+                  signature: '[REDACTED]',
+                },
+              },
+            },
+          }
+    log(JSON.stringify(output, null, 2))
+    return body
+  }
+
   throw new Error(
-    'Unknown command. Use one of: status, prepare, approve <ticketId>, consume <ticketId>',
+    'Unknown command. Use one of: status, prepare, approve <ticketId>, consume <ticketId>, sign <ticketId>',
   )
 }
 

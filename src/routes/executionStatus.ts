@@ -5,6 +5,9 @@ function safetyMode() {
   if (env.ALLOW_LIVE_EXECUTION) {
     return 'live-execution'
   }
+  if (env.X402_SIGNING_ENABLED) {
+    return 'signing-rehearsal'
+  }
   if (env.X402_PREPARE_ENABLED) {
     return 'ticket-rehearsal'
   }
@@ -27,8 +30,9 @@ export const executionStatusRoute = new Hono().get('/', (c) => {
     prepareEnabled: env.X402_PREPARE_ENABLED,
     ticketApprovalEnabled: env.X402_PREPARE_ENABLED,
     ticketConsumeEnabled: env.X402_PREPARE_ENABLED,
+    ticketSigningEnabled: env.X402_SIGNING_ENABLED,
     liveExecutionEnabled: env.ALLOW_LIVE_EXECUTION,
-    paymentSigningEnabled: false,
+    paymentSigningEnabled: env.X402_SIGNING_ENABLED,
     paymentSendingEnabled: false,
     walletConfigured: hasLiveX402Wallet(),
     betaAccessConfigured: Boolean(env.BETA_EXECUTION_KEY),
@@ -38,6 +42,9 @@ export const executionStatusRoute = new Hono().get('/', (c) => {
       liveExecutionBlockedAtStartup: true,
       paymentRequiresApprovedTicket: true,
       approvedTicketMustBeConsumed: true,
+      signingRestrictedToConsumedTickets: true,
+      signingRestrictedToBaseSepolia: true,
+      signedCredentialsAreNeverBroadcastByBackend: true,
       browserNeverReceivesBetaKey: true,
       dryRunsNeverSendPayment: true,
     },
@@ -45,6 +52,7 @@ export const executionStatusRoute = new Hono().get('/', (c) => {
       prepare: '/execute/prepare',
       approve: '/execute/approve',
       consume: '/execute/consume',
+      sign: '/execute/sign',
     },
     ts: Date.now(),
   })

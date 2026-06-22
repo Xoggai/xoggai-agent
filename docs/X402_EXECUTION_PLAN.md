@@ -154,6 +154,25 @@ It still returns `paymentSigned=false` and `paymentSent=false`. This gives the
 future live execution path a one-time-use checkpoint before wallet signing is
 introduced.
 
+### Phase 4: Isolated Testnet Signing
+
+When `X402_SIGNING_ENABLED=true`, a consumed, unexpired ticket can be signed
+once with the isolated Base Sepolia wallet. The implementation uses the
+official `@x402/evm` client to create an EIP-3009 payment credential and marks
+the ticket `SIGNED`.
+
+This phase explicitly stops before transport:
+
+- no paid resource retry
+- no facilitator verify or settle call
+- no RPC transaction broadcast
+- no full signature stored in PostgreSQL
+- `paymentSent=false` is mandatory
+
+Only the signature hash, signer address, operator identity, and timestamp are
+stored for audit. Signing remains disabled by default and is rejected outside
+Base Sepolia.
+
 Call this endpoint from a trusted server or agent runtime. Never embed the beta
 key in the public website or other browser-delivered code. `GET /intent` stays
 routing-only and rejects `dry=false`.

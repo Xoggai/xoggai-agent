@@ -81,6 +81,24 @@ ALTER TABLE payment_prepare_tickets
 ALTER TABLE payment_prepare_tickets
   ADD COLUMN IF NOT EXISTS consumed_by text;
 
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS asset_name text;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS asset_version text;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS signed_at timestamp;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS signed_by text;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS signer_address text;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS signature_hash text;
+
 CREATE INDEX IF NOT EXISTS payment_prepare_tickets_status_idx
   ON payment_prepare_tickets (status);
 
