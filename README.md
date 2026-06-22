@@ -228,6 +228,8 @@ ALLOW_LIVE_EXECUTION=false
 EXECUTION_SIMULATION_ENABLED=false
 X402_PREPARE_ENABLED=false
 X402_SIGNING_ENABLED=false
+X402_VERIFY_ENABLED=false
+X402_FACILITATOR_URL=https://x402.org/facilitator
 BETA_EXECUTION_KEY=<server-side-secret-at-least-32-characters>
 MAX_EXECUTION_BUDGET_USDC=0.05
 EXECUTION_ENDPOINT_ALLOWLIST=<comma-separated-endpoint-uuids>
@@ -307,6 +309,19 @@ ticket `SIGNED`, but never submits the credential to the paid resource or
 broadcasts a transaction. The CLI redacts the signature by default. Treat the
 full credential as sensitive because another caller could submit it before
 expiry.
+
+Verify a consumed ticket without persisting or printing its credential:
+
+```powershell
+npm run x402:operator -- sign-verify <consumed-ticket-id>
+```
+
+This in-memory handoff signs the ticket and calls the audited x402.org
+facilitator `/verify` endpoint. It never calls `/settle`, never retries the paid
+resource, and always reports `paymentSettled=false` and `paymentSent=false`.
+An unfunded testnet wallet may produce an `INVALID` verification result such as
+insufficient balance; that still confirms the verify-only transport and audit
+path are working.
 
 ## Repository Map
 

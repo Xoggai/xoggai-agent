@@ -99,6 +99,27 @@ ALTER TABLE payment_prepare_tickets
 ALTER TABLE payment_prepare_tickets
   ADD COLUMN IF NOT EXISTS signature_hash text;
 
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS verification_status text;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS verification_reason text;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS verification_payer text;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS verification_result_hash text;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS facilitator_url text;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS verified_at timestamp;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS verified_by text;
+
 CREATE INDEX IF NOT EXISTS payment_prepare_tickets_status_idx
   ON payment_prepare_tickets (status);
 

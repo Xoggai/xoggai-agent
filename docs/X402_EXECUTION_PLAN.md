@@ -173,6 +173,26 @@ Only the signature hash, signer address, operator identity, and timestamp are
 stored for audit. Signing remains disabled by default and is rejected outside
 Base Sepolia.
 
+### Phase 5: Facilitator Verification
+
+When `X402_VERIFY_ENABLED=true`, XoggAI can pass an in-memory signed credential
+to the official x402.org facilitator `/verify` endpoint. Before network access,
+the backend binds the supplied credential back to the stored ticket:
+
+- exact resource URL
+- Base Sepolia network
+- asset, amount, recipient, and timeout
+- EIP-712 token metadata
+- signer address
+- stored SHA-256 signature hash
+
+The result is stored as `VALID` or `INVALID` with the payer, reason, facilitator
+URL, timestamp, and result hash. A valid ticket changes to `VERIFIED`; an
+invalid ticket remains `SIGNED` for audit until expiry.
+
+This phase has no settlement code path. It does not call `/settle`, retry the
+paid resource, or broadcast a transaction.
+
 Call this endpoint from a trusted server or agent runtime. Never embed the beta
 key in the public website or other browser-delivered code. `GET /intent` stays
 routing-only and rejects `dry=false`.

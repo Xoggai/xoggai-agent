@@ -208,6 +208,73 @@ export async function runOperatorCli({
     return body
   }
 
+  if (command === 'sign-verify') {
+    const ticketId = argv[1] || env.X402_TICKET_ID
+    if (!ticketId) {
+      throw new Error(
+        'sign-verify requires a ticket id argument or X402_TICKET_ID',
+      )
+    }
+
+    const { body: signed } = await postJson({
+      baseUrl,
+      path: '/execute/sign',
+      betaKey,
+      body: {
+        ticketId,
+        signedBy: env.X402_OPERATOR || 'operator-cli',
+      },
+      fetchImpl,
+      label: 'Sign',
+      allowSignature: true,
+    })
+    if (
+      signed.mode !== 'sign-only' ||
+      signed.paymentSigned !== true ||
+      !signed.credential?.paymentPayload
+    ) {
+      throw new Error(`Unexpected sign response: ${JSON.stringify(signed)}`)
+    }
+
+    const { body: verified } = await postJson({
+      baseUrl,
+      path: '/execute/verify',
+      betaKey,
+      body: {
+        ticketId,
+        verifiedBy: env.X402_OPERATOR || 'operator-cli',
+        paymentPayload: signed.credential.paymentPayload,
+      },
+      fetchImpl,
+      label: 'Verify',
+      allowSignature: true,
+    })
+    if (
+      verified.mode !== 'verify-only' ||
+      verified.verificationCompleted !== true ||
+      verified.paymentSettled !== false ||
+      verified.paymentSent !== false
+    ) {
+      throw new Error(
+        `Unexpected verify response: ${JSON.stringify(verified)}`,
+      )
+    }
+
+    const output = {
+      success: verified.success,
+      mode: 'sign-verify',
+      ticket: verified.ticket,
+      verification: verified.verification,
+      paymentSigned: true,
+      paymentVerified: verified.paymentVerified,
+      paymentSettled: false,
+      paymentSent: false,
+      note: verified.note,
+    }
+    log(JSON.stringify(output, null, 2))
+    return output
+  }
+
   if (command === 'sign') {
     const ticketId = argv[1] || env.X402_TICKET_ID
     if (!ticketId) {
@@ -256,7 +323,7 @@ export async function runOperatorCli({
   }
 
   throw new Error(
-    'Unknown command. Use one of: status, prepare, approve <ticketId>, consume <ticketId>, sign <ticketId>',
+    'Unknown command. Use one of: status, prepare, approve <ticketId>, consume <ticketId>, sign <ticketId>, sign-verify <ticketId>',
   )
 }
 

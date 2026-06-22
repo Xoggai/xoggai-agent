@@ -51,6 +51,10 @@ services:
         value: "true"
       - key: X402_SIGNING_ENABLED
         value: "false"
+      - key: X402_VERIFY_ENABLED
+        value: "false"
+      - key: X402_FACILITATOR_URL
+        value: https://x402.org/facilitator
       - key: BETA_EXECUTION_KEY
         sync: false
       - key: MAX_EXECUTION_BUDGET_USDC

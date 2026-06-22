@@ -153,6 +153,76 @@ function jsonResponse(body, status = 200) {
   assert.equal(logged.includes('[REDACTED]'), true)
 }
 
+{
+  const calls = []
+  const output = await runOperatorCli({
+    argv: ['sign-verify', ticketId],
+    env,
+    log: () => {},
+    async fetchImpl(url, options) {
+      calls.push(url.toString())
+      if (url.toString().endsWith('/execute/sign')) {
+        return jsonResponse({
+          mode: 'sign-only',
+          paymentSigned: true,
+          paymentSent: false,
+          ticket: { id: ticketId, status: 'SIGNED' },
+          credential: {
+            paymentPayload: {
+              x402Version: 2,
+              resource: { url: 'https://example.test/paid' },
+              accepted: {
+                scheme: 'exact',
+                network: 'eip155:84532',
+              },
+              payload: { signature: '0xsecret' },
+            },
+          },
+        })
+      }
+      assert.deepEqual(JSON.parse(options.body), {
+        ticketId,
+        verifiedBy: 'test-operator',
+        paymentPayload: {
+          x402Version: 2,
+          resource: { url: 'https://example.test/paid' },
+          accepted: {
+            scheme: 'exact',
+            network: 'eip155:84532',
+          },
+          payload: { signature: '0xsecret' },
+        },
+      })
+      return jsonResponse({
+        success: true,
+        mode: 'verify-only',
+        verificationCompleted: true,
+        paymentVerified: false,
+        paymentSettled: false,
+        paymentSent: false,
+        ticket: {
+          id: ticketId,
+          status: 'SIGNED',
+          verificationStatus: 'INVALID',
+        },
+        verification: {
+          isValid: false,
+          invalidReason: 'insufficient_funds',
+        },
+      })
+    },
+  })
+
+  assert.deepEqual(calls, [
+    'http://127.0.0.1:3000/execute/sign',
+    'http://127.0.0.1:3000/execute/verify',
+  ])
+  assert.equal(output.paymentSigned, true)
+  assert.equal(output.paymentVerified, false)
+  assert.equal(output.paymentSettled, false)
+  assert.equal(output.paymentSent, false)
+}
+
 await assert.rejects(
   runOperatorCli({
     argv: ['prepare'],

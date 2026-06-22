@@ -43,6 +43,14 @@ const envSchema = z.object({
     .enum(['true', 'false'])
     .transform((value) => value === 'true')
     .default('false'),
+  X402_VERIFY_ENABLED: z
+    .enum(['true', 'false'])
+    .transform((value) => value === 'true')
+    .default('false'),
+  X402_FACILITATOR_URL: z
+    .string()
+    .url()
+    .default('https://x402.org/facilitator'),
   BETA_EXECUTION_KEY: z.preprocess(
     (value) => (value === '' ? undefined : value),
     z.string().min(32).optional(),
@@ -89,6 +97,23 @@ if (parsed.data.X402_SIGNING_ENABLED) {
   ) {
     throw new Error(
       'X402 signing wallet key or address has an invalid EVM format',
+    )
+  }
+}
+
+if (parsed.data.X402_VERIFY_ENABLED) {
+  if (!parsed.data.X402_SIGNING_ENABLED) {
+    throw new Error(
+      'X402_VERIFY_ENABLED=true requires X402_SIGNING_ENABLED=true',
+    )
+  }
+  const facilitatorUrl = new URL(parsed.data.X402_FACILITATOR_URL)
+  if (facilitatorUrl.protocol !== 'https:') {
+    throw new Error('X402_FACILITATOR_URL must use HTTPS')
+  }
+  if (facilitatorUrl.hostname !== 'x402.org') {
+    throw new Error(
+      'X402 verification is restricted to the audited x402.org facilitator',
     )
   }
 }

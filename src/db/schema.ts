@@ -99,6 +99,13 @@ export const paymentPrepareTickets = pgTable(
     signedBy: text('signed_by'),
     signerAddress: text('signer_address'),
     signatureHash: text('signature_hash'),
+    verificationStatus: text('verification_status'),
+    verificationReason: text('verification_reason'),
+    verificationPayer: text('verification_payer'),
+    verificationResultHash: text('verification_result_hash'),
+    facilitatorUrl: text('facilitator_url'),
+    verifiedAt: timestamp('verified_at'),
+    verifiedBy: text('verified_by'),
   },
   (t) => ({
     statusIdx: index('payment_prepare_tickets_status_idx').on(t.status),

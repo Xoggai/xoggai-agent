@@ -71,6 +71,28 @@ export type SignedPaymentTicket = {
   expiresAt: string
 }
 
+export type VerifiablePaymentTicket = Omit<
+  SignablePaymentTicket,
+  'status'
+> & {
+  status: 'SIGNED'
+  signerAddress: string
+  signatureHash: string
+  signedAt: string
+}
+
+export type VerifiedPaymentTicket = {
+  id: string
+  status: 'SIGNED' | 'VERIFIED'
+  verificationStatus: 'VALID' | 'INVALID'
+  verificationReason?: string
+  verificationPayer?: string
+  verificationResultHash: string
+  facilitatorUrl: string
+  verifiedAt: string
+  expiresAt: string
+}
+
 export class PaymentTicketApprovalError extends Error {
   constructor(
     public readonly code:
@@ -104,6 +126,19 @@ export class PaymentTicketSigningError extends Error {
       | 'payment_ticket_not_consumed'
       | 'payment_ticket_already_signed'
       | 'payment_ticket_missing_signing_metadata',
+  ) {
+    super(code)
+  }
+}
+
+export class PaymentTicketVerificationError extends Error {
+  constructor(
+    public readonly code:
+      | 'payment_ticket_not_found'
+      | 'payment_ticket_expired'
+      | 'payment_ticket_not_signed'
+      | 'payment_ticket_already_verified'
+      | 'payment_ticket_missing_verification_metadata',
   ) {
     super(code)
   }
@@ -265,6 +300,144 @@ export async function markPaymentTicketSigned({
     signatureHash: signed.signatureHash,
     signedAt: signed.signedAt.toISOString(),
     expiresAt: signed.expiresAt.toISOString(),
+  }
+}
+
+export async function loadSignedPaymentTicket({
+  ticketId,
+  now = new Date(),
+}: {
+  ticketId: string
+  now?: Date
+}): Promise<VerifiablePaymentTicket> {
+  const [ticket] = await db
+    .select()
+    .from(paymentPrepareTickets)
+    .where(eq(paymentPrepareTickets.id, ticketId))
+    .limit(1)
+
+  if (!ticket) {
+    throw new PaymentTicketVerificationError('payment_ticket_not_found')
+  }
+  if (ticket.status === 'VERIFIED') {
+    throw new PaymentTicketVerificationError(
+      'payment_ticket_already_verified',
+    )
+  }
+  if (
+    ticket.status !== 'SIGNED' ||
+    !ticket.signedAt ||
+    !ticket.signerAddress ||
+    !ticket.signatureHash
+  ) {
+    throw new PaymentTicketVerificationError('payment_ticket_not_signed')
+  }
+  if (ticket.expiresAt <= now) {
+    throw new PaymentTicketVerificationError('payment_ticket_expired')
+  }
+  if (!ticket.assetName || !ticket.assetVersion) {
+    throw new PaymentTicketVerificationError(
+      'payment_ticket_missing_verification_metadata',
+    )
+  }
+
+  return {
+    id: ticket.id,
+    status: 'SIGNED',
+    challengeHash: ticket.challengeHash,
+    resourceUrl: ticket.resourceUrl,
+    network: ticket.network,
+    asset: ticket.asset,
+    assetName: ticket.assetName,
+    assetVersion: ticket.assetVersion,
+    recipient: ticket.recipient,
+    amountAtomic: ticket.amountAtomic,
+    maxTimeoutSeconds: ticket.maxTimeoutSeconds,
+    signerAddress: ticket.signerAddress,
+    signatureHash: ticket.signatureHash,
+    signedAt: ticket.signedAt.toISOString(),
+    expiresAt: ticket.expiresAt.toISOString(),
+  }
+}
+
+export async function recordPaymentVerification({
+  ticketId,
+  isValid,
+  invalidReason,
+  payer,
+  resultHash,
+  facilitatorUrl,
+  verifiedBy,
+  now = new Date(),
+}: {
+  ticketId: string
+  isValid: boolean
+  invalidReason?: string
+  payer?: string
+  resultHash: string
+  facilitatorUrl: string
+  verifiedBy?: string
+  now?: Date
+}): Promise<VerifiedPaymentTicket> {
+  const [verified] = await db
+    .update(paymentPrepareTickets)
+    .set({
+      status: isValid ? 'VERIFIED' : 'SIGNED',
+      verificationStatus: isValid ? 'VALID' : 'INVALID',
+      verificationReason: invalidReason ?? null,
+      verificationPayer: payer ?? null,
+      verificationResultHash: resultHash,
+      facilitatorUrl,
+      verifiedAt: now,
+      verifiedBy: verifiedBy ?? null,
+    })
+    .where(
+      and(
+        eq(paymentPrepareTickets.id, ticketId),
+        eq(paymentPrepareTickets.status, 'SIGNED'),
+      ),
+    )
+    .returning({
+      id: paymentPrepareTickets.id,
+      status: paymentPrepareTickets.status,
+      verificationStatus: paymentPrepareTickets.verificationStatus,
+      verificationReason: paymentPrepareTickets.verificationReason,
+      verificationPayer: paymentPrepareTickets.verificationPayer,
+      verificationResultHash:
+        paymentPrepareTickets.verificationResultHash,
+      facilitatorUrl: paymentPrepareTickets.facilitatorUrl,
+      verifiedAt: paymentPrepareTickets.verifiedAt,
+      expiresAt: paymentPrepareTickets.expiresAt,
+    })
+
+  if (
+    !verified ||
+    (verified.status !== 'SIGNED' && verified.status !== 'VERIFIED') ||
+    (verified.verificationStatus !== 'VALID' &&
+      verified.verificationStatus !== 'INVALID') ||
+    !verified.verificationResultHash ||
+    !verified.facilitatorUrl ||
+    !verified.verifiedAt
+  ) {
+    throw new PaymentTicketVerificationError(
+      'payment_ticket_already_verified',
+    )
+  }
+
+  return {
+    id: verified.id,
+    status: verified.status,
+    verificationStatus: verified.verificationStatus,
+    ...(verified.verificationReason
+      ? { verificationReason: verified.verificationReason }
+      : {}),
+    ...(verified.verificationPayer
+      ? { verificationPayer: verified.verificationPayer }
+      : {}),
+    verificationResultHash: verified.verificationResultHash,
+    facilitatorUrl: verified.facilitatorUrl,
+    verifiedAt: verified.verifiedAt.toISOString(),
+    expiresAt: verified.expiresAt.toISOString(),
   }
 }
 

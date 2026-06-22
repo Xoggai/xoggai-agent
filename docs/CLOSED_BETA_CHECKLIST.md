@@ -102,6 +102,12 @@ Public preview must stay dry-run first until every item below is complete.
   changes it to `SIGNED`, and still returns `paymentSent: false`.
 - Signing is restricted to Base Sepolia and an isolated testnet wallet.
 - PostgreSQL stores only the signature hash, never the full credential.
+- Optional `POST /execute/verify` binds the credential to its `SIGNED` ticket
+  before calling the audited facilitator.
+- Verify-only responses always report `paymentSettled: false` and
+  `paymentSent: false`.
+- A facilitator `INVALID` result records the rejection reason without calling
+  settlement.
 - Expired, consumed, missing, or wrong-status tickets are rejected.
 - `/api/execution-status` shows payment signing and sending disabled.
 - Live execution is blocked when `ALLOW_LIVE_EXECUTION=false`.
@@ -118,6 +124,7 @@ Public preview must stay dry-run first until every item below is complete.
 - Set `ALLOW_LIVE_EXECUTION=false`.
 - Set `X402_PREPARE_ENABLED=false`.
 - Set `X402_SIGNING_ENABLED=false`.
+- Set `X402_VERIFY_ENABLED=false`.
 - Remove beta frontend origin from `ALLOWED_ORIGINS`.
 - Remove endpoint allowlist entries.
 - Rotate beta wallet key if needed.

@@ -16,6 +16,7 @@ import { intentRoute } from './routes/intent.js'
 import { prepareExecutionRoute } from './routes/prepareExecution.js'
 import { searchRoute } from './routes/search.js'
 import { signExecutionRoute } from './routes/signExecution.js'
+import { verifyExecutionRoute } from './routes/verifyExecution.js'
 import { statsRoute } from './routes/stats.js'
 import { ratingWorker } from './services/ratingEngine.js'
 import { startStatsCollector } from './services/statsCollector.js'
@@ -70,6 +71,8 @@ app.get('/', (c) =>
       approvePayment: 'POST /execute/approve (requires x-beta-key)',
       consumePayment: 'POST /execute/consume (requires x-beta-key)',
       signPayment: 'POST /execute/sign (requires x-beta-key; testnet only)',
+      verifyPayment:
+        'POST /execute/verify (requires x-beta-key; verify-only)',
     },
     endpoints: {
       info: '/api/info',
@@ -85,6 +88,7 @@ app.get('/', (c) =>
       approvePayment: '/execute/approve',
       consumePayment: '/execute/consume',
       signPayment: '/execute/sign',
+      verifyPayment: '/execute/verify',
     },
     note: 'Public preview keeps live x402 execution gated. Use dry=true for safe routing previews.',
   }),
@@ -97,6 +101,7 @@ app.route('/execute/prepare', prepareExecutionRoute)
 app.route('/execute/approve', approveExecutionRoute)
 app.route('/execute/consume', consumeExecutionRoute)
 app.route('/execute/sign', signExecutionRoute)
+app.route('/execute/verify', verifyExecutionRoute)
 app.route('/api/info', infoRoute)
 app.route('/api/execution-status', executionStatusRoute)
 app.route('/api/stats', statsRoute)

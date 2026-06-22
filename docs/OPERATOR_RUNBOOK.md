@@ -16,6 +16,7 @@ consumption. It still does not send the paid request.
 - `X402_PREPARE_ENABLED=true` on the beta backend.
 - `ALLOW_LIVE_EXECUTION=false`.
 - `X402_SIGNING_ENABLED=false` unless the isolated signing step is intended.
+- `X402_VERIFY_ENABLED=false` unless verify-only rehearsal is intended.
 - No browser-delivered code may include `BETA_EXECUTION_KEY`.
 
 ## Safety Check
@@ -130,6 +131,30 @@ The backend stores only its SHA-256 signature hash and audit metadata. It does
 not call the paid resource, facilitator verify/settle endpoints, or an RPC
 broadcast method.
 
+## 5. Verify (No Settlement)
+
+The recommended operator command signs and verifies in one process so the full
+credential is never persisted or printed:
+
+```powershell
+$env:X402_SIGNING_ENABLED='true'
+$env:X402_VERIFY_ENABLED='true'
+npm run x402:operator -- sign-verify <consumed-ticket-id>
+```
+
+Expected:
+
+- `mode: sign-verify`
+- `paymentSigned: true`
+- `paymentSettled: false`
+- `paymentSent: false`
+- verification status is `VALID` or `INVALID`
+- facilitator URL is `https://x402.org/facilitator`
+
+`INVALID` is expected when the isolated wallet lacks sufficient Base Sepolia
+USDC or another facilitator policy check fails. The result is still recorded
+with its reason and hash. No settlement request is made.
+
 ## Error Handling
 
 - `invalid_beta_access`: stop and rotate/check the beta key.
@@ -144,12 +169,19 @@ broadcast method.
 - `payment_ticket_missing_signing_metadata`: prepare a new ticket.
 - `payment_signing_disabled`: enable signing only on the isolated testnet
   backend.
+- `payment_verification_disabled`: enable verification only on the isolated
+  testnet backend.
+- `verification_payload_mismatch`: discard the credential and start from a new
+  prepare ticket.
+- `verification_signature_mismatch`: the credential does not match the stored
+  signing audit hash.
 
 ## Rollback
 
 - Keep `ALLOW_LIVE_EXECUTION=false`.
 - Set `X402_PREPARE_ENABLED=false` to stop ticket rehearsal.
 - Set `X402_SIGNING_ENABLED=false` to stop credential creation immediately.
+- Set `X402_VERIFY_ENABLED=false` to stop facilitator verification.
 - Rotate `BETA_EXECUTION_KEY` if it was exposed.
 - Remove beta origins from `ALLOWED_ORIGINS` if needed.
 - Pause the beta backend if ticket state changes unexpectedly.
