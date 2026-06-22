@@ -61,6 +61,7 @@ async function postJson({
   fetchImpl,
   label,
   allowSignature = false,
+  allowSettlement = false,
 }) {
   const response = await fetchImpl(endpoint(baseUrl, path), {
     method: 'POST',
@@ -74,7 +75,9 @@ async function postJson({
   })
 
   const parsed = await parseJsonResponse(response, label)
-  if (allowSignature) {
+  if (allowSettlement) {
+    // Settlement is checked by the command-specific assertions below.
+  } else if (allowSignature) {
     assertNotSent(parsed)
   } else {
     assertNoPayment(parsed)
@@ -108,9 +111,12 @@ export async function runOperatorCli({
         `Execution status failed (${response.status}): ${JSON.stringify(body)}`,
       )
     }
-    if (body.paymentSendingEnabled !== false) {
+    if (
+      body.paymentSendingEnabled !== false &&
+      env.X402_CONFIRM_SETTLEMENT !== 'SETTLE_BASE_SEPOLIA'
+    ) {
       throw new Error(
-        'Safety assertion failed: payment sending must be disabled',
+        'Safety assertion failed: settlement is enabled without explicit local confirmation',
       )
     }
     log(JSON.stringify(body, null, 2))
@@ -275,6 +281,102 @@ export async function runOperatorCli({
     return output
   }
 
+  if (command === 'sign-verify-settle') {
+    const ticketId = argv[1] || env.X402_TICKET_ID
+    if (!ticketId) {
+      throw new Error(
+        'sign-verify-settle requires a ticket id argument or X402_TICKET_ID',
+      )
+    }
+    if (env.X402_CONFIRM_SETTLEMENT !== 'SETTLE_BASE_SEPOLIA') {
+      throw new Error(
+        'X402_CONFIRM_SETTLEMENT must equal SETTLE_BASE_SEPOLIA',
+      )
+    }
+
+    const { body: signed } = await postJson({
+      baseUrl,
+      path: '/execute/sign',
+      betaKey,
+      body: {
+        ticketId,
+        signedBy: env.X402_OPERATOR || 'operator-cli',
+      },
+      fetchImpl,
+      label: 'Sign',
+      allowSignature: true,
+    })
+    if (
+      signed.mode !== 'sign-only' ||
+      signed.paymentSigned !== true ||
+      !signed.credential?.paymentPayload
+    ) {
+      throw new Error(`Unexpected sign response: ${JSON.stringify(signed)}`)
+    }
+
+    const paymentPayload = signed.credential.paymentPayload
+    const { body: verified } = await postJson({
+      baseUrl,
+      path: '/execute/verify',
+      betaKey,
+      body: {
+        ticketId,
+        verifiedBy: env.X402_OPERATOR || 'operator-cli',
+        paymentPayload,
+      },
+      fetchImpl,
+      label: 'Verify',
+      allowSignature: true,
+    })
+    if (
+      verified.mode !== 'verify-only' ||
+      verified.paymentVerified !== true ||
+      verified.paymentSettled !== false ||
+      verified.paymentSent !== false
+    ) {
+      throw new Error(
+        `Settlement blocked because verification was not valid: ${JSON.stringify(verified)}`,
+      )
+    }
+
+    const { body: settled } = await postJson({
+      baseUrl,
+      path: '/execute/settle',
+      betaKey,
+      body: {
+        ticketId,
+        settledBy: env.X402_OPERATOR || 'operator-cli',
+        settlementConfirmation: 'SETTLE_BASE_SEPOLIA',
+        paymentPayload,
+      },
+      fetchImpl,
+      label: 'Settle',
+      allowSettlement: true,
+    })
+    if (
+      settled.mode !== 'settlement' ||
+      settled.paymentSettled !== true ||
+      settled.paymentSent !== true ||
+      !settled.settlement?.transaction
+    ) {
+      throw new Error(`Settlement failed: ${JSON.stringify(settled)}`)
+    }
+
+    const output = {
+      success: true,
+      mode: 'sign-verify-settle',
+      ticket: settled.ticket,
+      transaction: settled.settlement.transaction,
+      network: settled.settlement.network,
+      paymentSigned: true,
+      paymentVerified: true,
+      paymentSettled: true,
+      paymentSent: true,
+    }
+    log(JSON.stringify(output, null, 2))
+    return output
+  }
+
   if (command === 'sign') {
     const ticketId = argv[1] || env.X402_TICKET_ID
     if (!ticketId) {
@@ -323,7 +425,7 @@ export async function runOperatorCli({
   }
 
   throw new Error(
-    'Unknown command. Use one of: status, prepare, approve <ticketId>, consume <ticketId>, sign <ticketId>, sign-verify <ticketId>',
+    'Unknown command. Use one of: status, prepare, approve <ticketId>, consume <ticketId>, sign <ticketId>, sign-verify <ticketId>, sign-verify-settle <ticketId>',
   )
 }
 

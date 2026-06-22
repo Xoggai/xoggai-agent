@@ -15,6 +15,7 @@ import { infoRoute } from './routes/info.js'
 import { intentRoute } from './routes/intent.js'
 import { prepareExecutionRoute } from './routes/prepareExecution.js'
 import { searchRoute } from './routes/search.js'
+import { settleExecutionRoute } from './routes/settleExecution.js'
 import { signExecutionRoute } from './routes/signExecution.js'
 import { verifyExecutionRoute } from './routes/verifyExecution.js'
 import { statsRoute } from './routes/stats.js'
@@ -73,6 +74,8 @@ app.get('/', (c) =>
       signPayment: 'POST /execute/sign (requires x-beta-key; testnet only)',
       verifyPayment:
         'POST /execute/verify (requires x-beta-key; verify-only)',
+      settlePayment:
+        'POST /execute/settle (requires x-beta-key; funded testnet only)',
     },
     endpoints: {
       info: '/api/info',
@@ -89,6 +92,7 @@ app.get('/', (c) =>
       consumePayment: '/execute/consume',
       signPayment: '/execute/sign',
       verifyPayment: '/execute/verify',
+      settlePayment: '/execute/settle',
     },
     note: 'Public preview keeps live x402 execution gated. Use dry=true for safe routing previews.',
   }),
@@ -102,6 +106,7 @@ app.route('/execute/approve', approveExecutionRoute)
 app.route('/execute/consume', consumeExecutionRoute)
 app.route('/execute/sign', signExecutionRoute)
 app.route('/execute/verify', verifyExecutionRoute)
+app.route('/execute/settle', settleExecutionRoute)
 app.route('/api/info', infoRoute)
 app.route('/api/execution-status', executionStatusRoute)
 app.route('/api/stats', statsRoute)

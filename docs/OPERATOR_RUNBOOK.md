@@ -17,6 +17,8 @@ consumption. It still does not send the paid request.
 - `ALLOW_LIVE_EXECUTION=false`.
 - `X402_SIGNING_ENABLED=false` unless the isolated signing step is intended.
 - `X402_VERIFY_ENABLED=false` unless verify-only rehearsal is intended.
+- `X402_SETTLEMENT_ENABLED=false` unless one funded testnet payment is
+  explicitly scheduled.
 - No browser-delivered code may include `BETA_EXECUTION_KEY`.
 
 ## Safety Check
@@ -155,6 +157,42 @@ Expected:
 USDC or another facilitator policy check fails. The result is still recorded
 with its reason and hash. No settlement request is made.
 
+## 6. Settle One Funded Testnet Payment
+
+Prerequisites:
+
+- dedicated Base Sepolia wallet
+- wallet address matches the configured private key
+- enough Base Sepolia USDC for one payment plus a small buffer
+- `MAX_EXECUTION_BUDGET_USDC=0.005` or lower
+- `X402_SETTLEMENT_ENABLED=true`
+- an unexpired `CONSUMED` ticket
+
+Run:
+
+```powershell
+$env:X402_CONFIRM_SETTLEMENT='SETTLE_BASE_SEPOLIA'
+npm run x402:operator -- sign-verify-settle <consumed-ticket-id>
+```
+
+The command stops before settlement unless facilitator verification returns
+`isValid: true`. A successful result must include:
+
+- ticket status `SETTLED`
+- `paymentSigned: true`
+- `paymentVerified: true`
+- `paymentSettled: true`
+- `paymentSent: true`
+- Base Sepolia transaction hash
+
+After the first successful payment, immediately set
+`X402_SETTLEMENT_ENABLED=false` and record the transaction in the beta report.
+
+Do not retry a ticket with status `SETTLING`, `SETTLED`,
+`SETTLEMENT_FAILED`, or `SETTLEMENT_UNKNOWN`. An unknown result requires manual
+facilitator and chain inspection because the payment may have settled even
+when the client timed out.
+
 ## Error Handling
 
 - `invalid_beta_access`: stop and rotate/check the beta key.
@@ -175,6 +213,13 @@ with its reason and hash. No settlement request is made.
   prepare ticket.
 - `verification_signature_mismatch`: the credential does not match the stored
   signing audit hash.
+- `payment_settlement_disabled`: settlement flag is off.
+- `settlement_confirmation_required`: explicit local confirmation is missing.
+- `settlement_budget_exceeded`: amount exceeds the hard beta cap.
+- `payment_ticket_already_settling`: another settlement request owns the
+  ticket.
+- `settlement_result_unknown`: inspect facilitator and chain state manually;
+  never retry automatically.
 
 ## Rollback
 
@@ -182,6 +227,7 @@ with its reason and hash. No settlement request is made.
 - Set `X402_PREPARE_ENABLED=false` to stop ticket rehearsal.
 - Set `X402_SIGNING_ENABLED=false` to stop credential creation immediately.
 - Set `X402_VERIFY_ENABLED=false` to stop facilitator verification.
+- Set `X402_SETTLEMENT_ENABLED=false` to stop funded payments immediately.
 - Rotate `BETA_EXECUTION_KEY` if it was exposed.
 - Remove beta origins from `ALLOWED_ORIGINS` if needed.
 - Pause the beta backend if ticket state changes unexpectedly.

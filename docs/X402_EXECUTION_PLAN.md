@@ -193,6 +193,32 @@ invalid ticket remains `SIGNED` for audit until expiry.
 This phase has no settlement code path. It does not call `/settle`, retry the
 paid resource, or broadcast a transaction.
 
+### Phase 6: Capped Base Sepolia Settlement
+
+Settlement is available only when `X402_SETTLEMENT_ENABLED=true`. The public
+and beta deployment templates both keep it disabled by default.
+
+The settlement path requires:
+
+- a `VERIFIED` ticket with facilitator status `VALID`
+- the exact in-memory credential whose signature hash matches the ticket
+- explicit `SETTLE_BASE_SEPOLIA` confirmation
+- Base Sepolia exact scheme
+- audited x402.org facilitator
+- amount no greater than `0.005 USDC`
+
+Before the facilitator call, PostgreSQL atomically changes the ticket from
+`VERIFIED` to `SETTLING`. This prevents concurrent or replayed settlement.
+Final states are:
+
+- `SETTLED`
+- `SETTLEMENT_FAILED`
+- `SETTLEMENT_UNKNOWN`
+
+No terminal state is automatically retried. `SETTLEMENT_UNKNOWN` exists
+because a timeout can occur after a facilitator accepted the credential.
+Manual chain inspection is required before any further action.
+
 Call this endpoint from a trusted server or agent runtime. Never embed the beta
 key in the public website or other browser-delivered code. `GET /intent` stays
 routing-only and rejects `dry=false`.

@@ -120,6 +120,33 @@ ALTER TABLE payment_prepare_tickets
 ALTER TABLE payment_prepare_tickets
   ADD COLUMN IF NOT EXISTS verified_by text;
 
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS settlement_status text;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS settlement_error_reason text;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS settlement_error_message text;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS settlement_transaction text;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS settlement_network text;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS settlement_result_hash text;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS settlement_started_at timestamp;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS settled_at timestamp;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS settled_by text;
+
 CREATE INDEX IF NOT EXISTS payment_prepare_tickets_status_idx
   ON payment_prepare_tickets (status);
 

@@ -17,10 +17,15 @@ assert.equal(
   json.paymentVerificationEnabled,
   process.env.X402_VERIFY_ENABLED === 'true',
 )
-assert.equal(json.paymentSendingEnabled, false)
+assert.equal(
+  json.paymentSendingEnabled,
+  process.env.X402_SETTLEMENT_ENABLED === 'true',
+)
 assert.equal(
   json.safetyMode,
-  process.env.X402_VERIFY_ENABLED === 'true'
+  process.env.X402_SETTLEMENT_ENABLED === 'true'
+    ? 'testnet-settlement'
+    : process.env.X402_VERIFY_ENABLED === 'true'
     ? 'verification-rehearsal'
     : process.env.X402_SIGNING_ENABLED === 'true'
     ? 'signing-rehearsal'
@@ -36,6 +41,9 @@ assert.equal(guardrails.signingRestrictedToConsumedTickets, true)
 assert.equal(guardrails.signedCredentialsAreNeverBroadcastByBackend, true)
 assert.equal(guardrails.verificationNeverCallsSettlement, true)
 assert.equal(guardrails.facilitatorRestrictedToX402Org, true)
+assert.equal(guardrails.settlementRequiresVerifiedTicket, true)
+assert.equal(guardrails.settlementRequiresExplicitConfirmation, true)
+assert.equal(guardrails.settlementHasNoAutomaticRetry, true)
 assert.equal(guardrails.dryRunsNeverSendPayment, true)
 
 console.log('execution status route tests passed')

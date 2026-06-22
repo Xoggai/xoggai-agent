@@ -14,6 +14,7 @@ export const infoRoute = new Hono().get('/', (c) => {
     executionSimulationEnabled: env.EXECUTION_SIMULATION_ENABLED,
     signingEnabled: env.X402_SIGNING_ENABLED,
     verificationEnabled: env.X402_VERIFY_ENABLED,
+    settlementEnabled: env.X402_SETTLEMENT_ENABLED,
     defaultExecution: 'dry-run',
     safety: {
       dryRunDefault: true,
@@ -48,6 +49,8 @@ export const infoRoute = new Hono().get('/', (c) => {
       signPayment: 'POST /execute/sign (requires x-beta-key; testnet only)',
       verifyPayment:
         'POST /execute/verify (requires x-beta-key; verify-only)',
+      settlePayment:
+        'POST /execute/settle (requires x-beta-key; funded testnet only)',
     },
     endpoints: {
       root: '/',
@@ -65,6 +68,7 @@ export const infoRoute = new Hono().get('/', (c) => {
       consumePayment: '/execute/consume',
       signPayment: '/execute/sign',
       verifyPayment: '/execute/verify',
+      settlePayment: '/execute/settle',
     },
     note: 'Public preview keeps live x402 execution gated. Use dry=true for safe routing previews.',
     commit:

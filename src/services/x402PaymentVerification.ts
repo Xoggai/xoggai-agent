@@ -9,6 +9,11 @@ import type {
 import { getAddress } from 'viem'
 import type { VerifiablePaymentTicket } from './paymentPrepareTickets.js'
 
+export type PaymentPayloadBindingTicket = Omit<
+  VerifiablePaymentTicket,
+  'status'
+>
+
 export class PaymentVerificationError extends Error {
   constructor(
     public readonly code:
@@ -29,8 +34,8 @@ function signatureFromPayload(paymentPayload: PaymentPayload) {
   return payload.signature
 }
 
-function assertPayloadMatchesTicket(
-  ticket: VerifiablePaymentTicket,
+export function assertPaymentPayloadMatchesTicket(
+  ticket: PaymentPayloadBindingTicket,
   paymentPayload: PaymentPayload,
 ) {
   if (
@@ -125,7 +130,7 @@ export async function verifySignedPaymentCredential({
     )
   }
 
-  assertPayloadMatchesTicket(ticket, paymentPayload)
+  assertPaymentPayloadMatchesTicket(ticket, paymentPayload)
   const requirements: PaymentRequirements = paymentPayload.accepted
   const facilitator =
     facilitatorClient ??

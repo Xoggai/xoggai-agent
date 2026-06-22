@@ -108,6 +108,11 @@ Public preview must stay dry-run first until every item below is complete.
   `paymentSent: false`.
 - A facilitator `INVALID` result records the rejection reason without calling
   settlement.
+- Settlement remains disabled until a dedicated Base Sepolia wallet is funded.
+- Settlement requires explicit confirmation and a `VERIFIED` ticket.
+- Ticket state moves atomically to `SETTLING` before the facilitator call.
+- Settlement amount cannot exceed `0.005 USDC`.
+- Unknown settlement results are never retried automatically.
 - Expired, consumed, missing, or wrong-status tickets are rejected.
 - `/api/execution-status` shows payment signing and sending disabled.
 - Live execution is blocked when `ALLOW_LIVE_EXECUTION=false`.
@@ -125,6 +130,7 @@ Public preview must stay dry-run first until every item below is complete.
 - Set `X402_PREPARE_ENABLED=false`.
 - Set `X402_SIGNING_ENABLED=false`.
 - Set `X402_VERIFY_ENABLED=false`.
+- Set `X402_SETTLEMENT_ENABLED=false`.
 - Remove beta frontend origin from `ALLOWED_ORIGINS`.
 - Remove endpoint allowlist entries.
 - Rotate beta wallet key if needed.

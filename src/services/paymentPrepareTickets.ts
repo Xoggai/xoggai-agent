@@ -81,6 +81,29 @@ export type VerifiablePaymentTicket = Omit<
   signedAt: string
 }
 
+export type SettlementPaymentTicket = Omit<
+  VerifiablePaymentTicket,
+  'status'
+> & {
+  status: 'VERIFIED' | 'SETTLING'
+  amountUsdc: number
+}
+
+export type SettledPaymentTicket = {
+  id: string
+  status:
+    | 'SETTLED'
+    | 'SETTLEMENT_FAILED'
+    | 'SETTLEMENT_UNKNOWN'
+  settlementStatus: 'SUCCESS' | 'FAILED' | 'UNKNOWN'
+  settlementTransaction?: string
+  settlementNetwork?: string
+  settlementErrorReason?: string
+  settlementErrorMessage?: string
+  settlementResultHash?: string
+  settledAt: string
+}
+
 export type VerifiedPaymentTicket = {
   id: string
   status: 'SIGNED' | 'VERIFIED'
@@ -139,6 +162,20 @@ export class PaymentTicketVerificationError extends Error {
       | 'payment_ticket_not_signed'
       | 'payment_ticket_already_verified'
       | 'payment_ticket_missing_verification_metadata',
+  ) {
+    super(code)
+  }
+}
+
+export class PaymentTicketSettlementError extends Error {
+  constructor(
+    public readonly code:
+      | 'payment_ticket_not_found'
+      | 'payment_ticket_expired'
+      | 'payment_ticket_not_verified'
+      | 'payment_ticket_already_settling'
+      | 'payment_ticket_already_settled'
+      | 'payment_ticket_verification_invalid',
   ) {
     super(code)
   }
@@ -438,6 +475,217 @@ export async function recordPaymentVerification({
     facilitatorUrl: verified.facilitatorUrl,
     verifiedAt: verified.verifiedAt.toISOString(),
     expiresAt: verified.expiresAt.toISOString(),
+  }
+}
+
+export async function loadVerifiedPaymentTicket({
+  ticketId,
+  now = new Date(),
+}: {
+  ticketId: string
+  now?: Date
+}): Promise<SettlementPaymentTicket> {
+  const [ticket] = await db
+    .select()
+    .from(paymentPrepareTickets)
+    .where(eq(paymentPrepareTickets.id, ticketId))
+    .limit(1)
+
+  if (!ticket) {
+    throw new PaymentTicketSettlementError('payment_ticket_not_found')
+  }
+  if (
+    ticket.status === 'SETTLED' ||
+    ticket.status === 'SETTLEMENT_FAILED' ||
+    ticket.status === 'SETTLEMENT_UNKNOWN'
+  ) {
+    throw new PaymentTicketSettlementError(
+      'payment_ticket_already_settled',
+    )
+  }
+  if (ticket.status === 'SETTLING') {
+    throw new PaymentTicketSettlementError(
+      'payment_ticket_already_settling',
+    )
+  }
+  if (
+    ticket.status !== 'VERIFIED' ||
+    ticket.verificationStatus !== 'VALID'
+  ) {
+    throw new PaymentTicketSettlementError(
+      ticket.verificationStatus === 'INVALID'
+        ? 'payment_ticket_verification_invalid'
+        : 'payment_ticket_not_verified',
+    )
+  }
+  if (ticket.expiresAt <= now) {
+    throw new PaymentTicketSettlementError('payment_ticket_expired')
+  }
+  if (
+    !ticket.assetName ||
+    !ticket.assetVersion ||
+    !ticket.signerAddress ||
+    !ticket.signatureHash ||
+    !ticket.signedAt
+  ) {
+    throw new PaymentTicketSettlementError(
+      'payment_ticket_not_verified',
+    )
+  }
+
+  return {
+    id: ticket.id,
+    status: 'VERIFIED',
+    challengeHash: ticket.challengeHash,
+    resourceUrl: ticket.resourceUrl,
+    network: ticket.network,
+    asset: ticket.asset,
+    assetName: ticket.assetName,
+    assetVersion: ticket.assetVersion,
+    recipient: ticket.recipient,
+    amountAtomic: ticket.amountAtomic,
+    amountUsdc: ticket.amountUsdc,
+    maxTimeoutSeconds: ticket.maxTimeoutSeconds,
+    signerAddress: ticket.signerAddress,
+    signatureHash: ticket.signatureHash,
+    signedAt: ticket.signedAt.toISOString(),
+    expiresAt: ticket.expiresAt.toISOString(),
+  }
+}
+
+export async function claimVerifiedPaymentTicketForSettlement({
+  ticketId,
+  settledBy,
+  now = new Date(),
+}: {
+  ticketId: string
+  settledBy?: string
+  now?: Date
+}): Promise<void> {
+  const [claimed] = await db
+    .update(paymentPrepareTickets)
+    .set({
+      status: 'SETTLING',
+      settlementStatus: 'PENDING',
+      settlementStartedAt: now,
+      settledBy: settledBy ?? null,
+    })
+    .where(
+      and(
+        eq(paymentPrepareTickets.id, ticketId),
+        eq(paymentPrepareTickets.status, 'VERIFIED'),
+      ),
+    )
+    .returning({ id: paymentPrepareTickets.id })
+
+  if (!claimed) {
+    throw new PaymentTicketSettlementError(
+      'payment_ticket_already_settling',
+    )
+  }
+}
+
+export async function recordPaymentSettlement({
+  ticketId,
+  success,
+  unknown = false,
+  errorReason,
+  errorMessage,
+  transaction,
+  network,
+  resultHash,
+  now = new Date(),
+}: {
+  ticketId: string
+  success: boolean
+  unknown?: boolean
+  errorReason?: string
+  errorMessage?: string
+  transaction?: string
+  network?: string
+  resultHash?: string
+  now?: Date
+}): Promise<SettledPaymentTicket> {
+  const status = success
+    ? 'SETTLED'
+    : unknown
+      ? 'SETTLEMENT_UNKNOWN'
+      : 'SETTLEMENT_FAILED'
+  const settlementStatus = success
+    ? 'SUCCESS'
+    : unknown
+      ? 'UNKNOWN'
+      : 'FAILED'
+  const [settled] = await db
+    .update(paymentPrepareTickets)
+    .set({
+      status,
+      settlementStatus,
+      settlementErrorReason: errorReason ?? null,
+      settlementErrorMessage: errorMessage ?? null,
+      settlementTransaction: transaction ?? null,
+      settlementNetwork: network ?? null,
+      settlementResultHash: resultHash ?? null,
+      settledAt: now,
+    })
+    .where(
+      and(
+        eq(paymentPrepareTickets.id, ticketId),
+        eq(paymentPrepareTickets.status, 'SETTLING'),
+      ),
+    )
+    .returning({
+      id: paymentPrepareTickets.id,
+      status: paymentPrepareTickets.status,
+      settlementStatus: paymentPrepareTickets.settlementStatus,
+      settlementTransaction:
+        paymentPrepareTickets.settlementTransaction,
+      settlementNetwork: paymentPrepareTickets.settlementNetwork,
+      settlementErrorReason:
+        paymentPrepareTickets.settlementErrorReason,
+      settlementErrorMessage:
+        paymentPrepareTickets.settlementErrorMessage,
+      settlementResultHash:
+        paymentPrepareTickets.settlementResultHash,
+      settledAt: paymentPrepareTickets.settledAt,
+    })
+
+  if (
+    !settled ||
+    !settled.settledAt ||
+    !['SETTLED', 'SETTLEMENT_FAILED', 'SETTLEMENT_UNKNOWN'].includes(
+      settled.status,
+    ) ||
+    !['SUCCESS', 'FAILED', 'UNKNOWN'].includes(
+      settled.settlementStatus ?? '',
+    )
+  ) {
+    throw new PaymentTicketSettlementError(
+      'payment_ticket_already_settled',
+    )
+  }
+
+  return {
+    id: settled.id,
+    status: settled.status as SettledPaymentTicket['status'],
+    settlementStatus:
+      settled.settlementStatus as SettledPaymentTicket['settlementStatus'],
+    ...(settled.settlementTransaction
+      ? { settlementTransaction: settled.settlementTransaction }
+      : {}),
+    ...(settled.settlementNetwork
+      ? { settlementNetwork: settled.settlementNetwork }
+      : {}),
+    ...(settled.settlementErrorReason
+      ? { settlementErrorReason: settled.settlementErrorReason }
+      : {}),
+    ...(settled.settlementErrorMessage
+      ? { settlementErrorMessage: settled.settlementErrorMessage }
+      : {}),
+    ...(settled.settlementResultHash
+      ? { settlementResultHash: settled.settlementResultHash }
+      : {}),
+    settledAt: settled.settledAt.toISOString(),
   }
 }
 

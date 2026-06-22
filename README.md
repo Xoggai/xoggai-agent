@@ -229,6 +229,7 @@ EXECUTION_SIMULATION_ENABLED=false
 X402_PREPARE_ENABLED=false
 X402_SIGNING_ENABLED=false
 X402_VERIFY_ENABLED=false
+X402_SETTLEMENT_ENABLED=false
 X402_FACILITATOR_URL=https://x402.org/facilitator
 BETA_EXECUTION_KEY=<server-side-secret-at-least-32-characters>
 MAX_EXECUTION_BUDGET_USDC=0.05
@@ -322,6 +323,20 @@ resource, and always reports `paymentSettled=false` and `paymentSent=false`.
 An unfunded testnet wallet may produce an `INVALID` verification result such as
 insufficient balance; that still confirms the verify-only transport and audit
 path are working.
+
+The funded Base Sepolia settlement phase is implemented but disabled by
+default:
+
+```powershell
+$env:X402_CONFIRM_SETTLEMENT='SETTLE_BASE_SEPOLIA'
+npm run x402:operator -- sign-verify-settle <consumed-ticket-id>
+```
+
+The backend must also have `X402_SETTLEMENT_ENABLED=true`, a valid isolated
+Base Sepolia wallet, and `MAX_EXECUTION_BUDGET_USDC` at or below `0.005`.
+Settlement accepts only a `VERIFIED` ticket, atomically locks it as `SETTLING`,
+and records the transaction or terminal failure. Ambiguous network results are
+marked `SETTLEMENT_UNKNOWN` and are never retried automatically.
 
 ## Repository Map
 
