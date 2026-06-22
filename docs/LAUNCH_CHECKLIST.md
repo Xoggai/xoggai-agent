@@ -26,6 +26,11 @@ Use this before sharing XoggAI publicly or shipping a new launch update.
 - `https://xoggai-backend.onrender.com/` returns service metadata.
 - `https://xoggai-backend.onrender.com/health` returns `status: ok`.
 - `https://xoggai-backend.onrender.com/api/info` returns public preview mode and `liveExecutionEnabled: false`.
+- `https://xoggai-backend.onrender.com/api/execution-status` returns:
+  - `liveExecutionEnabled: false`
+  - `paymentSigningEnabled: false`
+  - `paymentVerificationEnabled: false`
+  - `paymentSendingEnabled: false`
 - `/intent?q=what%20is%20the%20ETH%20price&dry=true` returns a dry-run route.
 - `/search?q=crypto%20price&limit=5&dry=true` returns endpoint candidates.
 
@@ -35,6 +40,9 @@ Use this before sharing XoggAI publicly or shipping a new launch update.
 - Render latest backend deploy is live.
 - Render free instance cold-start behavior is acceptable for demo traffic.
 - `ALLOW_LIVE_EXECUTION=false` is set for public preview.
+- `X402_SIGNING_ENABLED=false`, `X402_VERIFY_ENABLED=false`,
+  `X402_SETTLEMENT_ENABLED=false`, and
+  `X402_UPSTREAM_EXECUTION_ENABLED=false` are set for public preview.
 - `ALLOWED_ORIGINS` includes:
   - `https://xoggai-agent.com`
   - `https://www.xoggai-agent.com`
@@ -46,3 +54,10 @@ Use this before sharing XoggAI publicly or shipping a new launch update.
 - Check Netlify deploy logs after every push.
 - Test terminal commands after deploy completes.
 - Keep announcements framed as `public preview` and `dry-run router live`.
+
+## Pre-Push
+
+- `npm test`
+- `npm audit --omit=dev`
+- `npm run production:check`
+- `git diff --check`

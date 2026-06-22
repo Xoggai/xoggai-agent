@@ -239,6 +239,15 @@ EXECUTION_ENDPOINT_ALLOWLIST=<comma-separated-endpoint-uuids>
 
 Keep `ALLOW_LIVE_EXECUTION=false` for public demos.
 
+Before pushing production-facing changes, run:
+
+```powershell
+npm test
+npm audit --omit=dev
+npm run production:check
+git diff --check
+```
+
 For an isolated Base Sepolia simulation environment, review
 [`render.beta.yaml`](render.beta.yaml) and
 [`docs/BETA_ENDPOINT_AUDIT.md`](docs/BETA_ENDPOINT_AUDIT.md). The beta template
