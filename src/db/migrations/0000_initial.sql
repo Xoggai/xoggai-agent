@@ -147,6 +147,30 @@ ALTER TABLE payment_prepare_tickets
 ALTER TABLE payment_prepare_tickets
   ADD COLUMN IF NOT EXISTS settled_by text;
 
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS upstream_status text;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS upstream_status_code integer;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS upstream_error_message text;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS upstream_response_hash text;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS upstream_payment_response_hash text;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS upstream_started_at timestamp;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS upstream_completed_at timestamp;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS upstream_executed_by text;
+
 CREATE INDEX IF NOT EXISTS payment_prepare_tickets_status_idx
   ON payment_prepare_tickets (status);
 

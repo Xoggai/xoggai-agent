@@ -8,6 +8,9 @@ function safetyMode() {
   if (env.X402_SETTLEMENT_ENABLED) {
     return 'testnet-settlement'
   }
+  if (env.X402_UPSTREAM_EXECUTION_ENABLED) {
+    return 'testnet-upstream-execution'
+  }
   if (env.X402_VERIFY_ENABLED) {
     return 'verification-rehearsal'
   }
@@ -39,10 +42,12 @@ export const executionStatusRoute = new Hono().get('/', (c) => {
     ticketSigningEnabled: env.X402_SIGNING_ENABLED,
     ticketVerificationEnabled: env.X402_VERIFY_ENABLED,
     ticketSettlementEnabled: env.X402_SETTLEMENT_ENABLED,
+    upstreamExecutionEnabled: env.X402_UPSTREAM_EXECUTION_ENABLED,
     liveExecutionEnabled: env.ALLOW_LIVE_EXECUTION,
     paymentSigningEnabled: env.X402_SIGNING_ENABLED,
     paymentVerificationEnabled: env.X402_VERIFY_ENABLED,
-    paymentSendingEnabled: env.X402_SETTLEMENT_ENABLED,
+    paymentSendingEnabled:
+      env.X402_SETTLEMENT_ENABLED || env.X402_UPSTREAM_EXECUTION_ENABLED,
     walletConfigured: hasLiveX402Wallet(),
     betaAccessConfigured: Boolean(env.BETA_EXECUTION_KEY),
     allowlistedEndpointCount: allowlist.size,
@@ -59,6 +64,9 @@ export const executionStatusRoute = new Hono().get('/', (c) => {
       settlementRequiresVerifiedTicket: true,
       settlementRequiresExplicitConfirmation: true,
       settlementHasNoAutomaticRetry: true,
+      upstreamExecutionRequiresVerifiedTicket: true,
+      upstreamExecutionRequiresExplicitConfirmation: true,
+      upstreamExecutionHasNoAutomaticRetry: true,
       browserNeverReceivesBetaKey: true,
       dryRunsNeverSendPayment: true,
     },
@@ -69,6 +77,7 @@ export const executionStatusRoute = new Hono().get('/', (c) => {
       sign: '/execute/sign',
       verify: '/execute/verify',
       settle: '/execute/settle',
+      upstream: '/execute/upstream',
     },
     ts: Date.now(),
   })

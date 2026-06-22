@@ -89,6 +89,14 @@ export type SettlementPaymentTicket = Omit<
   amountUsdc: number
 }
 
+export type UpstreamExecutionPaymentTicket = Omit<
+  VerifiablePaymentTicket,
+  'status'
+> & {
+  status: 'VERIFIED' | 'UPSTREAM_EXECUTING'
+  amountUsdc: number
+}
+
 export type SettledPaymentTicket = {
   id: string
   status:
@@ -102,6 +110,20 @@ export type SettledPaymentTicket = {
   settlementErrorMessage?: string
   settlementResultHash?: string
   settledAt: string
+}
+
+export type ExecutedPaymentTicket = {
+  id: string
+  status: 'EXECUTED' | 'UPSTREAM_FAILED' | 'UPSTREAM_UNKNOWN'
+  upstreamStatus: 'SUCCESS' | 'FAILED' | 'UNKNOWN'
+  upstreamStatusCode?: number
+  upstreamErrorMessage?: string
+  upstreamResponseHash?: string
+  upstreamPaymentResponseHash?: string
+  settlementTransaction?: string
+  settlementNetwork?: string
+  settlementResultHash?: string
+  executedAt: string
 }
 
 export type VerifiedPaymentTicket = {
@@ -175,6 +197,20 @@ export class PaymentTicketSettlementError extends Error {
       | 'payment_ticket_not_verified'
       | 'payment_ticket_already_settling'
       | 'payment_ticket_already_settled'
+      | 'payment_ticket_verification_invalid',
+  ) {
+    super(code)
+  }
+}
+
+export class PaymentTicketUpstreamExecutionError extends Error {
+  constructor(
+    public readonly code:
+      | 'payment_ticket_not_found'
+      | 'payment_ticket_expired'
+      | 'payment_ticket_not_verified'
+      | 'payment_ticket_already_executing'
+      | 'payment_ticket_already_executed'
       | 'payment_ticket_verification_invalid',
   ) {
     super(code)
@@ -686,6 +722,242 @@ export async function recordPaymentSettlement({
       ? { settlementResultHash: settled.settlementResultHash }
       : {}),
     settledAt: settled.settledAt.toISOString(),
+  }
+}
+
+export async function loadVerifiedPaymentTicketForUpstream({
+  ticketId,
+  now = new Date(),
+}: {
+  ticketId: string
+  now?: Date
+}): Promise<UpstreamExecutionPaymentTicket> {
+  const [ticket] = await db
+    .select()
+    .from(paymentPrepareTickets)
+    .where(eq(paymentPrepareTickets.id, ticketId))
+    .limit(1)
+
+  if (!ticket) {
+    throw new PaymentTicketUpstreamExecutionError(
+      'payment_ticket_not_found',
+    )
+  }
+  if (
+    ticket.status === 'EXECUTED' ||
+    ticket.status === 'UPSTREAM_FAILED' ||
+    ticket.status === 'UPSTREAM_UNKNOWN' ||
+    ticket.status === 'SETTLED' ||
+    ticket.status === 'SETTLEMENT_FAILED' ||
+    ticket.status === 'SETTLEMENT_UNKNOWN'
+  ) {
+    throw new PaymentTicketUpstreamExecutionError(
+      'payment_ticket_already_executed',
+    )
+  }
+  if (ticket.status === 'UPSTREAM_EXECUTING') {
+    throw new PaymentTicketUpstreamExecutionError(
+      'payment_ticket_already_executing',
+    )
+  }
+  if (
+    ticket.status !== 'VERIFIED' ||
+    ticket.verificationStatus !== 'VALID'
+  ) {
+    throw new PaymentTicketUpstreamExecutionError(
+      ticket.verificationStatus === 'INVALID'
+        ? 'payment_ticket_verification_invalid'
+        : 'payment_ticket_not_verified',
+    )
+  }
+  if (ticket.expiresAt <= now) {
+    throw new PaymentTicketUpstreamExecutionError(
+      'payment_ticket_expired',
+    )
+  }
+  if (
+    !ticket.assetName ||
+    !ticket.assetVersion ||
+    !ticket.signerAddress ||
+    !ticket.signatureHash ||
+    !ticket.signedAt
+  ) {
+    throw new PaymentTicketUpstreamExecutionError(
+      'payment_ticket_not_verified',
+    )
+  }
+
+  return {
+    id: ticket.id,
+    status: 'VERIFIED',
+    challengeHash: ticket.challengeHash,
+    resourceUrl: ticket.resourceUrl,
+    network: ticket.network,
+    asset: ticket.asset,
+    assetName: ticket.assetName,
+    assetVersion: ticket.assetVersion,
+    recipient: ticket.recipient,
+    amountAtomic: ticket.amountAtomic,
+    amountUsdc: ticket.amountUsdc,
+    maxTimeoutSeconds: ticket.maxTimeoutSeconds,
+    signerAddress: ticket.signerAddress,
+    signatureHash: ticket.signatureHash,
+    signedAt: ticket.signedAt.toISOString(),
+    expiresAt: ticket.expiresAt.toISOString(),
+  }
+}
+
+export async function claimVerifiedPaymentTicketForUpstream({
+  ticketId,
+  executedBy,
+  now = new Date(),
+}: {
+  ticketId: string
+  executedBy?: string
+  now?: Date
+}): Promise<void> {
+  const [claimed] = await db
+    .update(paymentPrepareTickets)
+    .set({
+      status: 'UPSTREAM_EXECUTING',
+      upstreamStatus: 'PENDING',
+      upstreamStartedAt: now,
+      upstreamExecutedBy: executedBy ?? null,
+    })
+    .where(
+      and(
+        eq(paymentPrepareTickets.id, ticketId),
+        eq(paymentPrepareTickets.status, 'VERIFIED'),
+      ),
+    )
+    .returning({ id: paymentPrepareTickets.id })
+
+  if (!claimed) {
+    throw new PaymentTicketUpstreamExecutionError(
+      'payment_ticket_already_executing',
+    )
+  }
+}
+
+export async function recordUpstreamExecution({
+  ticketId,
+  success,
+  unknown = false,
+  statusCode,
+  errorMessage,
+  responseHash,
+  paymentResponseHash,
+  settlementTransaction,
+  settlementNetwork,
+  settlementResultHash,
+  now = new Date(),
+}: {
+  ticketId: string
+  success: boolean
+  unknown?: boolean
+  statusCode?: number
+  errorMessage?: string
+  responseHash?: string
+  paymentResponseHash?: string
+  settlementTransaction?: string
+  settlementNetwork?: string
+  settlementResultHash?: string
+  now?: Date
+}): Promise<ExecutedPaymentTicket> {
+  const status = success
+    ? 'EXECUTED'
+    : unknown
+      ? 'UPSTREAM_UNKNOWN'
+      : 'UPSTREAM_FAILED'
+  const upstreamStatus = success
+    ? 'SUCCESS'
+    : unknown
+      ? 'UNKNOWN'
+      : 'FAILED'
+  const [executed] = await db
+    .update(paymentPrepareTickets)
+    .set({
+      status,
+      upstreamStatus,
+      upstreamStatusCode: statusCode ?? null,
+      upstreamErrorMessage: errorMessage ?? null,
+      upstreamResponseHash: responseHash ?? null,
+      upstreamPaymentResponseHash: paymentResponseHash ?? null,
+      upstreamCompletedAt: now,
+      settlementStatus: success ? 'SUCCESS' : null,
+      settlementTransaction: settlementTransaction ?? null,
+      settlementNetwork: settlementNetwork ?? null,
+      settlementResultHash: settlementResultHash ?? null,
+      settledAt: success ? now : null,
+    })
+    .where(
+      and(
+        eq(paymentPrepareTickets.id, ticketId),
+        eq(paymentPrepareTickets.status, 'UPSTREAM_EXECUTING'),
+      ),
+    )
+    .returning({
+      id: paymentPrepareTickets.id,
+      status: paymentPrepareTickets.status,
+      upstreamStatus: paymentPrepareTickets.upstreamStatus,
+      upstreamStatusCode: paymentPrepareTickets.upstreamStatusCode,
+      upstreamErrorMessage: paymentPrepareTickets.upstreamErrorMessage,
+      upstreamResponseHash: paymentPrepareTickets.upstreamResponseHash,
+      upstreamPaymentResponseHash:
+        paymentPrepareTickets.upstreamPaymentResponseHash,
+      settlementTransaction:
+        paymentPrepareTickets.settlementTransaction,
+      settlementNetwork: paymentPrepareTickets.settlementNetwork,
+      settlementResultHash:
+        paymentPrepareTickets.settlementResultHash,
+      upstreamCompletedAt: paymentPrepareTickets.upstreamCompletedAt,
+    })
+
+  if (
+    !executed ||
+    !executed.upstreamCompletedAt ||
+    !['EXECUTED', 'UPSTREAM_FAILED', 'UPSTREAM_UNKNOWN'].includes(
+      executed.status,
+    ) ||
+    !['SUCCESS', 'FAILED', 'UNKNOWN'].includes(
+      executed.upstreamStatus ?? '',
+    )
+  ) {
+    throw new PaymentTicketUpstreamExecutionError(
+      'payment_ticket_already_executed',
+    )
+  }
+
+  return {
+    id: executed.id,
+    status: executed.status as ExecutedPaymentTicket['status'],
+    upstreamStatus:
+      executed.upstreamStatus as ExecutedPaymentTicket['upstreamStatus'],
+    ...(typeof executed.upstreamStatusCode === 'number'
+      ? { upstreamStatusCode: executed.upstreamStatusCode }
+      : {}),
+    ...(executed.upstreamErrorMessage
+      ? { upstreamErrorMessage: executed.upstreamErrorMessage }
+      : {}),
+    ...(executed.upstreamResponseHash
+      ? { upstreamResponseHash: executed.upstreamResponseHash }
+      : {}),
+    ...(executed.upstreamPaymentResponseHash
+      ? {
+          upstreamPaymentResponseHash:
+            executed.upstreamPaymentResponseHash,
+        }
+      : {}),
+    ...(executed.settlementTransaction
+      ? { settlementTransaction: executed.settlementTransaction }
+      : {}),
+    ...(executed.settlementNetwork
+      ? { settlementNetwork: executed.settlementNetwork }
+      : {}),
+    ...(executed.settlementResultHash
+      ? { settlementResultHash: executed.settlementResultHash }
+      : {}),
+    executedAt: executed.upstreamCompletedAt.toISOString(),
   }
 }
 

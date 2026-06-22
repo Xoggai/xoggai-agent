@@ -19,6 +19,8 @@ consumption. It still does not send the paid request.
 - `X402_VERIFY_ENABLED=false` unless verify-only rehearsal is intended.
 - `X402_SETTLEMENT_ENABLED=false` unless one funded testnet payment is
   explicitly scheduled.
+- `X402_UPSTREAM_EXECUTION_ENABLED=false` unless one funded audited upstream
+  resource call is explicitly scheduled.
 - No browser-delivered code may include `BETA_EXECUTION_KEY`.
 
 ## Safety Check
@@ -193,6 +195,48 @@ Do not retry a ticket with status `SETTLING`, `SETTLED`,
 facilitator and chain inspection because the payment may have settled even
 when the client timed out.
 
+## 7. Execute One Audited Upstream Resource
+
+This is the first end-to-end paid API rehearsal. It does not use the standalone
+settlement route. Instead, it signs a consumed ticket, verifies it with the
+facilitator, then sends the payment credential to the audited x402 resource via
+the v2 `PAYMENT-SIGNATURE` header. The resource returns `PAYMENT-RESPONSE`,
+which is stored as the settlement audit reference.
+
+Prerequisites:
+
+- dedicated Base Sepolia wallet
+- wallet address matches the configured private key
+- enough Base Sepolia USDC for one payment plus a small buffer
+- `MAX_EXECUTION_BUDGET_USDC=0.005` or lower
+- `X402_UPSTREAM_EXECUTION_ENABLED=true`
+- `X402_SETTLEMENT_ENABLED=false`
+- an unexpired `CONSUMED` ticket
+
+Run:
+
+```powershell
+$env:X402_CONFIRM_UPSTREAM_EXECUTION='EXECUTE_X402_BASE_SEPOLIA'
+npm run x402:operator -- sign-verify-execute <consumed-ticket-id>
+```
+
+A successful result must include:
+
+- ticket status `EXECUTED`
+- `paymentSigned: true`
+- `paymentVerified: true`
+- `paymentSent: true`
+- upstream HTTP status
+- upstream response hash
+- Base Sepolia transaction hash from `PAYMENT-RESPONSE`
+
+After the first successful execution, immediately set
+`X402_UPSTREAM_EXECUTION_ENABLED=false` and record the request id, transaction,
+response hash, and operator.
+
+Do not retry a ticket with status `UPSTREAM_EXECUTING`, `EXECUTED`,
+`UPSTREAM_FAILED`, or `UPSTREAM_UNKNOWN`.
+
 ## Error Handling
 
 - `invalid_beta_access`: stop and rotate/check the beta key.
@@ -220,6 +264,13 @@ when the client timed out.
   ticket.
 - `settlement_result_unknown`: inspect facilitator and chain state manually;
   never retry automatically.
+- `upstream_execution_disabled`: upstream paid execution flag is off.
+- `upstream_execution_confirmation_required`: explicit local confirmation is
+  missing.
+- `upstream_payment_response_missing`: the upstream resource responded without
+  the expected x402 settlement response header.
+- `upstream_execution_result_unknown`: inspect upstream logs and chain state
+  manually; never retry automatically.
 
 ## Rollback
 
@@ -228,6 +279,8 @@ when the client timed out.
 - Set `X402_SIGNING_ENABLED=false` to stop credential creation immediately.
 - Set `X402_VERIFY_ENABLED=false` to stop facilitator verification.
 - Set `X402_SETTLEMENT_ENABLED=false` to stop funded payments immediately.
+- Set `X402_UPSTREAM_EXECUTION_ENABLED=false` to stop paid upstream calls
+  immediately.
 - Rotate `BETA_EXECUTION_KEY` if it was exposed.
 - Remove beta origins from `ALLOWED_ORIGINS` if needed.
 - Pause the beta backend if ticket state changes unexpectedly.

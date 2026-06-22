@@ -53,6 +53,8 @@ services:
         value: "false"
       - key: X402_SETTLEMENT_ENABLED
         value: "false"
+      - key: X402_UPSTREAM_EXECUTION_ENABLED
+        value: "false"
       - key: X402_FACILITATOR_URL
         value: https://x402.org/facilitator
       - key: MAX_EXECUTION_BUDGET_USDC

@@ -311,6 +311,97 @@ await assert.rejects(
   /X402_CONFIRM_SETTLEMENT must equal SETTLE_BASE_SEPOLIA/,
 )
 
+{
+  const calls = []
+  const executionEnv = {
+    ...env,
+    X402_CONFIRM_UPSTREAM_EXECUTION: 'EXECUTE_X402_BASE_SEPOLIA',
+  }
+  const output = await runOperatorCli({
+    argv: ['sign-verify-execute', ticketId],
+    env: executionEnv,
+    log: () => {},
+    async fetchImpl(url, options) {
+      calls.push(url.toString())
+      if (url.toString().endsWith('/execute/sign')) {
+        return jsonResponse({
+          mode: 'sign-only',
+          paymentSigned: true,
+          paymentSent: false,
+          credential: {
+            paymentPayload: {
+              x402Version: 2,
+              resource: { url: 'https://example.test/paid' },
+              accepted: {
+                scheme: 'exact',
+                network: 'eip155:84532',
+              },
+              payload: { signature: '0xsecret' },
+            },
+          },
+        })
+      }
+      if (url.toString().endsWith('/execute/verify')) {
+        return jsonResponse({
+          mode: 'verify-only',
+          verificationCompleted: true,
+          paymentVerified: true,
+          paymentSettled: false,
+          paymentSent: false,
+          ticket: { id: ticketId, status: 'VERIFIED' },
+        })
+      }
+      assert.deepEqual(JSON.parse(options.body), {
+        ticketId,
+        executedBy: 'test-operator',
+        executionConfirmation: 'EXECUTE_X402_BASE_SEPOLIA',
+        paymentPayload: {
+          x402Version: 2,
+          resource: { url: 'https://example.test/paid' },
+          accepted: {
+            scheme: 'exact',
+            network: 'eip155:84532',
+          },
+          payload: { signature: '0xsecret' },
+        },
+      })
+      return jsonResponse({
+        success: true,
+        mode: 'upstream-execution',
+        paymentSent: true,
+        ticket: { id: ticketId, status: 'EXECUTED' },
+        upstream: {
+          statusCode: 200,
+          responseHash: 'b'.repeat(64),
+        },
+        settlement: {
+          success: true,
+          transaction: `0x${'c'.repeat(64)}`,
+          network: 'eip155:84532',
+        },
+      })
+    },
+  })
+
+  assert.deepEqual(calls, [
+    'http://127.0.0.1:3000/execute/sign',
+    'http://127.0.0.1:3000/execute/verify',
+    'http://127.0.0.1:3000/execute/upstream',
+  ])
+  assert.equal(output.paymentVerified, true)
+  assert.equal(output.paymentSent, true)
+}
+
+await assert.rejects(
+  runOperatorCli({
+    argv: ['sign-verify-execute', ticketId],
+    env,
+    log: () => {},
+    fetchImpl: async () => jsonResponse({}),
+  }),
+  /X402_CONFIRM_UPSTREAM_EXECUTION must equal EXECUTE_X402_BASE_SEPOLIA/,
+)
+
 await assert.rejects(
   runOperatorCli({
     argv: ['prepare'],

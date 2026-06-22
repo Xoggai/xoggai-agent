@@ -130,6 +130,44 @@
         }
       }
     },
+    "/execute/upstream": {
+      "post": {
+        "summary": "Execute one audited x402 upstream resource",
+        "description": "Closed-beta server-side path only. Requires X402_UPSTREAM_EXECUTION_ENABLED=true, a server-side x-beta-key, a VERIFIED ticket, and explicit EXECUTE_X402_BASE_SEPOLIA confirmation. Never call this from browser-delivered code.",
+        "parameters": [
+          {
+            "name": "x-beta-key",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["ticketId", "executionConfirmation", "paymentPayload"],
+                "properties": {
+                  "ticketId": { "type": "string", "format": "uuid" },
+                  "executedBy": { "type": "string" },
+                  "executionConfirmation": { "type": "string", "const": "EXECUTE_X402_BASE_SEPOLIA" },
+                  "paymentPayload": { "type": "object" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Audited upstream execution completed or returned a terminal failure" },
+          "400": { "description": "Invalid request" },
+          "401": { "description": "Invalid beta access" },
+          "409": { "description": "Ticket or execution guardrail rejected the request" },
+          "503": { "description": "Upstream execution is disabled or beta access is not configured" }
+        }
+      }
+    },
     "/api/stats": {
       "get": {
         "summary": "Platform statistics",

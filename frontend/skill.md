@@ -30,6 +30,12 @@ Service info:
 GET /api/info
 ```
 
+Execution status:
+
+```http
+GET /api/execution-status
+```
+
 ## Production
 
 Base URL:
@@ -41,6 +47,8 @@ https://xoggai-backend.onrender.com
 Keep `dry=true` until the agent wallet and x402 payment path are intentionally enabled.
 Do not place beta execution keys in browser or client-side code. `GET /intent`
 is routing-only; controlled execution uses a separate server-side endpoint.
+The gated beta lifecycle is prepare, approve, consume, sign, verify, then one
+audited upstream x402 execution with explicit operator confirmation.
 
 Common terminal commands:
 

@@ -223,6 +223,33 @@ Call this endpoint from a trusted server or agent runtime. Never embed the beta
 key in the public website or other browser-delivered code. `GET /intent` stays
 routing-only and rejects `dry=false`.
 
+### Phase 7: Audited Upstream Execution
+
+When `X402_UPSTREAM_EXECUTION_ENABLED=true`, XoggAI can perform one full
+audited x402 resource call from a verified credential. This path is separate
+from the standalone settlement endpoint because the upstream resource expects
+the payment credential in the v2 `PAYMENT-SIGNATURE` header and returns the
+settlement audit data in `PAYMENT-RESPONSE`.
+
+The execution path requires:
+
+- a `VERIFIED` ticket with facilitator status `VALID`
+- the exact in-memory credential whose signature hash matches the ticket
+- explicit `EXECUTE_X402_BASE_SEPOLIA` confirmation
+- Base Sepolia exact scheme
+- audited resource URL and method
+- amount no greater than `0.005 USDC`
+
+Before the upstream call, PostgreSQL atomically changes the ticket from
+`VERIFIED` to `UPSTREAM_EXECUTING`. Final states are:
+
+- `EXECUTED`
+- `UPSTREAM_FAILED`
+- `UPSTREAM_UNKNOWN`
+
+The backend records the upstream HTTP status, response hash, payment response
+hash, and transaction metadata. No terminal state is automatically retried.
+
 Simulation response shape:
 
 ```json
@@ -282,7 +309,7 @@ High-level sequence:
 3. Build payment requirement for the selected x402 endpoint.
 4. Verify payment with facilitator.
 5. Call upstream endpoint only after verification succeeds.
-6. Settle payment with facilitator.
+6. Read settlement metadata from the upstream x402 payment response.
 7. Return upstream result and payment metadata.
 ```
 

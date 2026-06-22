@@ -230,6 +230,7 @@ X402_PREPARE_ENABLED=false
 X402_SIGNING_ENABLED=false
 X402_VERIFY_ENABLED=false
 X402_SETTLEMENT_ENABLED=false
+X402_UPSTREAM_EXECUTION_ENABLED=false
 X402_FACILITATOR_URL=https://x402.org/facilitator
 BETA_EXECUTION_KEY=<server-side-secret-at-least-32-characters>
 MAX_EXECUTION_BUDGET_USDC=0.05
@@ -337,6 +338,19 @@ Base Sepolia wallet, and `MAX_EXECUTION_BUDGET_USDC` at or below `0.005`.
 Settlement accepts only a `VERIFIED` ticket, atomically locks it as `SETTLING`,
 and records the transaction or terminal failure. Ambiguous network results are
 marked `SETTLEMENT_UNKNOWN` and are never retried automatically.
+
+The paid upstream execution phase is also implemented but disabled by default:
+
+```powershell
+$env:X402_CONFIRM_UPSTREAM_EXECUTION='EXECUTE_X402_BASE_SEPOLIA'
+npm run x402:operator -- sign-verify-execute <consumed-ticket-id>
+```
+
+The backend must also have `X402_UPSTREAM_EXECUTION_ENABLED=true`. This path
+signs and verifies a consumed ticket, calls only the audited Base Sepolia x402
+resource with a v2 `PAYMENT-SIGNATURE` header, records the upstream response
+hash and settlement response, and never retries terminal or unknown results
+automatically.
 
 ## Repository Map
 

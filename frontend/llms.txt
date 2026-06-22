@@ -15,7 +15,16 @@ Production base URL: https://xoggai-backend.onrender.com
 - `GET /api/stats`
 - `GET /api/feed`
 - `GET /api/endpoints`
+- `GET /api/execution-status`
+- `POST /execute/prepare` (server-side beta key)
+- `POST /execute/approve` (server-side beta key)
+- `POST /execute/consume` (server-side beta key)
+- `POST /execute/sign` (server-side beta key, Base Sepolia testnet only)
+- `POST /execute/verify` (server-side beta key, verify-only)
+- `POST /execute/settle` (server-side beta key, explicit funded testnet only)
+- `POST /execute/upstream` (server-side beta key, explicit audited upstream execution only)
 
 Use `dry=true` for route selection without upstream execution or payment.
 `GET /intent` never executes a paid call. Controlled execution is a separate, gated server-side flow.
+The beta execution lifecycle is prepare -> approve -> consume -> sign -> verify -> execute upstream.
 Public terminal commands include `connect`, `status`, `price <asset>`, `explain <intent>`, `simulate payment`, `search <query>`, `route <intent>`, `docs`, `openapi`, and `clear`.

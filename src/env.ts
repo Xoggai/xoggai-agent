@@ -51,6 +51,10 @@ const envSchema = z.object({
     .enum(['true', 'false'])
     .transform((value) => value === 'true')
     .default('false'),
+  X402_UPSTREAM_EXECUTION_ENABLED: z
+    .enum(['true', 'false'])
+    .transform((value) => value === 'true')
+    .default('false'),
   X402_FACILITATOR_URL: z
     .string()
     .url()
@@ -131,6 +135,19 @@ if (parsed.data.X402_SETTLEMENT_ENABLED) {
   if (parsed.data.MAX_EXECUTION_BUDGET_USDC > 0.005) {
     throw new Error(
       'X402 settlement rehearsal budget cannot exceed 0.005 USDC',
+    )
+  }
+}
+
+if (parsed.data.X402_UPSTREAM_EXECUTION_ENABLED) {
+  if (!parsed.data.X402_VERIFY_ENABLED) {
+    throw new Error(
+      'X402_UPSTREAM_EXECUTION_ENABLED=true requires X402_VERIFY_ENABLED=true',
+    )
+  }
+  if (parsed.data.MAX_EXECUTION_BUDGET_USDC > 0.005) {
+    throw new Error(
+      'X402 upstream execution budget cannot exceed 0.005 USDC',
     )
   }
 }

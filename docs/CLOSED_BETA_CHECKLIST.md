@@ -113,6 +113,9 @@ Public preview must stay dry-run first until every item below is complete.
 - Ticket state moves atomically to `SETTLING` before the facilitator call.
 - Settlement amount cannot exceed `0.005 USDC`.
 - Unknown settlement results are never retried automatically.
+- Unknown upstream execution results are never retried automatically.
+- Upstream execution uses only the audited Base Sepolia resource and records
+  response hashes instead of logging full payloads.
 - Expired, consumed, missing, or wrong-status tickets are rejected.
 - `/api/execution-status` shows payment signing and sending disabled.
 - Live execution is blocked when `ALLOW_LIVE_EXECUTION=false`.
@@ -131,6 +134,7 @@ Public preview must stay dry-run first until every item below is complete.
 - Set `X402_SIGNING_ENABLED=false`.
 - Set `X402_VERIFY_ENABLED=false`.
 - Set `X402_SETTLEMENT_ENABLED=false`.
+- Set `X402_UPSTREAM_EXECUTION_ENABLED=false`.
 - Remove beta frontend origin from `ALLOWED_ORIGINS`.
 - Remove endpoint allowlist entries.
 - Rotate beta wallet key if needed.
