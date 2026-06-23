@@ -278,6 +278,80 @@
         }
       }
     },
+    "/api/admin/beta/requests": {
+      "get": {
+        "summary": "List public beta execution requests for operators",
+        "description": "Protected admin endpoint used by the private operator console.",
+        "parameters": [
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 50, "maximum": 100 }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Operator-scoped request queue" },
+          "401": { "description": "Invalid admin access" }
+        }
+      }
+    },
+    "/api/admin/beta/requests/{id}": {
+      "patch": {
+        "summary": "Approve, reject, or cancel a public beta execution request",
+        "description": "Protected admin endpoint used before optional Base Sepolia execution.",
+        "parameters": [
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["status", "approvedBy"],
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": ["APPROVED", "REJECTED", "CANCELLED"]
+                  },
+                  "reason": { "type": "string", "maxLength": 500 },
+                  "approvedBy": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Request decision recorded" },
+          "401": { "description": "Invalid admin access" },
+          "409": { "description": "Request is not pending" }
+        }
+      }
+    },
     "/api/admin/beta/requests/{id}/execute-testnet": {
       "post": {
         "summary": "Execute an approved public beta request on Base Sepolia",

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>XoggAI Operator Console</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="/config.js"></script>
+<style>
+*{box-sizing:border-box}:root{--bg:#06150d;--panel:#081a10;--line:#1d3d2a;--line2:#2d7046;--text:#f4faf6;--muted:#86a491;--green:#7cffb2;--cyan:#46e3c0;--warn:#ffe38a;--danger:#ff8d8d;--shadow:0 24px 90px rgba(0,0,0,.3)}body{margin:0;min-height:100vh;background:radial-gradient(circle at 16% 0,rgba(124,255,178,.08),transparent 28%),radial-gradient(circle at 82% 12%,rgba(70,227,192,.06),transparent 24%),var(--bg);background-image:linear-gradient(rgba(124,255,178,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(124,255,178,.035) 1px,transparent 1px);background-size:48px 48px;color:var(--text);font-family:Syne,sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer}.mono{font-family:"Space Mono",monospace}.shell{max-width:1240px;margin:auto;padding:20px}header{height:74px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}.brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:22px}.brand img{width:40px;height:40px}.eyebrow{font:700 11px "Space Mono",monospace;color:var(--green);text-transform:uppercase;letter-spacing:.04em}.top-actions{display:flex;gap:8px}.btn{border:1px solid var(--line);background:rgba(11,33,22,.86);color:var(--text);padding:10px 14px;border-radius:4px;text-decoration:none}.btn:hover{border-color:var(--green)}.btn-primary{background:var(--green);color:#031109;border-color:var(--green);font-weight:800}.btn-warn{color:var(--warn)}.btn-danger{color:#ffb6b6}.login{max-width:560px;margin:9vh auto;border:1px solid var(--line);background:rgba(6,21,13,.94);box-shadow:var(--shadow);padding:32px}.login h1{font-size:38px;margin:8px 0 10px}.copy{color:var(--muted);line-height:1.6}label{display:block;color:var(--muted);font-size:13px;margin:18px 0 8px}.input{width:100%;border:1px solid var(--line);background:#041109;color:var(--text);padding:13px;border-radius:3px;outline:none}.input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(124,255,178,.08)}main{padding:34px 0 60px}.dashboard{display:none}.dashboard.active{display:block}.login.hidden{display:none}.hero{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:22px}.hero h1{font-size:42px;line-height:1;margin:6px 0}.hero p{color:var(--muted);margin:0}.metrics{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);background:rgba(6,21,13,.72);margin-bottom:20px}.metric{padding:18px 20px;border-right:1px solid var(--line)}.metric:last-child{border:0}.metric strong{display:block;color:var(--green);font:700 25px "Space Mono",monospace}.metric span{color:var(--muted);font-size:11px;text-transform:uppercase}.layout{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:20px}.panel{border:1px solid var(--line);background:rgba(6,21,13,.92);box-shadow:0 20px 80px rgba(0,0,0,.18)}.panel-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px}.panel-head h2{font-size:18px;margin:0}.panel-body{padding:20px}.toolbar{display:grid;grid-template-columns:1fr auto;gap:10px;margin-bottom:12px}.tabs{display:flex;gap:8px;flex-wrap:wrap}.tab{border:1px solid var(--line);background:#07180e;color:var(--muted);padding:9px 10px;border-radius:3px;font:11px "Space Mono",monospace}.tab.active{color:#031109;background:var(--green);border-color:var(--green);font-weight:800}.queue{display:grid;gap:10px}.request{border:1px solid var(--line);background:rgba(8,26,16,.82);padding:14px;text-align:left;color:var(--text);width:100%;display:grid;gap:10px}.request:hover,.request.active{border-color:var(--green)}.request-top{display:flex;justify-content:space-between;gap:12px;align-items:start}.request-title{font-weight:800;line-height:1.35}.request-meta{display:flex;gap:10px;flex-wrap:wrap;color:var(--muted);font:11px "Space Mono",monospace}.pill{display:inline-block;padding:4px 7px;border:1px solid var(--line);font:10px "Space Mono",monospace;color:var(--green);white-space:nowrap}.pill-warn{color:var(--warn);border-color:#5a5121}.pill-live{color:var(--cyan);border-color:#236b5e}.pill-bad{color:var(--danger);border-color:#693333}.hash{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font:11px "Space Mono",monospace}.empty{color:var(--muted);padding:28px;text-align:center;border:1px dashed var(--line)}.status{min-height:22px;margin-top:12px;font:12px "Space Mono",monospace;color:var(--cyan);line-height:1.6}.status.error{color:var(--danger)}.kv{display:grid;grid-template-columns:132px 1fr;gap:10px;border-bottom:1px solid var(--line);padding:12px 0}.kv span:first-child{color:var(--muted);font:11px "Space Mono",monospace;text-transform:uppercase}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}.actions .wide{grid-column:1/-1}.timeline{display:grid;gap:8px;margin-top:12px}.step{display:grid;grid-template-columns:18px 1fr;gap:10px;color:var(--muted);font-size:13px}.dot{width:10px;height:10px;border:1px solid var(--line2);margin-top:4px;background:#07180e}.step.done{color:var(--text)}.step.done .dot{background:var(--green);border-color:var(--green)}.step.current{color:var(--green)}.step.current .dot{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 18px rgba(70,227,192,.45)}@media(max-width:920px){.layout{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}.hero{align-items:start;flex-direction:column}}@media(max-width:560px){.shell{padding:12px}.top-actions a{display:none}.hero h1{font-size:32px}.metrics{grid-template-columns:1fr}.metric{border-right:0;border-bottom:1px solid var(--line)}.toolbar{grid-template-columns:1fr}.actions{grid-template-columns:1fr}.kv{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <div class="brand"><img src="/assets/xoggai-logo.png" alt="">XoggAI <span class="eyebrow">Operator</span></div>
+    <div class="top-actions"><a class="btn" href="/">Home</a><a class="btn" href="/beta/">Beta</a><button id="logout" class="btn btn-danger" hidden>Lock console</button></div>
+  </header>
+  <main>
+    <section id="login" class="login">
+      <div class="eyebrow">Private operator access</div>
+      <h1>Operator Console</h1>
+      <p class="copy">Use the server-side public beta admin key. The browser stores it only in session storage and sends it as `X-Admin-Key` to the backend.</p>
+      <form id="login-form">
+        <label for="admin-key">Admin key</label>
+        <input id="admin-key" class="input mono" type="password" autocomplete="off" required placeholder="PUBLIC_BETA_ADMIN_KEY">
+        <label for="operator">Operator label</label>
+        <input id="operator" class="input mono" type="text" autocomplete="off" required value="xoggai-operator">
+        <button class="btn btn-primary" style="width:100%;margin-top:14px" type="submit">Open operator queue</button>
+        <div id="login-status" class="status"></div>
+      </form>
+    </section>
+
+    <section id="dashboard" class="dashboard">
+      <div class="hero">
+        <div><div class="eyebrow">Approval and testnet execution</div><h1>Operator Queue</h1><p id="operator-label"></p></div>
+        <div class="top-actions"><button id="auto-refresh" class="btn" type="button">Auto refresh off</button><button id="refresh" class="btn btn-primary" type="button">Refresh</button></div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><strong id="metric-requested">0</strong><span>Requested</span></div>
+        <div class="metric"><strong id="metric-approved">0</strong><span>Approved</span></div>
+        <div class="metric"><strong id="metric-executed">0</strong><span>Executed</span></div>
+        <div class="metric"><strong id="metric-failed">0</strong><span>Failed</span></div>
+      </div>
+      <div class="layout">
+        <section class="panel">
+          <div class="panel-head"><h2>Requests</h2><span id="queue-count" class="pill">0</span></div>
+          <div class="panel-body">
+            <div class="toolbar">
+              <input id="search" class="input mono" type="search" placeholder="Search intent, endpoint, user id">
+              <div class="tabs" id="tabs">
+                <button class="tab active" type="button" data-status="ALL">All</button>
+                <button class="tab" type="button" data-status="REQUESTED">Requested</button>
+                <button class="tab" type="button" data-status="APPROVED">Approved</button>
+                <button class="tab" type="button" data-status="EXECUTED">Executed</button>
+                <button class="tab" type="button" data-status="FAILED">Failed</button>
+              </div>
+            </div>
+            <div id="queue" class="queue"></div>
+          </div>
+        </section>
+        <aside class="panel">
+          <div class="panel-head"><h2>Request detail</h2><span id="detail-status" class="pill">None</span></div>
+          <div class="panel-body" id="detail"><div class="empty">Select a request to review.</div></div>
+        </aside>
+      </div>
+    </section>
+  </main>
+</div>
+<script>
+const API=window.XOGGAI_API_BASE||'https://xoggai-backend.onrender.com';
+const $=id=>document.getElementById(id);
+const lifecycle=['REQUESTED','APPROVED','TESTNET_PREPARED','TESTNET_SIGNING','TESTNET_VERIFYING','TESTNET_EXECUTING','EXECUTED'];
+let adminKey=sessionStorage.getItem('xoggai_admin_key')||'',operator=sessionStorage.getItem('xoggai_operator')||'xoggai-operator',requests=[],selectedId='',activeStatus='ALL',autoTimer=0;
+const money=value=>`$${Number(value||0).toFixed(4)}`;
+function esc(value){const d=document.createElement('div');d.textContent=String(value??'');return d.innerHTML}
+function short(value){return value?`${String(value).slice(0,10)}...${String(value).slice(-8)}`:'-'}
+function show(active){$('login').classList.toggle('hidden',active);$('dashboard').classList.toggle('active',active);$('logout').hidden=!active;$('operator-label').textContent=`acting as ${operator}`}
+function statusClass(status){if(status==='EXECUTED')return'pill pill-live';if(String(status).includes('FAILED')||status==='REJECTED'||status==='CANCELLED'||status==='EXECUTION_UNKNOWN')return'pill pill-bad';if(status==='APPROVED'||String(status).startsWith('TESTNET'))return'pill pill-warn';return'pill'}
+function isFailed(status){return String(status).includes('FAILED')||status==='REJECTED'||status==='CANCELLED'||status==='EXECUTION_UNKNOWN'}
+function matchesStatus(r){if(activeStatus==='ALL')return true;if(activeStatus==='FAILED')return isFailed(r.status);return r.status===activeStatus}
+async function api(path,options={}){const headers={'content-type':'application/json','x-admin-key':adminKey,...(options.headers||{})};const response=await fetch(`${API}${path}`,{...options,headers});const data=await response.json().catch(()=>({error:'invalid_response'}));if(response.status===401)lock();return{response,data}}
+function lock(){adminKey='';sessionStorage.removeItem('xoggai_admin_key');show(false);setAuto(false)}
+function renderTimeline(status){const finalBad=isFailed(status);const currentIndex=lifecycle.indexOf(status);return lifecycle.map((step,index)=>{const done=status==='EXECUTED'||currentIndex>index;const current=currentIndex===index&&!finalBad;return`<div class="step ${done?'done':''} ${current?'current':''}"><i class="dot"></i><span>${step}</span></div>`}).join('')+(finalBad?`<div class="step current"><i class="dot"></i><span>${esc(status)}</span></div>`:'')}
+function renderMetrics(){const count=s=>requests.filter(r=>s(r.status)).length;$('metric-requested').textContent=count(s=>s==='REQUESTED');$('metric-approved').textContent=count(s=>s==='APPROVED'||String(s).startsWith('TESTNET'));$('metric-executed').textContent=count(s=>s==='EXECUTED');$('metric-failed').textContent=count(isFailed)}
+function renderQueue(){const query=$('search').value.trim().toLowerCase();const filtered=requests.filter(r=>matchesStatus(r)&&(!query||`${r.intent} ${r.endpointName||''} ${r.userId} ${r.status}`.toLowerCase().includes(query)));$('queue-count').textContent=filtered.length;$('queue').innerHTML=filtered.length?filtered.map(r=>`<button class="request ${r.id===selectedId?'active':''}" type="button" data-id="${esc(r.id)}"><div class="request-top"><div class="request-title">${esc(r.intent)}</div><span class="${statusClass(r.status)}">${esc(r.status)}</span></div><div class="request-meta"><span>${esc(r.endpointName||'No match')}</span><span>${money(r.budgetUsdc)} budget</span><span>${money(r.endpointPriceUsdc)} endpoint</span><span>${new Date(r.createdAt).toLocaleString()}</span></div><span class="hash">user ${esc(short(r.userId))} | ticket ${esc(short(r.paymentTicketId))}</span></button>`).join(''):`<div class="empty">No requests match this view.</div>`;renderDetail(requests.find(r=>r.id===selectedId))}
+function renderDetail(r){if(!r){$('detail-status').textContent='None';$('detail').innerHTML='<div class="empty">Select a request to review.</div>';return}$('detail-status').textContent=r.status;$('detail-status').className=statusClass(r.status);const canDecide=r.status==='REQUESTED';const canExecute=r.status==='APPROVED';$('detail').innerHTML=`<div class="kv"><span>Intent</span><strong>${esc(r.intent)}</strong></div><div class="kv"><span>User</span><span class="hash">${esc(r.userId)}</span></div><div class="kv"><span>Endpoint</span><div>${esc(r.endpointName||'No match')}<span class="hash">${esc(r.endpointUrl||'')}</span></div></div><div class="kv"><span>Budget</span><div>${money(r.budgetUsdc)}<span class="hash">endpoint price ${money(r.endpointPriceUsdc)}</span></div></div><div class="kv"><span>Lifecycle</span><div class="timeline">${renderTimeline(r.status)}</div></div><div class="kv"><span>Ticket</span><span class="hash">${esc(r.paymentTicketId||'pending')}</span></div><div class="kv"><span>Response</span><span class="hash">${esc(r.upstreamResponseHash||'pending')}</span></div><div class="kv"><span>Payment</span><span class="hash">${esc(r.upstreamPaymentResponseHash||'pending')}</span></div><div class="kv"><span>Tx</span><span class="hash">${esc(r.settlementTransaction||'pending')}</span></div><div class="kv"><span>Error</span><span>${esc(r.executionError||'none')}</span></div><div class="actions"><button class="btn btn-primary" type="button" data-action="approve" ${canDecide?'':'disabled'}>Approve</button><button class="btn btn-danger" type="button" data-action="reject" ${canDecide?'':'disabled'}>Reject</button><button class="btn btn-warn" type="button" data-action="cancel" ${canDecide?'':'disabled'}>Cancel</button><button class="btn btn-primary wide" type="button" data-action="execute" ${canExecute?'':'disabled'}>Execute testnet</button></div><div id="action-status" class="status"></div>`}
+async function load(){if(!adminKey)return show(false);const {response,data}=await api('/api/admin/beta/requests?limit=100');if(!response.ok)return;requests=data.requests||[];if(selectedId&&!requests.some(r=>r.id===selectedId))selectedId='';show(true);renderMetrics();renderQueue()}
+async function decide(status){const target=requests.find(r=>r.id===selectedId);if(!target)return;const output=$('action-status');output.className='status';output.textContent=`Sending ${status.toLowerCase()} decision...`;const {response,data}=await api(`/api/admin/beta/requests/${target.id}`,{method:'PATCH',body:JSON.stringify({status,reason:`Operator ${status.toLowerCase()} from console`,approvedBy:operator})});if(!response.ok){output.className='status error';output.textContent=data.error||'Decision failed';return}output.textContent=`Request ${status.toLowerCase()}.`;await load()}
+async function execute(){const target=requests.find(r=>r.id===selectedId);if(!target)return;const output=$('action-status');output.className='status';output.textContent='Executing Base Sepolia x402 path...';const {response,data}=await api(`/api/admin/beta/requests/${target.id}/execute-testnet`,{method:'POST',body:JSON.stringify({executedBy:operator})});if(!response.ok){output.className='status error';output.textContent=data.error||'Execution failed';if(data.request){requests=requests.map(r=>r.id===data.request.id?data.request:r);renderQueue()}return}output.textContent=data.paymentSent?'Executed and payment sent.':'Execution completed.';await load()}
+function setAuto(enabled){clearInterval(autoTimer);autoTimer=0;$('auto-refresh').textContent='Auto refresh off';if(enabled){autoTimer=setInterval(load,15000);$('auto-refresh').textContent='Auto refresh on'}}
+$('login-form').addEventListener('submit',async e=>{e.preventDefault();adminKey=$('admin-key').value.trim();operator=$('operator').value.trim();sessionStorage.setItem('xoggai_admin_key',adminKey);sessionStorage.setItem('xoggai_operator',operator);$('admin-key').value='';$('login-status').textContent='Checking admin access...';await load();$('login-status').textContent=''});
+$('logout').addEventListener('click',lock);$('refresh').addEventListener('click',load);$('auto-refresh').addEventListener('click',()=>setAuto(!autoTimer));$('search').addEventListener('input',renderQueue);
+$('tabs').addEventListener('click',e=>{const button=e.target.closest('[data-status]');if(!button)return;activeStatus=button.dataset.status;document.querySelectorAll('.tab').forEach(tab=>tab.classList.toggle('active',tab===button));renderQueue()});
+$('queue').addEventListener('click',e=>{const card=e.target.closest('[data-id]');if(!card)return;selectedId=card.dataset.id;renderQueue()});
+$('detail').addEventListener('click',e=>{const button=e.target.closest('[data-action]');if(!button||button.disabled)return;const action=button.dataset.action;if(action==='approve')void decide('APPROVED');if(action==='reject')void decide('REJECTED');if(action==='cancel')void decide('CANCELLED');if(action==='execute')void execute()});
+if(adminKey)load();else show(false);
+</script>
+</body>
+</html>

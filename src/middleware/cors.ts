@@ -25,5 +25,6 @@ export const corsMiddleware = cors({
     'Authorization',
     'X-Payment',
     'X-Beta-Key',
+    'X-Admin-Key',
   ],
 })

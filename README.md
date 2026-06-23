@@ -403,6 +403,10 @@ Phase 10 upgrades the `/beta/` user console with quota progress, quick intents,
 request search, status filters, lifecycle detail views, testnet proof display,
 and optional auto-refresh. See `docs/PHASE10_USER_CONSOLE_UPGRADE.md`.
 
+Phase 11 adds a private `/admin/` operator console for queue review,
+approve/reject/cancel actions, approved request execution on Base Sepolia, and
+operator-visible lifecycle proof. See `docs/PHASE11_OPERATOR_CONSOLE.md`.
+
 ## Repository Map
 
 - `src/` - backend API source.
@@ -417,6 +421,7 @@ and optional auto-refresh. See `docs/PHASE10_USER_CONSOLE_UPGRADE.md`.
 - `docs/PHASE8_PRODUCTION_LAUNCH.md` - final production launch controls.
 - `docs/PHASE9_TESTNET_PRODUCT_EXECUTION.md` - public testnet product execution.
 - `docs/PHASE10_USER_CONSOLE_UPGRADE.md` - beta user console upgrade.
+- `docs/PHASE11_OPERATOR_CONSOLE.md` - private operator console.
 - `docs/INCIDENT_RESPONSE.md` - severity, containment, and recovery.
 - `docs/BACKUP_RECOVERY.md` - PostgreSQL backup and restore drills.
 - `docs/OPERATOR_RUNBOOK.md` - closed-beta ticket and signing runbook.

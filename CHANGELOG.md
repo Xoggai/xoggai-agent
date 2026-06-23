@@ -19,6 +19,9 @@
 - Added Phase 10 user console upgrade with quota progress, request search,
   status filters, quick intents, lifecycle details, proof drawer, and
   auto-refresh for the public beta surface.
+- Added Phase 11 operator console at `/admin/` for private queue review,
+  approve/reject/cancel actions, Base Sepolia execution, lifecycle proof, and
+  operator auto-refresh.
 
 ## 2026-05-31
 

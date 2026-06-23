@@ -29,7 +29,22 @@ const userSchema = z.object({
   dailyBudgetUsdc: z.number().positive().max(10).default(0.05),
 })
 const listSchema = z.object({
-  status: z.enum(['REQUESTED', 'APPROVED', 'REJECTED', 'CANCELLED']).optional(),
+  status: z
+    .enum([
+      'REQUESTED',
+      'APPROVED',
+      'REJECTED',
+      'CANCELLED',
+      'TESTNET_PREPARING',
+      'TESTNET_PREPARED',
+      'TESTNET_SIGNING',
+      'TESTNET_VERIFYING',
+      'TESTNET_EXECUTING',
+      'EXECUTED',
+      'EXECUTION_FAILED',
+      'EXECUTION_UNKNOWN',
+    ])
+    .optional(),
   limit: z.coerce.number().int().min(1).max(100).default(50),
 })
 const decisionSchema = z.object({
