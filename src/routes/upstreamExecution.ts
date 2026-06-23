@@ -1,6 +1,10 @@
 import { auditedX402Candidate } from '../config/auditedX402.js'
 import { env } from '../env.js'
 import {
+  configuredBetaAccess,
+  configuredBetaAccessValid,
+} from '../services/configuredBetaAccess.js'
+import {
   claimVerifiedPaymentTicketForUpstream,
   loadVerifiedPaymentTicketForUpstream,
   recordUpstreamExecution,
@@ -14,6 +18,8 @@ import { createUpstreamExecutionRoute } from './upstreamExecutionRoute.js'
 export const upstreamExecutionRoute = createUpstreamExecutionRoute({
   enabled: env.X402_UPSTREAM_EXECUTION_ENABLED,
   betaExecutionKey: env.BETA_EXECUTION_KEY,
+  validateBetaAccess: configuredBetaAccessValid,
+  resolveBetaAccess: configuredBetaAccess,
   loadTicket: loadVerifiedPaymentTicketForUpstream,
   validateExecution: (ticket, paymentPayload, executionConfirmation) => {
     assertUpstreamExecutionRequest({

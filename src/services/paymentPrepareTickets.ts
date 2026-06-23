@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { and, eq } from 'drizzle-orm'
+import { and, eq, gte, sql } from 'drizzle-orm'
 import { db } from '../db/client.js'
 import { paymentPrepareTickets } from '../db/schema.js'
 
@@ -20,6 +20,10 @@ export type PreparedPaymentTicketInput = {
   paymentRequiredHeader: string
   budgetUsdc: number
   preview: PaymentPreview
+  betaKeyId?: string
+  betaClientLabel?: string
+  betaDailyRequestLimit?: number
+  betaDailyBudgetUsdc?: number
   now?: Date
 }
 
@@ -28,6 +32,24 @@ export type PreparedPaymentTicket = {
   status: 'PREPARED'
   challengeHash: string
   expiresAt: string
+  betaKeyId?: string
+  betaClientLabel?: string
+}
+
+export type BetaExecutionUsage = {
+  requestCount: number
+  budgetUsdc: number
+  amountUsdc: number
+}
+
+export class BetaExecutionQuotaError extends Error {
+  constructor(
+    public readonly code:
+      | 'beta_daily_request_limit_exceeded'
+      | 'beta_daily_budget_exceeded',
+  ) {
+    super(code)
+  }
 }
 
 export type ApprovedPaymentTicket = {
@@ -221,42 +243,99 @@ export function hashPaymentChallenge(paymentRequiredHeader: string) {
   return createHash('sha256').update(paymentRequiredHeader).digest('hex')
 }
 
+function betaTicketOwned(
+  ticketBetaKeyId: string | null,
+  betaKeyId: string | undefined,
+) {
+  return !betaKeyId || ticketBetaKeyId === betaKeyId
+}
+
 export async function createPreparedPaymentTicket({
   requestId,
   paymentRequiredHeader,
   budgetUsdc,
   preview,
+  betaKeyId,
+  betaClientLabel,
+  betaDailyRequestLimit,
+  betaDailyBudgetUsdc,
   now = new Date(),
 }: PreparedPaymentTicketInput): Promise<PreparedPaymentTicket> {
   const expiresAt = new Date(
     now.getTime() + preview.maxTimeoutSeconds * 1000,
   )
 
-  const [ticket] = await db
-    .insert(paymentPrepareTickets)
-    .values({
-      requestId,
-      status: 'PREPARED',
-      challengeHash: hashPaymentChallenge(paymentRequiredHeader),
-      resourceUrl: preview.resourceUrl,
-      network: preview.network,
-      asset: preview.asset,
-      recipient: preview.recipient,
-      amountAtomic: preview.amountAtomic,
-      amountUsdc: preview.amountUsdc,
-      budgetUsdc,
-      maxTimeoutSeconds: preview.maxTimeoutSeconds,
-      assetName: preview.assetName,
-      assetVersion: preview.assetVersion,
-      createdAt: now,
-      expiresAt,
-    })
-    .returning({
-      id: paymentPrepareTickets.id,
-      status: paymentPrepareTickets.status,
-      challengeHash: paymentPrepareTickets.challengeHash,
-      expiresAt: paymentPrepareTickets.expiresAt,
-    })
+  const ticket = await db.transaction(async (tx) => {
+    if (
+      betaKeyId &&
+      betaDailyRequestLimit &&
+      betaDailyBudgetUsdc
+    ) {
+      await tx.execute(
+        sql`select pg_advisory_xact_lock(hashtext(${betaKeyId}))`,
+      )
+      const since = new Date(now)
+      since.setUTCHours(0, 0, 0, 0)
+      const [usage] = await tx
+        .select({
+          requestCount: sql<number>`count(*)::int`,
+          budgetUsdc: sql<number>`coalesce(sum(${paymentPrepareTickets.budgetUsdc}), 0)::float`,
+        })
+        .from(paymentPrepareTickets)
+        .where(
+          and(
+            eq(paymentPrepareTickets.betaKeyId, betaKeyId),
+            gte(paymentPrepareTickets.createdAt, since),
+          ),
+        )
+      if (
+        Number(usage?.requestCount ?? 0) >= betaDailyRequestLimit
+      ) {
+        throw new BetaExecutionQuotaError(
+          'beta_daily_request_limit_exceeded',
+        )
+      }
+      if (
+        Number(usage?.budgetUsdc ?? 0) + budgetUsdc >
+        betaDailyBudgetUsdc
+      ) {
+        throw new BetaExecutionQuotaError(
+          'beta_daily_budget_exceeded',
+        )
+      }
+    }
+
+    const [inserted] = await tx
+      .insert(paymentPrepareTickets)
+      .values({
+        requestId,
+        status: 'PREPARED',
+        challengeHash: hashPaymentChallenge(paymentRequiredHeader),
+        resourceUrl: preview.resourceUrl,
+        network: preview.network,
+        asset: preview.asset,
+        recipient: preview.recipient,
+        amountAtomic: preview.amountAtomic,
+        amountUsdc: preview.amountUsdc,
+        budgetUsdc,
+        betaKeyId,
+        betaClientLabel,
+        maxTimeoutSeconds: preview.maxTimeoutSeconds,
+        assetName: preview.assetName,
+        assetVersion: preview.assetVersion,
+        createdAt: now,
+        expiresAt,
+      })
+      .returning({
+        id: paymentPrepareTickets.id,
+        status: paymentPrepareTickets.status,
+        challengeHash: paymentPrepareTickets.challengeHash,
+        expiresAt: paymentPrepareTickets.expiresAt,
+        betaKeyId: paymentPrepareTickets.betaKeyId,
+        betaClientLabel: paymentPrepareTickets.betaClientLabel,
+      })
+    return inserted
+  })
 
   if (!ticket || ticket.status !== 'PREPARED') {
     throw new Error('payment_prepare_ticket_not_created')
@@ -267,14 +346,92 @@ export async function createPreparedPaymentTicket({
     status: 'PREPARED',
     challengeHash: ticket.challengeHash,
     expiresAt: ticket.expiresAt.toISOString(),
+    ...(ticket.betaKeyId ? { betaKeyId: ticket.betaKeyId } : {}),
+    ...(ticket.betaClientLabel
+      ? { betaClientLabel: ticket.betaClientLabel }
+      : {}),
   }
+}
+
+export async function getBetaExecutionUsage({
+  betaKeyId,
+  since,
+}: {
+  betaKeyId: string
+  since: Date
+}): Promise<BetaExecutionUsage> {
+  const [usage] = await db
+    .select({
+      requestCount: sql<number>`count(*)::int`,
+      budgetUsdc: sql<number>`coalesce(sum(${paymentPrepareTickets.budgetUsdc}), 0)::float`,
+      amountUsdc: sql<number>`coalesce(sum(${paymentPrepareTickets.amountUsdc}), 0)::float`,
+    })
+    .from(paymentPrepareTickets)
+    .where(
+      and(
+        eq(paymentPrepareTickets.betaKeyId, betaKeyId),
+        gte(paymentPrepareTickets.createdAt, since),
+      ),
+    )
+
+  return {
+    requestCount: Number(usage?.requestCount ?? 0),
+    budgetUsdc: Number(usage?.budgetUsdc ?? 0),
+    amountUsdc: Number(usage?.amountUsdc ?? 0),
+  }
+}
+
+export async function listBetaExecutionTickets({
+  betaKeyId,
+  limit = 25,
+}: {
+  betaKeyId: string
+  limit?: number
+}) {
+  const rows = await db
+    .select({
+      id: paymentPrepareTickets.id,
+      status: paymentPrepareTickets.status,
+      requestId: paymentPrepareTickets.requestId,
+      betaKeyId: paymentPrepareTickets.betaKeyId,
+      betaClientLabel: paymentPrepareTickets.betaClientLabel,
+      resourceUrl: paymentPrepareTickets.resourceUrl,
+      network: paymentPrepareTickets.network,
+      amountUsdc: paymentPrepareTickets.amountUsdc,
+      budgetUsdc: paymentPrepareTickets.budgetUsdc,
+      createdAt: paymentPrepareTickets.createdAt,
+      expiresAt: paymentPrepareTickets.expiresAt,
+      verificationStatus: paymentPrepareTickets.verificationStatus,
+      upstreamStatus: paymentPrepareTickets.upstreamStatus,
+      upstreamStatusCode: paymentPrepareTickets.upstreamStatusCode,
+      settlementTransaction: paymentPrepareTickets.settlementTransaction,
+      upstreamResponseHash: paymentPrepareTickets.upstreamResponseHash,
+      upstreamPaymentResponseHash:
+        paymentPrepareTickets.upstreamPaymentResponseHash,
+      upstreamCompletedAt: paymentPrepareTickets.upstreamCompletedAt,
+    })
+    .from(paymentPrepareTickets)
+    .where(eq(paymentPrepareTickets.betaKeyId, betaKeyId))
+    .orderBy(sql`${paymentPrepareTickets.createdAt} desc`)
+    .limit(Math.min(Math.max(limit, 1), 100))
+
+  return rows.map((row) => ({
+    ...row,
+    createdAt: row.createdAt.toISOString(),
+    expiresAt: row.expiresAt.toISOString(),
+    ...(row.upstreamCompletedAt
+      ? { upstreamCompletedAt: row.upstreamCompletedAt.toISOString() }
+      : {}),
+  }))
 }
 
 export async function loadConsumedPaymentTicket({
   ticketId,
+  betaKeyId,
   now = new Date(),
 }: {
   ticketId: string
+  betaKeyId?: string
   now?: Date
 }): Promise<SignablePaymentTicket> {
   const [ticket] = await db
@@ -284,6 +441,9 @@ export async function loadConsumedPaymentTicket({
     .limit(1)
 
   if (!ticket) {
+    throw new PaymentTicketSigningError('payment_ticket_not_found')
+  }
+  if (!betaTicketOwned(ticket.betaKeyId, betaKeyId)) {
     throw new PaymentTicketSigningError('payment_ticket_not_found')
   }
   if (ticket.signedAt || ticket.status === 'SIGNED') {
@@ -378,9 +538,11 @@ export async function markPaymentTicketSigned({
 
 export async function loadSignedPaymentTicket({
   ticketId,
+  betaKeyId,
   now = new Date(),
 }: {
   ticketId: string
+  betaKeyId?: string
   now?: Date
 }): Promise<VerifiablePaymentTicket> {
   const [ticket] = await db
@@ -390,6 +552,9 @@ export async function loadSignedPaymentTicket({
     .limit(1)
 
   if (!ticket) {
+    throw new PaymentTicketVerificationError('payment_ticket_not_found')
+  }
+  if (!betaTicketOwned(ticket.betaKeyId, betaKeyId)) {
     throw new PaymentTicketVerificationError('payment_ticket_not_found')
   }
   if (ticket.status === 'VERIFIED') {
@@ -516,9 +681,11 @@ export async function recordPaymentVerification({
 
 export async function loadVerifiedPaymentTicket({
   ticketId,
+  betaKeyId,
   now = new Date(),
 }: {
   ticketId: string
+  betaKeyId?: string
   now?: Date
 }): Promise<SettlementPaymentTicket> {
   const [ticket] = await db
@@ -528,6 +695,9 @@ export async function loadVerifiedPaymentTicket({
     .limit(1)
 
   if (!ticket) {
+    throw new PaymentTicketSettlementError('payment_ticket_not_found')
+  }
+  if (!betaTicketOwned(ticket.betaKeyId, betaKeyId)) {
     throw new PaymentTicketSettlementError('payment_ticket_not_found')
   }
   if (
@@ -727,9 +897,11 @@ export async function recordPaymentSettlement({
 
 export async function loadVerifiedPaymentTicketForUpstream({
   ticketId,
+  betaKeyId,
   now = new Date(),
 }: {
   ticketId: string
+  betaKeyId?: string
   now?: Date
 }): Promise<UpstreamExecutionPaymentTicket> {
   const [ticket] = await db
@@ -739,6 +911,11 @@ export async function loadVerifiedPaymentTicketForUpstream({
     .limit(1)
 
   if (!ticket) {
+    throw new PaymentTicketUpstreamExecutionError(
+      'payment_ticket_not_found',
+    )
+  }
+  if (!betaTicketOwned(ticket.betaKeyId, betaKeyId)) {
     throw new PaymentTicketUpstreamExecutionError(
       'payment_ticket_not_found',
     )
@@ -964,10 +1141,12 @@ export async function recordUpstreamExecution({
 export async function approvePreparedPaymentTicket({
   ticketId,
   approvedBy,
+  betaKeyId,
   now = new Date(),
 }: {
   ticketId: string
   approvedBy?: string
+  betaKeyId?: string
   now?: Date
 }): Promise<ApprovedPaymentTicket> {
   const [ticket] = await db
@@ -977,12 +1156,16 @@ export async function approvePreparedPaymentTicket({
       challengeHash: paymentPrepareTickets.challengeHash,
       expiresAt: paymentPrepareTickets.expiresAt,
       consumedAt: paymentPrepareTickets.consumedAt,
+      betaKeyId: paymentPrepareTickets.betaKeyId,
     })
     .from(paymentPrepareTickets)
     .where(eq(paymentPrepareTickets.id, ticketId))
     .limit(1)
 
   if (!ticket) {
+    throw new PaymentTicketApprovalError('payment_ticket_not_found')
+  }
+  if (!betaTicketOwned(ticket.betaKeyId, betaKeyId)) {
     throw new PaymentTicketApprovalError('payment_ticket_not_found')
   }
 
@@ -1043,10 +1226,12 @@ export async function approvePreparedPaymentTicket({
 export async function consumeApprovedPaymentTicket({
   ticketId,
   consumedBy,
+  betaKeyId,
   now = new Date(),
 }: {
   ticketId: string
   consumedBy?: string
+  betaKeyId?: string
   now?: Date
 }): Promise<ConsumedPaymentTicket> {
   const [ticket] = await db
@@ -1056,12 +1241,16 @@ export async function consumeApprovedPaymentTicket({
       challengeHash: paymentPrepareTickets.challengeHash,
       expiresAt: paymentPrepareTickets.expiresAt,
       consumedAt: paymentPrepareTickets.consumedAt,
+      betaKeyId: paymentPrepareTickets.betaKeyId,
     })
     .from(paymentPrepareTickets)
     .where(eq(paymentPrepareTickets.id, ticketId))
     .limit(1)
 
   if (!ticket) {
+    throw new PaymentTicketConsumeError('payment_ticket_not_found')
+  }
+  if (!betaTicketOwned(ticket.betaKeyId, betaKeyId)) {
     throw new PaymentTicketConsumeError('payment_ticket_not_found')
   }
 

@@ -37,6 +37,12 @@ function createApp(
     paymentRequired: string | undefined
     savePreparedPayment: false | 'throw'
     savedInputs: PreparedPaymentTicketInput[]
+    betaAccessKeys: string
+    loadUsage: {
+      requestCount: number
+      budgetUsdc: number
+      amountUsdc: number
+    }
   }> = {},
 ) {
   const app = new Hono()
@@ -52,6 +58,10 @@ function createApp(
         'betaExecutionKey' in overrides
           ? overrides.betaExecutionKey
           : betaKey,
+      betaAccessKeys: overrides.betaAccessKeys,
+      maxBudgetUsdc: 0.005,
+      dailyRequestLimit: 5,
+      dailyBudgetUsdc: 0.01,
       policy: auditedX402Candidate,
       async fetchChallenge() {
         return {
@@ -59,6 +69,9 @@ function createApp(
           paymentRequired,
         }
       },
+      loadUsage: overrides.loadUsage
+        ? async () => overrides.loadUsage!
+        : undefined,
       savePreparedPayment:
         overrides.savePreparedPayment === false
           ? undefined
@@ -80,6 +93,59 @@ function createApp(
     }),
   )
   return app
+}
+
+{
+  const registryKey = 'registry-key-for-prepare-route-tests-12345'
+  const savedInputs: PreparedPaymentTicketInput[] = []
+  const { response, json } = await request(
+    {
+      betaExecutionKey: undefined,
+      betaAccessKeys: JSON.stringify([
+        {
+          id: 'agent-alpha',
+          label: 'Agent Alpha',
+          key: registryKey,
+          maxBudgetUsdc: 0.005,
+          dailyRequestLimit: 5,
+          dailyBudgetUsdc: 0.01,
+        },
+      ]),
+      savedInputs,
+    },
+    registryKey,
+  )
+  assert.equal(response.status, 200)
+  assert.deepEqual(json.betaAccess, {
+    id: 'agent-alpha',
+    label: 'Agent Alpha',
+  })
+  assert.equal(savedInputs[0]?.betaKeyId, 'agent-alpha')
+  assert.equal(savedInputs[0]?.betaClientLabel, 'Agent Alpha')
+}
+
+{
+  const { response, json } = await request({
+    loadUsage: {
+      requestCount: 5,
+      budgetUsdc: 0.005,
+      amountUsdc: 0.002,
+    },
+  })
+  assert.equal(response.status, 429)
+  assert.equal(json.error, 'beta_daily_request_limit_exceeded')
+}
+
+{
+  const { response, json } = await request({
+    loadUsage: {
+      requestCount: 1,
+      budgetUsdc: 0.008,
+      amountUsdc: 0.002,
+    },
+  })
+  assert.equal(response.status, 429)
+  assert.equal(json.error, 'beta_daily_budget_exceeded')
 }
 
 async function request(

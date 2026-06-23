@@ -57,6 +57,12 @@ services:
         value: "false"
       - key: X402_FACILITATOR_URL
         value: https://x402.org/facilitator
+      - key: BETA_ACCESS_KEYS
+        value: ""
+      - key: BETA_DAILY_REQUEST_LIMIT
+        value: "25"
+      - key: BETA_DAILY_BUDGET_USDC
+        value: "0.05"
       - key: MAX_EXECUTION_BUDGET_USDC
         value: "0.05"
   - type: keyvalue

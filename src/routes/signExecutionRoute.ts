@@ -2,7 +2,10 @@ import { randomUUID } from 'node:crypto'
 import type { PaymentPayload } from '@x402/core/types'
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { betaAccessValid } from '../services/betaAccess.js'
+import {
+  betaAccessValid,
+  type BetaAccessContext,
+} from '../services/betaAccess.js'
 import {
   PaymentTicketSigningError,
   type SignablePaymentTicket,
@@ -17,7 +20,14 @@ const requestSchema = z.object({
 export type SignExecutionDependencies = {
   enabled: boolean
   betaExecutionKey?: string
-  loadTicket: (input: { ticketId: string }) => Promise<SignablePaymentTicket>
+  validateBetaAccess?: (candidate: string | undefined) => boolean
+  resolveBetaAccess?: (
+    candidate: string | undefined,
+  ) => BetaAccessContext | undefined
+  loadTicket: (input: {
+    ticketId: string
+    betaKeyId?: string
+  }) => Promise<SignablePaymentTicket>
   signPayment: (ticket: SignablePaymentTicket) => Promise<{
     signerAddress: string
     signatureHash: string
@@ -69,7 +79,11 @@ export function createSignExecutionRoute(
         503,
       )
     }
-    if (!dependencies.betaExecutionKey) {
+    if (
+      !dependencies.betaExecutionKey &&
+      !dependencies.validateBetaAccess &&
+      !dependencies.resolveBetaAccess
+    ) {
       return c.json(
         {
           success: false,
@@ -82,12 +96,18 @@ export function createSignExecutionRoute(
         503,
       )
     }
-    if (
-      !betaAccessValid(
-        c.req.header('x-beta-key'),
-        dependencies.betaExecutionKey,
-      )
-    ) {
+    const access = dependencies.resolveBetaAccess?.(
+      c.req.header('x-beta-key'),
+    )
+    const accessValid = access
+      ? true
+      : dependencies.validateBetaAccess
+      ? dependencies.validateBetaAccess(c.req.header('x-beta-key'))
+      : betaAccessValid(
+          c.req.header('x-beta-key'),
+          dependencies.betaExecutionKey,
+        )
+    if (!accessValid) {
       return c.json(
         {
           success: false,
@@ -104,6 +124,7 @@ export function createSignExecutionRoute(
     try {
       const consumedTicket = await dependencies.loadTicket({
         ticketId: parsed.data.ticketId,
+        betaKeyId: access?.id,
       })
       const credential = await dependencies.signPayment(consumedTicket)
       const ticket = await dependencies.markSigned({

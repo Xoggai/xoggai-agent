@@ -1,7 +1,10 @@
 import { randomUUID } from 'node:crypto'
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { betaAccessValid } from '../services/betaAccess.js'
+import {
+  betaAccessValid,
+  type BetaAccessContext,
+} from '../services/betaAccess.js'
 import type { ConsumedPaymentTicket } from '../services/paymentPrepareTickets.js'
 import { PaymentTicketConsumeError } from '../services/paymentPrepareTickets.js'
 
@@ -13,9 +16,14 @@ const requestSchema = z.object({
 export type ConsumeExecutionDependencies = {
   enabled: boolean
   betaExecutionKey?: string
+  validateBetaAccess?: (candidate: string | undefined) => boolean
+  resolveBetaAccess?: (
+    candidate: string | undefined,
+  ) => BetaAccessContext | undefined
   consumeTicket: (input: {
     ticketId: string
     consumedBy?: string
+    betaKeyId?: string
   }) => Promise<ConsumedPaymentTicket>
   createRequestId?: () => string
 }
@@ -57,7 +65,11 @@ export function createConsumeExecutionRoute(
       )
     }
 
-    if (!dependencies.betaExecutionKey) {
+    if (
+      !dependencies.betaExecutionKey &&
+      !dependencies.validateBetaAccess &&
+      !dependencies.resolveBetaAccess
+    ) {
       return c.json(
         {
           success: false,
@@ -71,12 +83,18 @@ export function createConsumeExecutionRoute(
       )
     }
 
-    if (
-      !betaAccessValid(
-        c.req.header('x-beta-key'),
-        dependencies.betaExecutionKey,
-      )
-    ) {
+    const access = dependencies.resolveBetaAccess?.(
+      c.req.header('x-beta-key'),
+    )
+    const accessValid = access
+      ? true
+      : dependencies.validateBetaAccess
+      ? dependencies.validateBetaAccess(c.req.header('x-beta-key'))
+      : betaAccessValid(
+          c.req.header('x-beta-key'),
+          dependencies.betaExecutionKey,
+        )
+    if (!accessValid) {
       return c.json(
         {
           success: false,
@@ -91,7 +109,10 @@ export function createConsumeExecutionRoute(
     }
 
     try {
-      const ticket = await dependencies.consumeTicket(parsed.data)
+      const ticket = await dependencies.consumeTicket({
+        ...parsed.data,
+        ...(access ? { betaKeyId: access.id } : {}),
+      })
       return c.json({
         success: true,
         mode: 'consume-only',

@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-06-23
+
+- Added Phase 6 multi-agent closed-beta access profiles.
+- Added per-key request budgets, daily request quotas, and daily budget quotas.
+- Bound payment tickets to their creating beta key identity.
+- Added a scoped beta execution ledger at `/api/beta/executions`.
+- Added atomic PostgreSQL quota reservation to prevent concurrent limit bypass.
+
 ## 2026-05-31
 
 - Added a docs UI for `skill.md`, `llms.txt`, and `openapi.json`.

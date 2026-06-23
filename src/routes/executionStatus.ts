@@ -1,5 +1,10 @@
 import { Hono } from 'hono'
-import { env, executionEndpointAllowlist, hasLiveX402Wallet } from '../env.js'
+import {
+  betaAccessProfileCount,
+  env,
+  executionEndpointAllowlist,
+  hasLiveX402Wallet,
+} from '../env.js'
 
 function safetyMode() {
   if (env.ALLOW_LIVE_EXECUTION) {
@@ -49,7 +54,10 @@ export const executionStatusRoute = new Hono().get('/', (c) => {
     paymentSendingEnabled:
       env.X402_SETTLEMENT_ENABLED || env.X402_UPSTREAM_EXECUTION_ENABLED,
     walletConfigured: hasLiveX402Wallet(),
-    betaAccessConfigured: Boolean(env.BETA_EXECUTION_KEY),
+    betaAccessConfigured: betaAccessProfileCount() > 0,
+    betaAccessProfileCount: betaAccessProfileCount(),
+    betaDailyRequestLimit: env.BETA_DAILY_REQUEST_LIMIT,
+    betaDailyBudgetUsdc: env.BETA_DAILY_BUDGET_USDC,
     allowlistedEndpointCount: allowlist.size,
     maxExecutionBudgetUsdc: env.MAX_EXECUTION_BUDGET_USDC,
     guardrails: {

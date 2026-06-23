@@ -2,7 +2,10 @@ import { randomUUID } from 'node:crypto'
 import type { PaymentPayload } from '@x402/core/types'
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { betaAccessValid } from '../services/betaAccess.js'
+import {
+  betaAccessValid,
+  type BetaAccessContext,
+} from '../services/betaAccess.js'
 import {
   PaymentTicketVerificationError,
   type VerifiablePaymentTicket,
@@ -30,8 +33,13 @@ const requestSchema = z.object({
 export type VerifyExecutionDependencies = {
   enabled: boolean
   betaExecutionKey?: string
+  validateBetaAccess?: (candidate: string | undefined) => boolean
+  resolveBetaAccess?: (
+    candidate: string | undefined,
+  ) => BetaAccessContext | undefined
   loadTicket: (input: {
     ticketId: string
+    betaKeyId?: string
   }) => Promise<VerifiablePaymentTicket>
   verifyPayment: (
     ticket: VerifiablePaymentTicket,
@@ -88,7 +96,11 @@ export function createVerifyExecutionRoute(
         503,
       )
     }
-    if (!dependencies.betaExecutionKey) {
+    if (
+      !dependencies.betaExecutionKey &&
+      !dependencies.validateBetaAccess &&
+      !dependencies.resolveBetaAccess
+    ) {
       return c.json(
         {
           success: false,
@@ -102,12 +114,18 @@ export function createVerifyExecutionRoute(
         503,
       )
     }
-    if (
-      !betaAccessValid(
-        c.req.header('x-beta-key'),
-        dependencies.betaExecutionKey,
-      )
-    ) {
+    const access = dependencies.resolveBetaAccess?.(
+      c.req.header('x-beta-key'),
+    )
+    const accessValid = access
+      ? true
+      : dependencies.validateBetaAccess
+      ? dependencies.validateBetaAccess(c.req.header('x-beta-key'))
+      : betaAccessValid(
+          c.req.header('x-beta-key'),
+          dependencies.betaExecutionKey,
+        )
+    if (!accessValid) {
       return c.json(
         {
           success: false,
@@ -125,6 +143,7 @@ export function createVerifyExecutionRoute(
     try {
       const ticket = await dependencies.loadTicket({
         ticketId: parsed.data.ticketId,
+        betaKeyId: access?.id,
       })
       const verification = await dependencies.verifyPayment(
         ticket,

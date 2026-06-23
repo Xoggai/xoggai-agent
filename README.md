@@ -367,6 +367,18 @@ automatically.
 Use `docs/PHASE5_TESTNET_EXECUTION.md` before running the first funded Base
 Sepolia upstream execution.
 
+Closed-beta agents can use separate server-side keys with per-request and daily
+limits through `BETA_ACCESS_KEYS`. Each new ticket is bound to its beta key id,
+and the caller can inspect only its own ledger:
+
+```http
+GET /api/beta/executions?limit=25
+x-beta-key: <beta key>
+```
+
+See `docs/PHASE6_CLOSED_BETA.md` for the registry format, quota behavior, and
+rollback process.
+
 ## Repository Map
 
 - `src/` - backend API source.
@@ -376,6 +388,7 @@ Sepolia upstream execution.
 - `scripts/` - local helper scripts.
 - `docs/LAUNCH_CHECKLIST.md` - public launch checklist.
 - `docs/PHASE5_TESTNET_EXECUTION.md` - first controlled Base Sepolia execution.
+- `docs/PHASE6_CLOSED_BETA.md` - multi-agent beta access, quotas, and ledger.
 - `docs/OPERATOR_RUNBOOK.md` - closed-beta ticket and signing runbook.
 - `docs/CLOSED_BETA_CHECKLIST.md` - beta readiness checklist.
 - `SECURITY.md` - security and public preview safety notes.

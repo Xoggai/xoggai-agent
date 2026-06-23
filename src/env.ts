@@ -63,6 +63,9 @@ const envSchema = z.object({
     (value) => (value === '' ? undefined : value),
     z.string().min(32).optional(),
   ),
+  BETA_ACCESS_KEYS: z.string().default(''),
+  BETA_DAILY_REQUEST_LIMIT: z.coerce.number().int().positive().default(25),
+  BETA_DAILY_BUDGET_USDC: z.coerce.number().positive().default(0.05),
   MAX_EXECUTION_BUDGET_USDC: z.coerce.number().positive().max(10).default(0.05),
   EXECUTION_ENDPOINT_ALLOWLIST: z.string().default(''),
 })
@@ -72,6 +75,43 @@ const parsed = envSchema.safeParse(process.env)
 if (!parsed.success) {
   const details = JSON.stringify(parsed.error.flatten().fieldErrors, null, 2)
   throw new Error(`Invalid environment variables:\n${details}`)
+}
+
+if (parsed.data.BETA_ACCESS_KEYS.trim()) {
+  let betaAccessKeys: unknown
+  try {
+    betaAccessKeys = JSON.parse(parsed.data.BETA_ACCESS_KEYS)
+  } catch {
+    throw new Error('BETA_ACCESS_KEYS must contain valid JSON')
+  }
+  if (!Array.isArray(betaAccessKeys)) {
+    throw new Error('BETA_ACCESS_KEYS must be a JSON array')
+  }
+  const ids = new Set<string>()
+  const keys = new Set<string>()
+  for (const entry of betaAccessKeys) {
+    if (!entry || typeof entry !== 'object') {
+      throw new Error('BETA_ACCESS_KEYS entries must be objects')
+    }
+    const value = entry as Record<string, unknown>
+    if (
+      typeof value.id !== 'string' ||
+      !value.id.trim() ||
+      ids.has(value.id)
+    ) {
+      throw new Error('BETA_ACCESS_KEYS entries require unique string ids')
+    }
+    if (typeof value.key !== 'string' || value.key.length < 32) {
+      throw new Error(
+        'BETA_ACCESS_KEYS entries require keys with at least 32 characters',
+      )
+    }
+    if (keys.has(value.key)) {
+      throw new Error('BETA_ACCESS_KEYS entries require unique keys')
+    }
+    ids.add(value.id)
+    keys.add(value.key)
+  }
 }
 
 if (parsed.data.ALLOW_LIVE_EXECUTION) {
@@ -165,6 +205,13 @@ export function hasLiveX402Wallet() {
     !env.X402_WALLET_PRIVATE_KEY?.includes('placeholder') &&
     !env.X402_WALLET_ADDRESS?.includes('placeholder')
   )
+}
+
+export function betaAccessProfileCount() {
+  if (env.BETA_ACCESS_KEYS.trim()) {
+    return (JSON.parse(env.BETA_ACCESS_KEYS) as unknown[]).length
+  }
+  return env.BETA_EXECUTION_KEY ? 1 : 0
 }
 
 export function executionEndpointAllowlist() {

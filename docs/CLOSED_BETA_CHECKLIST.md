@@ -21,6 +21,9 @@ Public preview must stay dry-run first until every item below is complete.
 - Confirm `ALLOWED_ORIGINS` only includes approved beta frontends.
 - Confirm all secrets are stored in Render or the deployment provider, never committed.
 - Confirm `BETA_EXECUTION_KEY` is only available to trusted server-side callers.
+- Prefer one entry per tester or agent in `BETA_ACCESS_KEYS`.
+- Confirm every beta profile has a unique id, revocable key, per-request budget,
+  daily request quota, and daily budget quota.
 - Confirm `EXECUTION_ENDPOINT_ALLOWLIST` contains only reviewed endpoint UUIDs.
 - Start from `render.beta.yaml`; its allowlist is intentionally empty until a
   Base Sepolia endpoint passes `docs/BETA_ENDPOINT_AUDIT.md`.
@@ -88,6 +91,7 @@ Public preview must stay dry-run first until every item below is complete.
 - Do not log private keys, bearer tokens, or full payment credentials.
 - Render logs are checked after every beta run.
 - Failed payment verification and settlement errors are visible in logs.
+- `GET /api/beta/executions` returns only the requesting beta key's tickets.
 
 ## Test Matrix
 

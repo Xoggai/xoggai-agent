@@ -63,6 +63,8 @@ CREATE TABLE IF NOT EXISTS payment_prepare_tickets (
   amount_atomic text NOT NULL,
   amount_usdc real NOT NULL,
   budget_usdc real NOT NULL,
+  beta_key_id text,
+  beta_client_label text,
   max_timeout_seconds integer NOT NULL,
   created_at timestamp NOT NULL DEFAULT now(),
   expires_at timestamp NOT NULL,
@@ -71,6 +73,12 @@ CREATE TABLE IF NOT EXISTS payment_prepare_tickets (
   consumed_at timestamp,
   consumed_by text
 );
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS beta_key_id text;
+
+ALTER TABLE payment_prepare_tickets
+  ADD COLUMN IF NOT EXISTS beta_client_label text;
 
 ALTER TABLE payment_prepare_tickets
   ADD COLUMN IF NOT EXISTS approved_at timestamp;
@@ -179,3 +187,6 @@ CREATE INDEX IF NOT EXISTS payment_prepare_tickets_expires_at_idx
 
 CREATE INDEX IF NOT EXISTS payment_prepare_tickets_challenge_hash_idx
   ON payment_prepare_tickets (challenge_hash);
+
+CREATE INDEX IF NOT EXISTS payment_prepare_tickets_beta_usage_idx
+  ON payment_prepare_tickets (beta_key_id, created_at);

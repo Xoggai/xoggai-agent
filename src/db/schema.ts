@@ -86,6 +86,8 @@ export const paymentPrepareTickets = pgTable(
     amountAtomic: text('amount_atomic').notNull(),
     amountUsdc: real('amount_usdc').notNull(),
     budgetUsdc: real('budget_usdc').notNull(),
+    betaKeyId: text('beta_key_id'),
+    betaClientLabel: text('beta_client_label'),
     maxTimeoutSeconds: integer('max_timeout_seconds').notNull(),
     assetName: text('asset_name'),
     assetVersion: text('asset_version'),
@@ -131,6 +133,10 @@ export const paymentPrepareTickets = pgTable(
     ),
     challengeHashIdx: index('payment_prepare_tickets_challenge_hash_idx').on(
       t.challengeHash,
+    ),
+    betaUsageIdx: index('payment_prepare_tickets_beta_usage_idx').on(
+      t.betaKeyId,
+      t.createdAt,
     ),
   }),
 )

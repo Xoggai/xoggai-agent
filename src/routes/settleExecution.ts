@@ -1,5 +1,9 @@
 import { env } from '../env.js'
 import {
+  configuredBetaAccess,
+  configuredBetaAccessValid,
+} from '../services/configuredBetaAccess.js'
+import {
   claimVerifiedPaymentTicketForSettlement,
   loadVerifiedPaymentTicket,
   recordPaymentSettlement,
@@ -13,6 +17,8 @@ import { createSettleExecutionRoute } from './settleExecutionRoute.js'
 export const settleExecutionRoute = createSettleExecutionRoute({
   enabled: env.X402_SETTLEMENT_ENABLED,
   betaExecutionKey: env.BETA_EXECUTION_KEY,
+  validateBetaAccess: configuredBetaAccessValid,
+  resolveBetaAccess: configuredBetaAccess,
   loadTicket: loadVerifiedPaymentTicket,
   validateSettlement: (ticket, paymentPayload, settlementConfirmation) => {
     assertSettlementRequest({

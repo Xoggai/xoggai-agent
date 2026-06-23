@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { betaAccessValid } from '../services/betaAccess.js'
+import { authenticateBetaAccess } from '../services/betaAccess.js'
 import {
   PaymentPreviewError,
   preparePaymentPreview,
@@ -9,8 +9,10 @@ import {
 } from '../services/x402PaymentPreview.js'
 import type {
   PreparedPaymentTicket,
+  BetaExecutionUsage,
   PaymentPreview,
 } from '../services/paymentPrepareTickets.js'
+import { BetaExecutionQuotaError } from '../services/paymentPrepareTickets.js'
 
 const requestSchema = z.object({
   budget: z.number().positive().max(10),
@@ -19,13 +21,25 @@ const requestSchema = z.object({
 export type PrepareExecutionDependencies = {
   enabled: boolean
   betaExecutionKey?: string
+  betaAccessKeys?: string
+  maxBudgetUsdc?: number
+  dailyRequestLimit?: number
+  dailyBudgetUsdc?: number
   policy: PaymentPreviewPolicy
   fetchChallenge: () => Promise<{ status: number; paymentRequired?: string }>
+  loadUsage?: (input: {
+    betaKeyId: string
+    since: Date
+  }) => Promise<BetaExecutionUsage>
   savePreparedPayment?: (input: {
     requestId: string
     paymentRequiredHeader: string
     budgetUsdc: number
     preview: PaymentPreview
+    betaKeyId?: string
+    betaClientLabel?: string
+    betaDailyRequestLimit?: number
+    betaDailyBudgetUsdc?: number
   }) => Promise<PreparedPaymentTicket>
   createRequestId?: () => string
 }
@@ -67,7 +81,10 @@ export function createPrepareExecutionRoute(
       )
     }
 
-    if (!dependencies.betaExecutionKey) {
+    if (
+      !dependencies.betaExecutionKey &&
+      !dependencies.betaAccessKeys?.trim()
+    ) {
       return c.json(
         {
           success: false,
@@ -81,12 +98,15 @@ export function createPrepareExecutionRoute(
       )
     }
 
-    if (
-      !betaAccessValid(
-        c.req.header('x-beta-key'),
-        dependencies.betaExecutionKey,
-      )
-    ) {
+    const betaAccess = authenticateBetaAccess({
+      candidate: c.req.header('x-beta-key'),
+      betaAccessKeys: dependencies.betaAccessKeys,
+      betaExecutionKey: dependencies.betaExecutionKey,
+      maxBudgetUsdc: dependencies.maxBudgetUsdc ?? 10,
+      dailyRequestLimit: dependencies.dailyRequestLimit ?? 25,
+      dailyBudgetUsdc: dependencies.dailyBudgetUsdc ?? 0.05,
+    })
+    if (!betaAccess) {
       return c.json(
         {
           success: false,
@@ -101,6 +121,63 @@ export function createPrepareExecutionRoute(
     }
 
     try {
+      if (parsed.data.budget > betaAccess.maxBudgetUsdc) {
+        return c.json(
+          {
+            success: false,
+            mode: 'prepare-only',
+            requestId,
+            error: 'beta_budget_exceeded',
+            limitUsdc: betaAccess.maxBudgetUsdc,
+            paymentSigned: false,
+            paymentSent: false,
+          },
+          403,
+        )
+      }
+
+      if (dependencies.loadUsage) {
+        const since = new Date()
+        since.setUTCHours(0, 0, 0, 0)
+        const usage = await dependencies.loadUsage({
+          betaKeyId: betaAccess.id,
+          since,
+        })
+        if (usage.requestCount >= betaAccess.dailyRequestLimit) {
+          return c.json(
+            {
+              success: false,
+              mode: 'prepare-only',
+              requestId,
+              error: 'beta_daily_request_limit_exceeded',
+              limit: betaAccess.dailyRequestLimit,
+              usage,
+              paymentSigned: false,
+              paymentSent: false,
+            },
+            429,
+          )
+        }
+        if (
+          usage.budgetUsdc + parsed.data.budget >
+          betaAccess.dailyBudgetUsdc
+        ) {
+          return c.json(
+            {
+              success: false,
+              mode: 'prepare-only',
+              requestId,
+              error: 'beta_daily_budget_exceeded',
+              limitUsdc: betaAccess.dailyBudgetUsdc,
+              usage,
+              paymentSigned: false,
+              paymentSent: false,
+            },
+            429,
+          )
+        }
+      }
+
       const challenge = await dependencies.fetchChallenge()
       if (challenge.status !== 402 || !challenge.paymentRequired) {
         return c.json(
@@ -128,6 +205,10 @@ export function createPrepareExecutionRoute(
             paymentRequiredHeader: challenge.paymentRequired,
             budgetUsdc: parsed.data.budget,
             preview,
+            betaKeyId: betaAccess.id,
+            betaClientLabel: betaAccess.label,
+            betaDailyRequestLimit: betaAccess.dailyRequestLimit,
+            betaDailyBudgetUsdc: betaAccess.dailyBudgetUsdc,
           })
         : undefined
 
@@ -135,6 +216,10 @@ export function createPrepareExecutionRoute(
         success: true,
         mode: 'prepare-only',
         requestId,
+        betaAccess: {
+          id: betaAccess.id,
+          label: betaAccess.label,
+        },
         budgetUsdc: parsed.data.budget,
         preview,
         ticket,
@@ -147,7 +232,9 @@ export function createPrepareExecutionRoute(
       })
     } catch (error) {
       const code =
-        error instanceof PaymentPreviewError
+        error instanceof BetaExecutionQuotaError
+          ? error.code
+          : error instanceof PaymentPreviewError
           ? error.code
           : error instanceof Error &&
               error.message === 'payment_prepare_ticket_not_created'
@@ -162,7 +249,11 @@ export function createPrepareExecutionRoute(
           paymentSigned: false,
           paymentSent: false,
         },
-        error instanceof PaymentPreviewError ? 403 : 502,
+        error instanceof BetaExecutionQuotaError
+          ? 429
+          : error instanceof PaymentPreviewError
+            ? 403
+            : 502,
       )
     }
   })

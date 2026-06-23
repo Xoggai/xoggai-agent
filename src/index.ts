@@ -5,6 +5,7 @@ import { corsMiddleware } from './middleware/cors.js'
 import { loggerMiddleware } from './middleware/logger.js'
 import { rateLimitMiddleware } from './middleware/rateLimit.js'
 import { approveExecutionRoute } from './routes/approveExecution.js'
+import { betaExecutionsRoute } from './routes/betaExecutions.js'
 import { consumeExecutionRoute } from './routes/consumeExecution.js'
 import { endpointsRoute } from './routes/endpoints.js'
 import { executeRoute } from './routes/execute.js'
@@ -65,6 +66,7 @@ app.get('/', (c) =>
     sampleRequests: {
       health: 'GET /health',
       executionStatus: 'GET /api/execution-status',
+      betaExecutions: 'GET /api/beta/executions (requires x-beta-key)',
       routeIntent:
         'GET /intent?q=what%20is%20the%20ETH%20price&budget=0.05&dry=true',
       searchEndpoints: 'GET /search?q=crypto%20price&limit=5&dry=true',
@@ -84,6 +86,7 @@ app.get('/', (c) =>
       info: '/api/info',
       health: '/health',
       executionStatus: '/api/execution-status',
+      betaExecutions: '/api/beta/executions',
       intent: '/intent?q=what%20is%20the%20ETH%20price&budget=0.05&dry=true',
       search: '/search?q=crypto%20price&limit=5&dry=true',
       stats: '/api/stats',
@@ -114,6 +117,7 @@ app.route('/execute/settle', settleExecutionRoute)
 app.route('/execute/upstream', upstreamExecutionRoute)
 app.route('/api/info', infoRoute)
 app.route('/api/execution-status', executionStatusRoute)
+app.route('/api/beta/executions', betaExecutionsRoute)
 app.route('/api/stats', statsRoute)
 app.route('/api/feed', feedRoute)
 app.route('/api/endpoints', endpointsRoute)
