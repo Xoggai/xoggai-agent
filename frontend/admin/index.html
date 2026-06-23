@@ -78,8 +78,8 @@ const money=value=>`$${Number(value||0).toFixed(4)}`;
 function esc(value){const d=document.createElement('div');d.textContent=String(value??'');return d.innerHTML}
 function short(value){return value?`${String(value).slice(0,10)}...${String(value).slice(-8)}`:'-'}
 function show(active){$('login').classList.toggle('hidden',active);$('dashboard').classList.toggle('active',active);$('logout').hidden=!active;$('operator-label').textContent=`acting as ${operator}`}
-function statusClass(status){if(status==='EXECUTED')return'pill pill-live';if(String(status).includes('FAILED')||status==='REJECTED'||status==='CANCELLED'||status==='EXECUTION_UNKNOWN')return'pill pill-bad';if(status==='APPROVED'||String(status).startsWith('TESTNET'))return'pill pill-warn';return'pill'}
-function isFailed(status){return String(status).includes('FAILED')||status==='REJECTED'||status==='CANCELLED'||status==='EXECUTION_UNKNOWN'}
+function statusClass(status){if(status==='EXECUTED')return'pill pill-live';if(String(status).includes('FAILED')||status==='REJECTED'||status==='CANCELLED'||status==='EXECUTION_UNKNOWN'||status==='EXPIRED')return'pill pill-bad';if(status==='APPROVED'||String(status).startsWith('TESTNET'))return'pill pill-warn';return'pill'}
+function isFailed(status){return String(status).includes('FAILED')||status==='REJECTED'||status==='CANCELLED'||status==='EXECUTION_UNKNOWN'||status==='EXPIRED'}
 function matchesStatus(r){if(activeStatus==='ALL')return true;if(activeStatus==='FAILED')return isFailed(r.status);return r.status===activeStatus}
 async function api(path,options={}){const headers={'content-type':'application/json','x-admin-key':adminKey,...(options.headers||{})};const response=await fetch(`${API}${path}`,{...options,headers});const data=await response.json().catch(()=>({error:'invalid_response'}));if(response.status===401)lock();return{response,data}}
 function lock(){adminKey='';sessionStorage.removeItem('xoggai_admin_key');show(false);setAuto(false)}

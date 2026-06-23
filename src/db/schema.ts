@@ -8,6 +8,7 @@ import {
   real,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core'
 
@@ -136,6 +137,8 @@ export const betaExecutionRequests = pgTable(
     endpointName: text('endpoint_name'),
     endpointUrl: text('endpoint_url'),
     endpointPriceUsdc: real('endpoint_price_usdc'),
+    idempotencyKeyHash: text('idempotency_key_hash'),
+    requestFingerprint: text('request_fingerprint'),
     status: text('status').notNull().default('REQUESTED'),
     decisionReason: text('decision_reason'),
     approvedBy: text('approved_by'),
@@ -149,6 +152,7 @@ export const betaExecutionRequests = pgTable(
     settlementTransaction: text('settlement_transaction'),
     settlementNetwork: text('settlement_network'),
     executedAt: timestamp('executed_at'),
+    expiresAt: timestamp('expires_at').notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
@@ -159,6 +163,10 @@ export const betaExecutionRequests = pgTable(
       t.createdAt,
     ),
     statusIdx: index('beta_execution_requests_status_idx').on(t.status),
+    expiryIdx: index('beta_execution_requests_expiry_idx').on(t.expiresAt),
+    userIdempotencyIdx: uniqueIndex(
+      'beta_execution_requests_user_idempotency_idx',
+    ).on(t.userId, t.idempotencyKeyHash),
   }),
 )
 
@@ -172,11 +180,39 @@ export const betaAuditEvents = pgTable(
     action: text('action').notNull(),
     targetType: text('target_type'),
     targetId: text('target_id'),
+    requestId: text('request_id'),
+    severity: text('severity').notNull().default('INFO'),
+    outcome: text('outcome').notNull().default('SUCCESS'),
+    sourceHash: text('source_hash'),
     metadata: jsonb('metadata').$type<Record<string, unknown> | null>(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
   },
   (t) => ({
     userIdx: index('beta_audit_events_user_idx').on(t.userId),
+    actionIdx: index('beta_audit_events_action_idx').on(t.action),
+    createdIdx: index('beta_audit_events_created_idx').on(t.createdAt),
+  }),
+)
+
+export const executionEndpointAllowlist = pgTable(
+  'execution_endpoint_allowlist',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    endpointId: uuid('endpoint_id')
+      .notNull()
+      .references(() => endpoints.id),
+    endpointUrl: text('endpoint_url').notNull(),
+    enabled: boolean('enabled').notNull().default(true),
+    reason: text('reason').notNull(),
+    createdBy: text('created_by').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (t) => ({
+    endpointIdx: uniqueIndex('execution_endpoint_allowlist_endpoint_idx').on(
+      t.endpointId,
+    ),
+    enabledIdx: index('execution_endpoint_allowlist_enabled_idx').on(t.enabled),
   }),
 )
 

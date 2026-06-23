@@ -7,6 +7,7 @@ import {
   createPublicBetaSession,
   revokePublicBetaSession,
 } from '../services/publicBetaAuth.js'
+import { consumeIdentityRateLimit } from '../services/abuseProtection.js'
 
 const loginSchema = z.object({
   apiKey: z.string().min(32).max(200),
@@ -18,6 +19,25 @@ export const publicBetaAuthRoute = new Hono()
     const parsed = loginSchema.safeParse(await c.req.json().catch(() => null))
     if (!parsed.success) {
       return c.json({ success: false, error: 'invalid_request' }, 400)
+    }
+    try {
+      const rateLimit = await consumeIdentityRateLimit({
+        scope: 'public-beta-login',
+        identity: parsed.data.apiKey,
+        limit: env.PUBLIC_BETA_RATE_LIMIT_MAX,
+        windowMs: env.PUBLIC_BETA_RATE_LIMIT_WINDOW_MS,
+      })
+      c.header('X-RateLimit-Limit', String(rateLimit.limit))
+      c.header('X-RateLimit-Remaining', String(rateLimit.remaining))
+      c.header('X-RateLimit-Reset', String(Math.ceil(rateLimit.resetAt / 1000)))
+      if (!rateLimit.allowed) {
+        return c.json({ success: false, error: 'rate_limit_exceeded' }, 429)
+      }
+    } catch {
+      return c.json(
+        { success: false, error: 'abuse_protection_unavailable' },
+        503,
+      )
     }
     const user = await authenticatePublicBetaApiKey(parsed.data.apiKey)
     if (!user) {

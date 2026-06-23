@@ -83,6 +83,34 @@ const envSchema = z.object({
     .min(900)
     .max(604800)
     .default(86400),
+  PUBLIC_BETA_REQUEST_TTL_SECONDS: z.coerce
+    .number()
+    .int()
+    .min(60)
+    .max(3600)
+    .default(900),
+  PUBLIC_BETA_RATE_LIMIT_WINDOW_MS: z.coerce
+    .number()
+    .int()
+    .min(1000)
+    .max(3600000)
+    .default(60000),
+  PUBLIC_BETA_RATE_LIMIT_MAX: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(1000)
+    .default(10),
+  PUBLIC_BETA_ALERT_REQUEST_SPIKE: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .default(50),
+  PUBLIC_BETA_ALERT_FAILURE_THRESHOLD: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .default(5),
   PUBLIC_BETA_ENABLED: z
     .enum(['true', 'false'])
     .transform((value) => value === 'true')

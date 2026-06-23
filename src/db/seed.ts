@@ -3,8 +3,21 @@ import { db, pool } from './client.js'
 import { endpoints, stats } from './schema.js'
 import { embed } from '../lib/embeddings.js'
 import { redis } from '../lib/redis.js'
+import { auditedX402Candidate } from '../config/auditedX402.js'
 
 const seedEndpoints = [
+  {
+    url: auditedX402Candidate.resourceUrl,
+    name: auditedX402Candidate.name,
+    description:
+      'Audited Base Sepolia x402 sandbox endpoint that returns a deterministic fortune response.',
+    category: 'utility',
+    priceUsdc: 0.002,
+    avgRating: 5,
+    ratingCount: 1,
+    avgLatencyMs: 250,
+    inputSchema: { type: 'object', properties: {} },
+  },
   {
     url: '1c09pdnrx1.execute-api.us-east-1.amazonaws.com/v1/price/token',
     name: 'Token Price Oracle',

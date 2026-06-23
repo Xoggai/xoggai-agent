@@ -92,6 +92,44 @@ export async function runPublicBetaAdmin({
     log(JSON.stringify(result, null, 2))
     return result
   }
+  if (command === 'audit') {
+    const limit = Number(argv[1] || '100')
+    const result = await request(`/api/admin/beta/audit?limit=${limit}`, {
+      env,
+      fetchImpl,
+    })
+    log(JSON.stringify(result, null, 2))
+    return result
+  }
+  if (command === 'allowlist') {
+    const result = await request('/api/admin/beta/allowlist', {
+      env,
+      fetchImpl,
+    })
+    log(JSON.stringify(result, null, 2))
+    return result
+  }
+  if (command === 'allow-endpoint' || command === 'block-endpoint') {
+    const [endpointId, reason = 'Phase 13 operator review'] = argv.slice(1)
+    if (!endpointId) {
+      throw new Error(`${command} requires <endpointId> [reason]`)
+    }
+    const result = await request(
+      `/api/admin/beta/allowlist/${encodeURIComponent(endpointId)}`,
+      {
+        env,
+        method: 'PUT',
+        fetchImpl,
+        body: {
+          enabled: command === 'allow-endpoint',
+          reason,
+          actorId: env.X402_OPERATOR || 'public-beta-admin-cli',
+        },
+      },
+    )
+    log(JSON.stringify(result, null, 2))
+    return result
+  }
   if (command === 'set-user-status') {
     const [userId, status] = argv.slice(1)
     if (!userId || !['ACTIVE', 'SUSPENDED'].includes(status)) {
@@ -184,7 +222,7 @@ export async function runPublicBetaAdmin({
     return result
   }
   throw new Error(
-    'Use: create-user <email> <displayName> [keyLabel], users, ops, set-user-status <userId> <ACTIVE|SUSPENDED>, keys <userId>, create-key <userId> [label], revoke-key <keyId>, requests [status], decide <id> <status> [reason], or execute-testnet <requestId>',
+    'Use: create-user <email> <displayName> [keyLabel], users, ops, audit [limit], allowlist, allow-endpoint <endpointId> [reason], block-endpoint <endpointId> [reason], set-user-status <userId> <ACTIVE|SUSPENDED>, keys <userId>, create-key <userId> [label], revoke-key <keyId>, requests [status], decide <id> <status> [reason], or execute-testnet <requestId>',
   )
 }
 

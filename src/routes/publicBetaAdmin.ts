@@ -4,6 +4,7 @@ import { env } from '../env.js'
 import {
   createPublicBetaApiKey,
   createPublicBetaUser,
+  listPublicBetaAuditEvents,
   listPublicBetaApiKeys,
   listPublicBetaUsers,
   revokePublicBetaApiKey,
@@ -19,6 +20,11 @@ import {
   executeApprovedPublicBetaRequestOnTestnet,
   PublicBetaTestnetExecutionConfigError,
 } from '../services/publicBetaTestnetExecution.js'
+import {
+  ExecutionAllowlistError,
+  listExecutionEndpointAllowlist,
+  setExecutionEndpointAllowlist,
+} from '../services/executionAllowlist.js'
 
 const userSchema = z.object({
   email: z.string().email().max(254),
@@ -43,6 +49,7 @@ const listSchema = z.object({
       'EXECUTED',
       'EXECUTION_FAILED',
       'EXECUTION_UNKNOWN',
+      'EXPIRED',
     ])
     .optional(),
   limit: z.coerce.number().int().min(1).max(100).default(50),
@@ -73,6 +80,14 @@ const userUpdateSchema = z
       value.dailyRequestLimit !== undefined ||
       value.dailyBudgetUsdc !== undefined,
   )
+const allowlistSchema = z.object({
+  enabled: z.boolean(),
+  reason: z.string().trim().min(3).max(500),
+  actorId: z.string().trim().min(2).max(100),
+})
+const auditListSchema = z.object({
+  limit: z.coerce.number().int().min(1).max(200).default(100),
+})
 
 function adminValid(candidate: string | undefined) {
   return Boolean(
@@ -199,6 +214,39 @@ export const publicBetaAdminRoute = new Hono()
     }
     const requests = await listAdminBetaExecutionRequests(parsed.data)
     return c.json({ success: true, requests })
+  })
+  .get('/audit', async (c) => {
+    const parsed = auditListSchema.safeParse(c.req.query())
+    if (!parsed.success) {
+      return c.json({ success: false, error: 'invalid_request' }, 400)
+    }
+    const events = await listPublicBetaAuditEvents(parsed.data.limit)
+    return c.json({ success: true, events })
+  })
+  .get('/allowlist', async (c) => {
+    const entries = await listExecutionEndpointAllowlist()
+    return c.json({ success: true, entries })
+  })
+  .put('/allowlist/:endpointId', async (c) => {
+    const parsed = allowlistSchema.safeParse(await c.req.json().catch(() => null))
+    if (!parsed.success) {
+      return c.json({ success: false, error: 'invalid_request' }, 400)
+    }
+    try {
+      const entry = await setExecutionEndpointAllowlist({
+        endpointId: c.req.param('endpointId'),
+        ...parsed.data,
+      })
+      return c.json({ success: true, entry })
+    } catch (error) {
+      if (error instanceof ExecutionAllowlistError) {
+        return c.json(
+          { success: false, error: error.code },
+          error.code === 'endpoint_not_found' ? 404 : 409,
+        )
+      }
+      throw error
+    }
   })
   .patch('/requests/:id', async (c) => {
     const parsed = decisionSchema.safeParse(await c.req.json().catch(() => null))

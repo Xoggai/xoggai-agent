@@ -70,6 +70,10 @@ REQUESTED -> APPROVED -> TESTNET_PREPARED -> TESTNET_SIGNING -> TESTNET_VERIFYIN
 Do not place beta keys, admin keys, or wallet private keys in browser/client
 code. Browser code may create beta user requests after login, but it cannot
 send payment. Operator execution happens through `/admin/` or trusted CLI tools.
+Beta request creation requires a unique `Idempotency-Key` header. Retry the
+same request with the same key; never reuse a key for different input. Pending
+requests expire before operator execution and only managed allowlist entries
+can reach the Base Sepolia signing path.
 
 ## Local Development
 

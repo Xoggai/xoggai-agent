@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict'
-import { executionStatusRoute } from './executionStatus.js'
+import { createExecutionStatusRoute } from './executionStatus.js'
+
+const executionStatusRoute = createExecutionStatusRoute(async () => 2)
 
 const response = await executionStatusRoute.request('/')
 const json = (await response.json()) as Record<string, unknown>
@@ -11,6 +13,7 @@ assert.equal(json.dryRunEnabled, true)
 assert.equal(json.liveExecutionEnabled, false)
 assert.equal(json.operationsKillSwitchActive, false)
 assert.equal(json.publicBetaEnabled, true)
+assert.equal(json.allowlistedEndpointCount, 2)
 assert.equal(
   json.paymentSigningEnabled,
   process.env.X402_SIGNING_ENABLED === 'true',
@@ -55,5 +58,8 @@ assert.equal(guardrails.upstreamExecutionHasNoAutomaticRetry, true)
 assert.equal(guardrails.dryRunsNeverSendPayment, true)
 assert.equal(guardrails.operationsKillSwitchAvailable, true)
 assert.equal(guardrails.publicBetaCanBeDisabledIndependently, true)
+assert.equal(guardrails.betaRequestsRequireIdempotencyKeys, true)
+assert.equal(guardrails.betaRequestsExpireBeforeExecution, true)
+assert.equal(guardrails.testnetExecutionRequiresManagedAllowlist, true)
 
 console.log('execution status route tests passed')

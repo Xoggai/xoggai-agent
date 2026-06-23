@@ -19,12 +19,19 @@ function resolveOrigin(origin: string) {
 
 export const corsMiddleware = cors({
   origin: resolveOrigin,
-  allowMethods: ['GET', 'POST', 'PATCH', 'OPTIONS'],
+  allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'OPTIONS'],
   allowHeaders: [
     'Content-Type',
     'Authorization',
     'X-Payment',
     'X-Beta-Key',
     'X-Admin-Key',
+    'Idempotency-Key',
+  ],
+  exposeHeaders: [
+    'X-Request-Id',
+    'X-RateLimit-Limit',
+    'X-RateLimit-Remaining',
+    'X-RateLimit-Reset',
   ],
 })

@@ -258,7 +258,21 @@
       },
       "post": {
         "summary": "Dry-run an intent and submit it for operator approval",
-        "description": "This endpoint cannot send payment.",
+        "description": "This endpoint cannot send payment. Idempotency keys make retries safe; requests expire before operator execution.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string", "example": "Bearer xg_session_..." }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string", "minLength": 8, "maxLength": 128 }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -275,10 +289,14 @@
           }
         },
         "responses": {
+          "200": { "description": "Existing request returned for an idempotent retry" },
           "201": { "description": "Dry-run preview and pending approval request" },
+          "400": { "description": "Invalid request or idempotency key" },
           "401": { "description": "Invalid or expired session" },
           "403": { "description": "Per-request budget exceeded" },
-          "429": { "description": "Daily quota exceeded" }
+          "409": { "description": "Idempotency key reused with different input" },
+          "429": { "description": "Identity rate limit or daily quota exceeded" },
+          "503": { "description": "Abuse protection unavailable" }
         }
       }
     },
@@ -393,6 +411,44 @@
           "401": { "description": "Invalid admin access" },
           "409": { "description": "Request is not approved or is already executing" },
           "503": { "description": "Testnet execution is not configured" }
+        }
+      }
+    },
+    "/api/admin/beta/audit": {
+      "get": {
+        "summary": "List structured beta audit events",
+        "description": "Protected admin endpoint with actor, outcome, severity, request correlation, and hashed source metadata.",
+        "responses": {
+          "200": { "description": "Recent audit events" },
+          "401": { "description": "Invalid admin access" }
+        }
+      }
+    },
+    "/api/admin/beta/allowlist": {
+      "get": {
+        "summary": "List execution endpoint allowlist entries",
+        "responses": {
+          "200": { "description": "Managed allowlist entries" },
+          "401": { "description": "Invalid admin access" }
+        }
+      }
+    },
+    "/api/admin/beta/allowlist/{endpointId}": {
+      "put": {
+        "summary": "Allow or block an endpoint for testnet execution",
+        "description": "Protected operator action. Endpoint URL is resolved server-side from the registered endpoint index.",
+        "parameters": [
+          {
+            "name": "endpointId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Allowlist entry updated and audited" },
+          "401": { "description": "Invalid admin access" },
+          "404": { "description": "Endpoint not found" }
         }
       }
     },

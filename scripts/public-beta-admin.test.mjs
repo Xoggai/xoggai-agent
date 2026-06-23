@@ -64,6 +64,40 @@ function response(body, status = 200) {
 
 {
   await runPublicBetaAdmin({
+    argv: ['audit', '25'],
+    env,
+    log: () => {},
+    async fetchImpl(url, options) {
+      assert.equal(url, 'https://example.test/api/admin/beta/audit?limit=25')
+      assert.equal(options.method, 'GET')
+      return response({ success: true, events: [] })
+    },
+  })
+}
+
+{
+  await runPublicBetaAdmin({
+    argv: ['allow-endpoint', 'endpoint-id', 'Audited endpoint'],
+    env,
+    log: () => {},
+    async fetchImpl(url, options) {
+      assert.equal(
+        url,
+        'https://example.test/api/admin/beta/allowlist/endpoint-id',
+      )
+      assert.equal(options.method, 'PUT')
+      assert.deepEqual(JSON.parse(options.body), {
+        enabled: true,
+        reason: 'Audited endpoint',
+        actorId: 'test-admin',
+      })
+      return response({ success: true })
+    },
+  })
+}
+
+{
+  await runPublicBetaAdmin({
     argv: ['keys', 'user-id'],
     env,
     log: () => {},

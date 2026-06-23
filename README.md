@@ -414,6 +414,12 @@ and Cursor, and production-aligned agent files. Public integrations remain
 dry-run-first; controlled execution remains operator-approved on Base Sepolia.
 See `docs/PHASE12_DEVELOPER_INTEGRATION_KIT.md`.
 
+Phase 13 hardens the testnet product against abuse and unsafe retries with
+identity-aware rate limits, idempotency keys, replay conflict detection,
+expiring approval requests, structured audit context, a managed execution
+endpoint allowlist, and operational spike/failure alerts. See
+`docs/PHASE13_TESTNET_RELIABILITY.md`.
+
 ## Repository Map
 
 - `src/` - backend API source.
@@ -430,6 +436,7 @@ See `docs/PHASE12_DEVELOPER_INTEGRATION_KIT.md`.
 - `docs/PHASE10_USER_CONSOLE_UPGRADE.md` - beta user console upgrade.
 - `docs/PHASE11_OPERATOR_CONSOLE.md` - private operator console.
 - `docs/PHASE12_DEVELOPER_INTEGRATION_KIT.md` - SDK, curl, and agent integration kit.
+- `docs/PHASE13_TESTNET_RELIABILITY.md` - abuse controls and testnet reliability.
 - `docs/INCIDENT_RESPONSE.md` - severity, containment, and recovery.
 - `docs/BACKUP_RECOVERY.md` - PostgreSQL backup and restore drills.
 - `docs/OPERATOR_RUNBOOK.md` - closed-beta ticket and signing runbook.

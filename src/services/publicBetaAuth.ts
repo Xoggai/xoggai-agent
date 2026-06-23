@@ -232,6 +232,14 @@ export async function listPublicBetaApiKeys(userId: string) {
     .orderBy(desc(betaApiKeys.createdAt))
 }
 
+export async function listPublicBetaAuditEvents(limit = 100) {
+  return db
+    .select()
+    .from(betaAuditEvents)
+    .orderBy(desc(betaAuditEvents.createdAt))
+    .limit(Math.min(Math.max(limit, 1), 200))
+}
+
 export async function authenticatePublicBetaApiKey(
   apiKey: string,
 ): Promise<PublicBetaUser | undefined> {

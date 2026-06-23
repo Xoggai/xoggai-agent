@@ -3,8 +3,11 @@ import { env } from '../env.js'
 import {
   auditPublicBetaRequestExecution,
   claimPublicBetaRequestForTestnetExecution,
+  getPublicBetaExecutionRequest,
+  PublicBetaExecutionError,
   updatePublicBetaRequestExecution,
 } from './publicBetaRequests.js'
+import { executionEndpointAllowed } from './executionAllowlist.js'
 import {
   approvePreparedPaymentTicket,
   claimVerifiedPaymentTicketForUpstream,
@@ -83,6 +86,37 @@ export async function executeApprovedPublicBetaRequestOnTestnet(input: {
   assertPhase9Ready()
   const walletPrivateKey = env.X402_WALLET_PRIVATE_KEY as string
   const walletAddress = env.X402_WALLET_ADDRESS as string
+
+  const pendingRequest = await getPublicBetaExecutionRequest(input.requestId)
+  if (pendingRequest.status !== 'APPROVED') {
+    throw new PublicBetaExecutionError(
+      pendingRequest.status === 'EXPIRED'
+        ? 'beta_execution_request_expired'
+        : 'beta_execution_request_not_approved',
+    )
+  }
+  const allowlisted = await executionEndpointAllowed({
+    endpointId: pendingRequest.endpointId,
+    endpointUrl: pendingRequest.endpointUrl,
+  })
+  const resourceMatches =
+    pendingRequest.endpointUrl === auditedX402Candidate.resourceUrl
+  if (!allowlisted || !resourceMatches) {
+    await auditPublicBetaRequestExecution({
+      userId: pendingRequest.userId,
+      requestId: pendingRequest.id,
+      actorId: input.executedBy,
+      action: 'TESTNET_EXECUTION_BLOCKED',
+      severity: 'SECURITY',
+      outcome: 'DENIED',
+      metadata: {
+        reason: allowlisted
+          ? 'endpoint_resource_mismatch'
+          : 'endpoint_not_allowlisted',
+      },
+    })
+    throw new PublicBetaExecutionError('endpoint_not_allowlisted')
+  }
 
   const request = await claimPublicBetaRequestForTestnetExecution({
     id: input.requestId,

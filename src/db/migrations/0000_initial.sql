@@ -295,3 +295,57 @@ CREATE INDEX IF NOT EXISTS payment_prepare_tickets_challenge_hash_idx
 
 CREATE INDEX IF NOT EXISTS payment_prepare_tickets_beta_usage_idx
   ON payment_prepare_tickets (beta_key_id, created_at);
+
+ALTER TABLE beta_execution_requests
+  ADD COLUMN IF NOT EXISTS idempotency_key_hash text;
+
+ALTER TABLE beta_execution_requests
+  ADD COLUMN IF NOT EXISTS request_fingerprint text;
+
+ALTER TABLE beta_execution_requests
+  ADD COLUMN IF NOT EXISTS expires_at timestamp;
+
+UPDATE beta_execution_requests
+SET expires_at = created_at + interval '15 minutes'
+WHERE expires_at IS NULL;
+
+ALTER TABLE beta_execution_requests
+  ALTER COLUMN expires_at SET NOT NULL;
+
+CREATE INDEX IF NOT EXISTS beta_execution_requests_expiry_idx
+  ON beta_execution_requests (expires_at);
+
+CREATE UNIQUE INDEX IF NOT EXISTS beta_execution_requests_user_idempotency_idx
+  ON beta_execution_requests (user_id, idempotency_key_hash);
+
+ALTER TABLE beta_audit_events
+  ADD COLUMN IF NOT EXISTS request_id text;
+
+ALTER TABLE beta_audit_events
+  ADD COLUMN IF NOT EXISTS severity text NOT NULL DEFAULT 'INFO';
+
+ALTER TABLE beta_audit_events
+  ADD COLUMN IF NOT EXISTS outcome text NOT NULL DEFAULT 'SUCCESS';
+
+ALTER TABLE beta_audit_events
+  ADD COLUMN IF NOT EXISTS source_hash text;
+
+CREATE INDEX IF NOT EXISTS beta_audit_events_action_idx
+  ON beta_audit_events (action);
+
+CREATE INDEX IF NOT EXISTS beta_audit_events_created_idx
+  ON beta_audit_events (created_at);
+
+CREATE TABLE IF NOT EXISTS execution_endpoint_allowlist (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  endpoint_id uuid NOT NULL UNIQUE REFERENCES endpoints(id),
+  endpoint_url text NOT NULL,
+  enabled boolean NOT NULL DEFAULT true,
+  reason text NOT NULL,
+  created_by text NOT NULL,
+  created_at timestamp NOT NULL DEFAULT now(),
+  updated_at timestamp NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS execution_endpoint_allowlist_enabled_idx
+  ON execution_endpoint_allowlist (enabled);

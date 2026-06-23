@@ -31,6 +31,10 @@ Skill: https://xoggai-agent.com/skill.md
 - `GET /api/beta/dashboard/requests`
 - `POST /api/beta/dashboard/requests`
 
+`POST /api/beta/dashboard/requests` requires an `Idempotency-Key` header with
+8-128 safe characters. Reusing the key with the same body returns the original
+request; reusing it with different input is rejected.
+
 ## Operator API
 
 - `GET /api/admin/beta/requests`
@@ -50,7 +54,8 @@ dry-run route -> public beta request -> operator approval -> Base Sepolia x402 e
 
 Mainnet execution is disabled. Base Sepolia is the active testnet execution
 network. Browser code must not contain beta keys, admin keys, or wallet private
-keys.
+keys. Pending requests expire, and only operator-managed allowlist entries can
+enter execution.
 
 ## Developer Kit
 

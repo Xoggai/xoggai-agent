@@ -7,6 +7,9 @@
   instructions for Claude, Codex, and Cursor.
 - Updated `skill.md`, `llms.txt`, OpenAPI metadata, docs, and homepage entry
   points around the dry-run-first Base Sepolia product boundary.
+- Added Phase 13 identity rate limits, idempotent request creation, replay
+  conflict protection, expiring approvals, structured audit fields, managed
+  endpoint allowlisting, and operational reliability alerts.
 
 ## 2026-06-23
 
