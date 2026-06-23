@@ -50,7 +50,7 @@ export const publicBetaDashboardRoute = new Hono()
           0,
         ),
       },
-      paymentExecution: 'operator-approved',
+      paymentExecution: 'operator-approved-base-sepolia',
     })
   })
   .get('/requests', async (c) => {

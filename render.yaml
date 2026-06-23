@@ -34,7 +34,7 @@ services:
       - key: X402_WALLET_ADDRESS
         sync: false
       - key: X402_NETWORK
-        value: base-mainnet
+        value: base-sepolia
       - key: RATE_LIMIT_WINDOW_MS
         value: "60000"
       - key: RATE_LIMIT_MAX
@@ -48,19 +48,21 @@ services:
       - key: EXECUTION_SIMULATION_ENABLED
         value: "false"
       - key: X402_PREPARE_ENABLED
-        value: "false"
+        value: "true"
       - key: X402_SIGNING_ENABLED
-        value: "false"
+        value: "true"
       - key: X402_VERIFY_ENABLED
-        value: "false"
+        value: "true"
       - key: X402_SETTLEMENT_ENABLED
         value: "false"
       - key: X402_UPSTREAM_EXECUTION_ENABLED
-        value: "false"
+        value: "true"
       - key: X402_FACILITATOR_URL
         value: https://x402.org/facilitator
       - key: BETA_ACCESS_KEYS
         value: ""
+      - key: BETA_EXECUTION_KEY
+        sync: false
       - key: BETA_DAILY_REQUEST_LIMIT
         value: "25"
       - key: BETA_DAILY_BUDGET_USDC
@@ -76,7 +78,7 @@ services:
       - key: READINESS_TIMEOUT_MS
         value: "2500"
       - key: MAX_EXECUTION_BUDGET_USDC
-        value: "0.05"
+        value: "0.005"
   - type: keyvalue
     name: xoggai-kv
     plan: free

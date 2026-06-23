@@ -5,6 +5,32 @@ import {
   betaExecutionRequests,
 } from '../db/schema.js'
 
+export type PublicBetaExecutionRequestStatus =
+  | 'REQUESTED'
+  | 'APPROVED'
+  | 'REJECTED'
+  | 'CANCELLED'
+  | 'TESTNET_PREPARING'
+  | 'TESTNET_PREPARED'
+  | 'TESTNET_SIGNING'
+  | 'TESTNET_VERIFYING'
+  | 'TESTNET_EXECUTING'
+  | 'EXECUTED'
+  | 'EXECUTION_FAILED'
+  | 'EXECUTION_UNKNOWN'
+
+export class PublicBetaExecutionError extends Error {
+  constructor(
+    public readonly code:
+      | 'beta_execution_request_not_found'
+      | 'beta_execution_request_not_approved'
+      | 'beta_execution_request_already_executing'
+      | 'beta_execution_request_already_finished',
+  ) {
+    super(code)
+  }
+}
+
 export async function publicBetaRequestUsage(input: {
   userId: string
   since: Date
@@ -166,4 +192,135 @@ export async function decidePublicBetaExecutionRequest(input: {
     metadata: { reason: input.reason },
   })
   return request
+}
+
+export async function claimPublicBetaRequestForTestnetExecution(input: {
+  id: string
+  executedBy: string
+}) {
+  const now = new Date()
+  const [request] = await db
+    .update(betaExecutionRequests)
+    .set({
+      status: 'TESTNET_PREPARING',
+      executionStatus: 'TESTNET_PREPARING',
+      executionError: null,
+      updatedAt: now,
+    })
+    .where(
+      and(
+        eq(betaExecutionRequests.id, input.id),
+        eq(betaExecutionRequests.status, 'APPROVED'),
+      ),
+    )
+    .returning()
+
+  if (!request) {
+    const [existing] = await db
+      .select()
+      .from(betaExecutionRequests)
+      .where(eq(betaExecutionRequests.id, input.id))
+      .limit(1)
+    if (!existing) {
+      throw new PublicBetaExecutionError(
+        'beta_execution_request_not_found',
+      )
+    }
+    if (
+      [
+        'TESTNET_PREPARING',
+        'TESTNET_PREPARED',
+        'TESTNET_SIGNING',
+        'TESTNET_VERIFYING',
+        'TESTNET_EXECUTING',
+      ].includes(existing.status)
+    ) {
+      throw new PublicBetaExecutionError(
+        'beta_execution_request_already_executing',
+      )
+    }
+    if (
+      ['EXECUTED', 'EXECUTION_FAILED', 'EXECUTION_UNKNOWN'].includes(
+        existing.status,
+      )
+    ) {
+      throw new PublicBetaExecutionError(
+        'beta_execution_request_already_finished',
+      )
+    }
+    throw new PublicBetaExecutionError(
+      'beta_execution_request_not_approved',
+    )
+  }
+
+  await db.insert(betaAuditEvents).values({
+    userId: request.userId,
+    actorType: 'ADMIN',
+    actorId: input.executedBy,
+    action: 'TESTNET_EXECUTION_STARTED',
+    targetType: 'EXECUTION_REQUEST',
+    targetId: request.id,
+    metadata: { endpointUrl: request.endpointUrl },
+  })
+
+  return request
+}
+
+export async function updatePublicBetaRequestExecution(input: {
+  id: string
+  status: PublicBetaExecutionRequestStatus
+  paymentTicketId?: string
+  executionError?: string | null
+  upstreamStatusCode?: number
+  upstreamResponseHash?: string
+  upstreamPaymentResponseHash?: string
+  settlementTransaction?: string
+  settlementNetwork?: string
+  executedAt?: Date
+}) {
+  const now = new Date()
+  const [request] = await db
+    .update(betaExecutionRequests)
+    .set({
+      status: input.status,
+      executionStatus: input.status,
+      ...(input.paymentTicketId
+        ? { paymentTicketId: input.paymentTicketId }
+        : {}),
+      executionError: input.executionError ?? null,
+      upstreamStatusCode: input.upstreamStatusCode ?? null,
+      upstreamResponseHash: input.upstreamResponseHash ?? null,
+      upstreamPaymentResponseHash:
+        input.upstreamPaymentResponseHash ?? null,
+      settlementTransaction: input.settlementTransaction ?? null,
+      settlementNetwork: input.settlementNetwork ?? null,
+      executedAt: input.executedAt ?? null,
+      updatedAt: now,
+    })
+    .where(eq(betaExecutionRequests.id, input.id))
+    .returning()
+
+  if (!request) {
+    throw new PublicBetaExecutionError('beta_execution_request_not_found')
+  }
+
+  return request
+}
+
+export async function auditPublicBetaRequestExecution(input: {
+  userId: string
+  requestId: string
+  actorId: string
+  action: string
+  metadata?: Record<string, unknown>
+}) {
+  await db.insert(betaAuditEvents).values({
+    userId: input.userId,
+    actorType: 'ADMIN',
+    actorId: input.actorId,
+    action: input.action,
+    targetType: 'EXECUTION_REQUEST',
+    targetId: input.requestId,
+    metadata: input.metadata ?? null,
+  })
 }

@@ -13,7 +13,12 @@ import {
 import {
   decidePublicBetaExecutionRequest,
   listAdminBetaExecutionRequests,
+  PublicBetaExecutionError,
 } from '../services/publicBetaRequests.js'
+import {
+  executeApprovedPublicBetaRequestOnTestnet,
+  PublicBetaTestnetExecutionConfigError,
+} from '../services/publicBetaTestnetExecution.js'
 
 const userSchema = z.object({
   email: z.string().email().max(254),
@@ -31,6 +36,9 @@ const decisionSchema = z.object({
   status: z.enum(['APPROVED', 'REJECTED', 'CANCELLED']),
   reason: z.string().trim().max(500).optional(),
   approvedBy: z.string().trim().min(2).max(100),
+})
+const executeSchema = z.object({
+  executedBy: z.string().trim().min(2).max(100),
 })
 const keySchema = z.object({
   label: z.string().trim().min(2).max(100).default('Rotated key'),
@@ -192,6 +200,43 @@ export const publicBetaAdminRoute = new Hono()
       return c.json(
         { success: false, error: 'beta_execution_request_not_pending' },
         409,
+      )
+    }
+  })
+  .post('/requests/:id/execute-testnet', async (c) => {
+    const parsed = executeSchema.safeParse(await c.req.json().catch(() => null))
+    if (!parsed.success) {
+      return c.json({ success: false, error: 'invalid_request' }, 400)
+    }
+    try {
+      const result = await executeApprovedPublicBetaRequestOnTestnet({
+        requestId: c.req.param('id'),
+        executedBy: parsed.data.executedBy,
+      })
+      return c.json(result)
+    } catch (error) {
+      if (error instanceof PublicBetaTestnetExecutionConfigError) {
+        return c.json({ success: false, error: error.code }, 503)
+      }
+      if (error instanceof PublicBetaExecutionError) {
+        return c.json(
+          { success: false, error: error.code },
+          error.code === 'beta_execution_request_not_found' ? 404 : 409,
+        )
+      }
+      return c.json(
+        {
+          success: false,
+          error:
+            error instanceof Error
+              ? error.message
+              : 'testnet_execution_failed',
+          request:
+            error && typeof error === 'object' && 'request' in error
+              ? error.request
+              : undefined,
+        },
+        502,
       )
     }
   })

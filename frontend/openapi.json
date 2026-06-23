@@ -278,6 +278,46 @@
         }
       }
     },
+    "/api/admin/beta/requests/{id}/execute-testnet": {
+      "post": {
+        "summary": "Execute an approved public beta request on Base Sepolia",
+        "description": "Protected admin endpoint. Runs the approved request through prepare, approve, consume, sign, verify, and audited upstream x402 execution on Base Sepolia. Mainnet remains disabled.",
+        "parameters": [
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["executedBy"],
+                "properties": {
+                  "executedBy": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Request reached a terminal testnet execution state" },
+          "401": { "description": "Invalid admin access" },
+          "409": { "description": "Request is not approved or is already executing" },
+          "503": { "description": "Testnet execution is not configured" }
+        }
+      }
+    },
     "/api/stats": {
       "get": {
         "summary": "Platform statistics",

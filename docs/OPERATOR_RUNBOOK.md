@@ -22,8 +22,8 @@ consumption. It still does not send the paid request.
 - `X402_VERIFY_ENABLED=false` unless verify-only rehearsal is intended.
 - `X402_SETTLEMENT_ENABLED=false` unless one funded testnet payment is
   explicitly scheduled.
-- `X402_UPSTREAM_EXECUTION_ENABLED=false` unless one funded audited upstream
-  resource call is explicitly scheduled.
+- `X402_UPSTREAM_EXECUTION_ENABLED=true` only for the production Base Sepolia
+  beta environment.
 - No browser-delivered code may include `BETA_EXECUTION_KEY`.
 
 ## Safety Check
@@ -242,9 +242,9 @@ A successful result must include:
 - upstream response hash
 - Base Sepolia transaction hash from `PAYMENT-RESPONSE`
 
-After the first successful execution, immediately set
-`X402_UPSTREAM_EXECUTION_ENABLED=false` and record the request id, transaction,
-response hash, and operator.
+After successful execution, record the request id, transaction, response hash,
+and operator. Set `X402_UPSTREAM_EXECUTION_ENABLED=false` only for incident
+containment or scheduled maintenance.
 
 Do not retry a ticket with status `UPSTREAM_EXECUTING`, `EXECUTED`,
 `UPSTREAM_FAILED`, or `UPSTREAM_UNKNOWN`.

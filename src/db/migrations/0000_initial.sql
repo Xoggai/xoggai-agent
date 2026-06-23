@@ -114,6 +114,33 @@ CREATE INDEX IF NOT EXISTS beta_execution_requests_user_created_idx
 CREATE INDEX IF NOT EXISTS beta_execution_requests_status_idx
   ON beta_execution_requests (status);
 
+ALTER TABLE beta_execution_requests
+  ADD COLUMN IF NOT EXISTS payment_ticket_id text;
+
+ALTER TABLE beta_execution_requests
+  ADD COLUMN IF NOT EXISTS execution_status text;
+
+ALTER TABLE beta_execution_requests
+  ADD COLUMN IF NOT EXISTS execution_error text;
+
+ALTER TABLE beta_execution_requests
+  ADD COLUMN IF NOT EXISTS upstream_status_code integer;
+
+ALTER TABLE beta_execution_requests
+  ADD COLUMN IF NOT EXISTS upstream_response_hash text;
+
+ALTER TABLE beta_execution_requests
+  ADD COLUMN IF NOT EXISTS upstream_payment_response_hash text;
+
+ALTER TABLE beta_execution_requests
+  ADD COLUMN IF NOT EXISTS settlement_transaction text;
+
+ALTER TABLE beta_execution_requests
+  ADD COLUMN IF NOT EXISTS settlement_network text;
+
+ALTER TABLE beta_execution_requests
+  ADD COLUMN IF NOT EXISTS executed_at timestamp;
+
 CREATE TABLE IF NOT EXISTS beta_audit_events (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid REFERENCES beta_users(id),

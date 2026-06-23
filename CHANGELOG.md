@@ -13,6 +13,9 @@
 - Added Phase 8 dependency readiness, structured request logging, operational
   kill switches, protected ops status, CI release gates, production smoke
   tests, and database backup/recovery procedures.
+- Added Phase 9 public testnet execution: approved beta requests can run
+  through the Base Sepolia x402 path with user-visible lifecycle status,
+  ticket ids, response hashes, and settlement metadata while mainnet stays off.
 
 ## 2026-05-31
 

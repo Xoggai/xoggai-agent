@@ -24,6 +24,7 @@
     "phase7:admin": "node scripts/public-beta-admin.mjs",
     "phase8:ops": "node scripts/public-beta-admin.mjs ops",
     "phase8:smoke": "node scripts/phase8-smoke.mjs",
+    "phase9:execute": "node scripts/public-beta-admin.mjs execute-testnet",
     "backup:database": "node scripts/database-backup.mjs",
     "x402:operator": "node scripts/x402-operator.mjs"
   },

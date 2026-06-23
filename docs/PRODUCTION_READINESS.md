@@ -1,8 +1,7 @@
 # Production Readiness
 
 XoggAI is an invite-only production beta with dry-run-first routing and
-operator-controlled execution approval. Paid execution remains disabled by
-default.
+operator-controlled Base Sepolia execution. Mainnet payment remains disabled.
 
 ## Required Capabilities
 
@@ -26,7 +25,7 @@ X402_PREPARE_ENABLED=false
 X402_SIGNING_ENABLED=false
 X402_VERIFY_ENABLED=false
 X402_SETTLEMENT_ENABLED=false
-X402_UPSTREAM_EXECUTION_ENABLED=false
+X402_UPSTREAM_EXECUTION_ENABLED=true
 PUBLIC_BETA_ENABLED=true
 OPERATIONS_KILL_SWITCH=false
 DEPLOYMENT_ENVIRONMENT=production

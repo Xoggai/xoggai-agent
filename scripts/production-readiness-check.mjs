@@ -22,7 +22,7 @@ function assertNotIncludes(file, unexpected) {
 function assertRenderValue(file, key, value) {
   const yaml = read(file)
   const pattern = new RegExp(
-    `- key: ${key}\\s+value: ${JSON.stringify(value)}`,
+    `- key: ${key}\\s+value: (?:"${value}"|${value})`,
     'm',
   )
   assert.ok(pattern.test(yaml), `${file} must set ${key}=${value}`)
@@ -48,6 +48,7 @@ const requiredFiles = [
   'docs/PHASE6_CLOSED_BETA.md',
   'docs/PHASE7_PUBLIC_BETA.md',
   'docs/PHASE8_PRODUCTION_LAUNCH.md',
+  'docs/PHASE9_TESTNET_PRODUCT_EXECUTION.md',
   'docs/INCIDENT_RESPONSE.md',
   'docs/BACKUP_RECOVERY.md',
   'frontend/beta/index.html',
@@ -72,17 +73,23 @@ assertIncludes('Dockerfile', '/ready')
 for (const key of [
   'ALLOW_LIVE_EXECUTION',
   'EXECUTION_SIMULATION_ENABLED',
-  'X402_PREPARE_ENABLED',
-  'X402_SIGNING_ENABLED',
-  'X402_VERIFY_ENABLED',
   'X402_SETTLEMENT_ENABLED',
-  'X402_UPSTREAM_EXECUTION_ENABLED',
   'OPERATIONS_KILL_SWITCH',
 ]) {
   assertRenderValue('render.yaml', key, 'false')
 }
+for (const key of [
+  'X402_PREPARE_ENABLED',
+  'X402_SIGNING_ENABLED',
+  'X402_VERIFY_ENABLED',
+  'X402_UPSTREAM_EXECUTION_ENABLED',
+]) {
+  assertRenderValue('render.yaml', key, 'true')
+}
+assertRenderValue('render.yaml', 'X402_NETWORK', 'base-sepolia')
 assertRenderValue('render.yaml', 'PUBLIC_BETA_ENABLED', 'true')
 assertRenderValue('render.yaml', 'DEPLOYMENT_ENVIRONMENT', 'production')
+assertRenderValue('render.yaml', 'MAX_EXECUTION_BUDGET_USDC', '0.005')
 
 for (const key of [
   'X402_SIGNING_ENABLED',
@@ -106,14 +113,15 @@ assertNotIncludes('frontend/beta/index.html', 'BETA_EXECUTION_KEY')
 assertIncludes('frontend/config.js', 'https://xoggai-backend.onrender.com')
 
 assertIncludes('README.md', 'Public Preview Boundary')
-assertIncludes('README.md', 'X402_UPSTREAM_EXECUTION_ENABLED=false')
+assertIncludes('README.md', 'X402_UPSTREAM_EXECUTION_ENABLED=true')
 assertIncludes('SECURITY.md', 'ALLOW_LIVE_EXECUTION=false')
-assertIncludes('docs/OPERATOR_RUNBOOK.md', 'X402_UPSTREAM_EXECUTION_ENABLED=false')
+assertIncludes('docs/OPERATOR_RUNBOOK.md', 'X402_UPSTREAM_EXECUTION_ENABLED=true')
 assertIncludes('docs/CLOSED_BETA_CHECKLIST.md', 'Unknown upstream execution results are never retried automatically.')
 assertIncludes('docs/PRODUCTION_READINESS.md', 'OPERATIONS_KILL_SWITCH')
 assertIncludes('docs/PHASE6_CLOSED_BETA.md', 'Ticket Ownership')
 assertIncludes('docs/PHASE7_PUBLIC_BETA.md', 'API keys are generated')
 assertIncludes('docs/PHASE8_PRODUCTION_LAUNCH.md', 'OPERATIONS_KILL_SWITCH=true')
+assertIncludes('docs/PHASE9_TESTNET_PRODUCT_EXECUTION.md', 'X402_NETWORK=base-sepolia')
 assertIncludes('docs/INCIDENT_RESPONSE.md', 'SEV-1')
 assertIncludes('docs/BACKUP_RECOVERY.md', 'pg_restore')
 assertIncludes('frontend/openapi.json', '"/ready"')

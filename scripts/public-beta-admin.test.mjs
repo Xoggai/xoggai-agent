@@ -99,4 +99,23 @@ function response(body, status = 200) {
   })
 }
 
+{
+  await runPublicBetaAdmin({
+    argv: ['execute-testnet', 'request-id'],
+    env,
+    log: () => {},
+    async fetchImpl(url, options) {
+      assert.equal(
+        url,
+        'https://example.test/api/admin/beta/requests/request-id/execute-testnet',
+      )
+      assert.equal(options.method, 'POST')
+      assert.deepEqual(JSON.parse(options.body), {
+        executedBy: 'test-admin',
+      })
+      return response({ success: true, paymentSent: true })
+    },
+  })
+}
+
 console.log('public beta admin CLI tests passed')

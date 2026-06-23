@@ -12,10 +12,10 @@
   <a href="https://xoggai-agent.com"><img alt="Website" src="https://img.shields.io/badge/website-live-7cffb2?style=flat-square&labelColor=06150d"></a>
   <a href="https://xoggai-agent.com/docs"><img alt="Docs" src="https://img.shields.io/badge/docs-agent%20files-46e3c0?style=flat-square&labelColor=06150d"></a>
   <a href="https://xoggai-backend.onrender.com"><img alt="Backend" src="https://img.shields.io/badge/backend-render-9fb7a8?style=flat-square&labelColor=06150d"></a>
-  <a href="https://xoggai-agent.com"><img alt="Mode" src="https://img.shields.io/badge/mode-dry--run%20preview-f7fbf6?style=flat-square&labelColor=06150d"></a>
+  <a href="https://xoggai-agent.com"><img alt="Mode" src="https://img.shields.io/badge/mode-testnet%20beta-f7fbf6?style=flat-square&labelColor=06150d"></a>
 </p>
 
-XoggAI is a dry-run-first intent router for AI agents and x402 APIs.
+XoggAI is a testnet-first intent router for AI agents and x402 APIs.
 
 Agents send a plain-English intent, inspect ranked endpoint previews, and decide when execution should move from discovery into a wallet-gated path.
 
@@ -38,7 +38,7 @@ intent
 -> explicit execution decision
 ```
 
-The public product is live as a preview. The default mode is dry-run routing, so users can inspect route fit, cost, latency, rating, URL, and schema before enabling any paid execution path.
+The public product is live as a testnet beta. The default user flow starts with dry-run routing, then approved requests can execute through the gated Base Sepolia x402 path.
 
 ## Live Preview
 
@@ -66,11 +66,12 @@ existing agent
 
 ## Public Preview Boundary
 
-- Live today: frontend, backend, terminal demo, docs UI, endpoint previews.
-- Default mode: dry-run routing.
-- Safe by default: dry-runs do not send payment.
-- Not public yet: live x402 paid execution.
-- Future live execution requires explicit wallet and budget controls.
+- Live today: frontend, backend, beta console, docs UI, endpoint previews.
+- Default mode: dry-run routing before execution.
+- Public beta execution: operator-approved Base Sepolia x402 only.
+- Safe by default: no mainnet payment and no browser wallet secrets.
+- Not public yet: self-serve mainnet paid execution.
+- Future mainnet execution requires explicit wallet and budget controls.
 
 ## How It Works
 
@@ -230,7 +231,7 @@ X402_PREPARE_ENABLED=false
 X402_SIGNING_ENABLED=false
 X402_VERIFY_ENABLED=false
 X402_SETTLEMENT_ENABLED=false
-X402_UPSTREAM_EXECUTION_ENABLED=false
+X402_UPSTREAM_EXECUTION_ENABLED=true
 X402_FACILITATOR_URL=https://x402.org/facilitator
 BETA_EXECUTION_KEY=<server-side-secret-at-least-32-characters>
 MAX_EXECUTION_BUDGET_USDC=0.05
@@ -390,8 +391,13 @@ execution requests for operator approval. See `docs/PHASE7_PUBLIC_BETA.md`.
 Phase 8 adds production operations: dependency readiness at `/ready`,
 structured request logs, an emergency kill switch, protected operational
 status, CI release gates, deployment smoke tests, and backup/recovery
-procedures. Paid execution remains disabled and operator-controlled. See
-`docs/PHASE8_PRODUCTION_LAUNCH.md`.
+procedures. See `docs/PHASE8_PRODUCTION_LAUNCH.md`.
+
+Phase 9 turns approved beta requests into a production testnet product flow.
+Operators can execute an approved request on Base Sepolia while the user
+console shows `REQUESTED -> APPROVED -> TESTNET_* -> EXECUTED` lifecycle
+status, ticket ids, response hashes, and settlement transaction metadata.
+Mainnet remains disabled.
 
 ## Repository Map
 
@@ -405,6 +411,7 @@ procedures. Paid execution remains disabled and operator-controlled. See
 - `docs/PHASE6_CLOSED_BETA.md` - multi-agent beta access, quotas, and ledger.
 - `docs/PHASE7_PUBLIC_BETA.md` - invite accounts, sessions, and approval UX.
 - `docs/PHASE8_PRODUCTION_LAUNCH.md` - final production launch controls.
+- `docs/PHASE9_TESTNET_PRODUCT_EXECUTION.md` - public testnet product execution.
 - `docs/INCIDENT_RESPONSE.md` - severity, containment, and recovery.
 - `docs/BACKUP_RECOVERY.md` - PostgreSQL backup and restore drills.
 - `docs/OPERATOR_RUNBOOK.md` - closed-beta ticket and signing runbook.

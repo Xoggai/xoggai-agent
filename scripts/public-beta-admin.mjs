@@ -164,8 +164,27 @@ export async function runPublicBetaAdmin({
     log(JSON.stringify(result, null, 2))
     return result
   }
+  if (command === 'execute-testnet') {
+    const requestId = argv[1]
+    if (!requestId) {
+      throw new Error('execute-testnet requires <requestId>')
+    }
+    const result = await request(
+      `/api/admin/beta/requests/${requestId}/execute-testnet`,
+      {
+        env,
+        method: 'POST',
+        fetchImpl,
+        body: {
+          executedBy: env.X402_OPERATOR || 'public-beta-admin-cli',
+        },
+      },
+    )
+    log(JSON.stringify(result, null, 2))
+    return result
+  }
   throw new Error(
-    'Use: create-user <email> <displayName> [keyLabel], users, ops, set-user-status <userId> <ACTIVE|SUSPENDED>, keys <userId>, create-key <userId> [label], revoke-key <keyId>, requests [status], or decide <id> <status> [reason]',
+    'Use: create-user <email> <displayName> [keyLabel], users, ops, set-user-status <userId> <ACTIVE|SUSPENDED>, keys <userId>, create-key <userId> [label], revoke-key <keyId>, requests [status], decide <id> <status> [reason], or execute-testnet <requestId>',
   )
 }
 
