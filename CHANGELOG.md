@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-06-24
+
+- Added the Phase 12 developer integration kit at `/connect-agent/`.
+- Added a reusable JavaScript routing helper, curl recipes, and integration
+  instructions for Claude, Codex, and Cursor.
+- Updated `skill.md`, `llms.txt`, OpenAPI metadata, docs, and homepage entry
+  points around the dry-run-first Base Sepolia product boundary.
+
 ## 2026-06-23
 
 - Added Phase 6 multi-agent closed-beta access profiles.

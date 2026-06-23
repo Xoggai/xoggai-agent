@@ -597,6 +597,7 @@ footer a:hover{color:var(--accent)}
     <a href="#quickstart">Quickstart</a>
     <a href="#api">API</a>
     <a href="#agent-files">Files</a>
+    <a href="/connect-agent/">Connect</a>
     <a href="https://github.com/Xoggai/xoggai-agent">GitHub</a>
   </div>
 </nav>
@@ -646,7 +647,7 @@ footer a:hover{color:var(--accent)}
         <span class="step-index">02</span>
         <strong>Route a plain-English intent</strong>
         <p>Ask for the best matching x402 endpoint without sending payment.</p>
-        <code class="code-line">GET /intent?q=what%20is%20the%20ETH%20price&amp;budget=0.05&amp;dry=true</code>
+        <code class="code-line">GET /intent?q=what%20is%20the%20ETH%20price&amp;budget=0.005&amp;dry=true</code>
       </article>
       <article class="quick-card">
         <span class="step-index">03</span>
@@ -656,9 +657,9 @@ footer a:hover{color:var(--accent)}
       </article>
       <article class="quick-card">
         <span class="step-index">04</span>
-        <strong>Wire the agent file</strong>
-        <p>Point agent tooling at the public skill or OpenAPI schema.</p>
-        <code class="code-line">https://xoggai-agent.com/skill.md</code>
+        <strong>Open the integration kit</strong>
+        <p>Choose a JS helper, curl flow, or tool-specific agent instructions.</p>
+        <code class="code-line">https://xoggai-agent.com/connect-agent/</code>
       </article>
     </div>
   </section>
@@ -675,7 +676,7 @@ footer a:hover{color:var(--accent)}
       </div>
       <pre><code id="agentSnippetCode">const XOGGAI_API = 'https://xoggai-backend.onrender.com';
 
-export async function routeIntent(intent, budget = 0.05) {
+export async function routeIntent(intent, budget = 0.005) {
   const url = new URL(`${XOGGAI_API}/intent`);
   url.searchParams.set('q', intent);
   url.searchParams.set('budget', String(budget));
@@ -710,12 +711,12 @@ console.log(route.endpoint);</code></pre>
         </div>
       </article>
       <article class="mode-card">
-        <strong>Live execution</strong>
-        <p>Future gated path. Requires explicit wallet, budget, and execution controls before x402 payment can happen.</p>
+        <strong>Controlled testnet execution</strong>
+        <p>Approved beta requests can execute through the audited Base Sepolia path after an operator decision.</p>
         <div class="mode-list">
-          <span>Requires intentional enablement</span>
-          <span>Uses caller-funded wallet flow</span>
-          <span>Kept off in public preview</span>
+          <span>Requires authenticated beta access</span>
+          <span>Requires explicit operator approval</span>
+          <span>Mainnet remains disabled</span>
         </div>
       </article>
     </div>

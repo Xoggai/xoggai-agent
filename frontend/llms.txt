@@ -1,30 +1,68 @@
 # XoggAI
 
-XoggAI is an intent router for x402 APIs. Agents send natural-language intents to `/intent`; XoggAI embeds the intent, searches registered x402 endpoints, and reranks candidates for inspection before execution.
+XoggAI is a testnet-first intent router for x402 APIs. Agents send
+natural-language intents to `/intent`; XoggAI embeds the intent, searches
+registered x402 endpoints, and reranks candidates for inspection before any
+execution path opens.
 
-Public mode is dry-run first. `Connect Agent` means connecting an existing agent to XoggAI routing, not deploying a new agent or making XoggAI subsidize the caller's API payments.
+Website: https://xoggai-agent.com
+Docs: https://xoggai-agent.com/docs
+Connect Agent: https://xoggai-agent.com/connect-agent/
+Backend API: https://xoggai-backend.onrender.com
+OpenAPI: https://xoggai-agent.com/openapi.json
+Skill: https://xoggai-agent.com/skill.md
 
-## API
-
-Production base URL: https://xoggai-backend.onrender.com
+## Public API
 
 - `GET /health`
+- `GET /ready`
 - `GET /api/info`
-- `GET /intent?q=<intent>&budget=0.05&dry=true`
-- `GET /search?q=<query>&limit=10&dry=true`
-- `GET /api/stats`
-- `GET /api/feed`
-- `GET /api/endpoints`
 - `GET /api/execution-status`
-- `POST /execute/prepare` (server-side beta key)
-- `POST /execute/approve` (server-side beta key)
-- `POST /execute/consume` (server-side beta key)
-- `POST /execute/sign` (server-side beta key, Base Sepolia testnet only)
-- `POST /execute/verify` (server-side beta key, verify-only)
-- `POST /execute/settle` (server-side beta key, explicit funded testnet only)
-- `POST /execute/upstream` (server-side beta key, explicit audited upstream execution only)
+- `GET /intent?q=<intent>&budget=0.005&dry=true`
+- `GET /search?q=<query>&limit=5&dry=true`
+- `GET /api/stats`
+- `GET /api/endpoints`
+
+## Beta User API
+
+- `POST /api/beta/auth/login`
+- `POST /api/beta/auth/logout`
+- `GET /api/beta/dashboard/me`
+- `GET /api/beta/dashboard/requests`
+- `POST /api/beta/dashboard/requests`
+
+## Operator API
+
+- `GET /api/admin/beta/requests`
+- `PATCH /api/admin/beta/requests/:id`
+- `POST /api/admin/beta/requests/:id/execute-testnet`
+
+## Execution Model
 
 Use `dry=true` for route selection without upstream execution or payment.
-`GET /intent` never executes a paid call. Controlled execution is a separate, gated server-side flow.
-The beta execution lifecycle is prepare -> approve -> consume -> sign -> verify -> execute upstream.
-Public terminal commands include `connect`, `status`, `price <asset>`, `explain <intent>`, `simulate payment`, `search <query>`, `route <intent>`, `docs`, `openapi`, and `clear`.
+`GET /intent` never executes a paid call.
+
+Controlled execution is separate:
+
+```text
+dry-run route -> public beta request -> operator approval -> Base Sepolia x402 execution -> proof
+```
+
+Mainnet execution is disabled. Base Sepolia is the active testnet execution
+network. Browser code must not contain beta keys, admin keys, or wallet private
+keys.
+
+## Developer Kit
+
+- JavaScript helper: `https://xoggai-agent.com/examples/xoggai-sdk.js`
+- curl examples: `https://xoggai-agent.com/examples/curl.md`
+- Claude instructions: `https://xoggai-agent.com/examples/claude.md`
+- Codex instructions: `https://xoggai-agent.com/examples/codex.md`
+- Cursor instructions: `https://xoggai-agent.com/examples/cursor.md`
+
+## Brand Context
+
+Ticker: `$XOGG`
+Positioning: intelligence becomes action
+Core line: dry-run x402 intent routing for AI agents, with operator-approved
+Base Sepolia execution and mainnet disabled.

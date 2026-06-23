@@ -1,6 +1,6 @@
 const XOGGAI_API = process.env.XOGGAI_API ?? 'https://xoggai-backend.onrender.com'
 
-export async function routeIntent(intent: string, budget = 0.05) {
+export async function routeIntent(intent: string, budget = 0.005) {
   const url = new URL(`${XOGGAI_API}/intent`)
   url.searchParams.set('q', intent)
   url.searchParams.set('budget', String(budget))

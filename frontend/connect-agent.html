@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Connect Agent - XoggAI</title>
+<meta name="robots" content="index,follow">
+<link rel="icon" href="/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}:root{--bg:#06150d;--panel:#081a10;--line:#1d3d2a;--text:#f4faf6;--muted:#86a491;--green:#7cffb2;--cyan:#46e3c0}body{margin:0;min-height:100vh;background:radial-gradient(circle at 18% 4%,rgba(124,255,178,.09),transparent 28%),var(--bg);color:var(--text);font-family:Syne,sans-serif;background-image:linear-gradient(rgba(124,255,178,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(124,255,178,.035) 1px,transparent 1px);background-size:56px 56px}.shell{max-width:1120px;margin:auto;padding:22px}header{height:72px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}.brand{display:flex;align-items:center;gap:12px;color:var(--text);text-decoration:none;font-weight:800;font-size:22px}.brand img{width:40px;height:40px}.nav{display:flex;gap:8px}.nav a,.btn{border:1px solid var(--line);background:#0b2116;color:var(--text);padding:10px 14px;border-radius:4px;text-decoration:none}.btn.primary{background:var(--green);color:#031109;border-color:var(--green);font-weight:800}.eyebrow{font:700 11px "Space Mono",monospace;color:var(--green);text-transform:uppercase;letter-spacing:.08em}.hero{padding:62px 0 34px;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:28px;align-items:end}.hero h1{font-size:clamp(42px,8vw,86px);line-height:.9;margin:12px 0}.copy{color:#b7cbbf;line-height:1.7}.panel,.card{border:1px solid var(--line);background:rgba(6,21,13,.9)}.panel{padding:18px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:22px 0}.card{padding:18px}.card h3{margin:0 0 8px}.card p{color:var(--muted);line-height:1.55}.section{margin:34px 0}.section h2{font-size:32px;margin:0 0 14px}pre{margin:0;overflow:auto;background:#031109;border:1px solid var(--line);padding:16px;color:#d8ffea;font:13px "Space Mono",monospace;line-height:1.6}.links{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.pill{display:inline-block;border:1px solid var(--line);padding:7px 9px;color:var(--cyan);font:11px "Space Mono",monospace}@media(max-width:820px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.nav a:nth-child(2){display:none}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <a class="brand" href="/"><img src="/assets/xoggai-logo.png" alt="">XoggAI</a>
+    <nav class="nav"><a href="/docs">Docs</a><a href="/beta/">Beta</a><a href="https://github.com/Xoggai/xoggai-agent">GitHub</a></nav>
+  </header>
+  <main>
+    <section class="hero">
+      <div>
+        <div class="eyebrow">// developer integration kit</div>
+        <h1>Connect your agent.</h1>
+        <p class="copy">Route natural-language intent to x402 endpoints in dry-run mode first. Inspect endpoint fit, price, latency, and schema before any testnet execution path opens.</p>
+        <div class="links">
+          <a class="btn primary" href="/examples/xoggai-sdk.js" download>Download JS helper</a>
+          <a class="btn" href="/examples/curl.md">curl examples</a>
+          <a class="btn" href="/openapi.json">OpenAPI</a>
+        </div>
+      </div>
+      <aside class="panel">
+        <span class="pill">Base URL</span>
+        <pre>https://xoggai-backend.onrender.com</pre>
+      </aside>
+    </section>
+
+    <section class="grid">
+      <article class="card"><h3>1. Route</h3><p>Send an intent to `/intent` with `dry=true` and a max budget.</p></article>
+      <article class="card"><h3>2. Inspect</h3><p>Read the selected endpoint, price, rating, latency, and schema.</p></article>
+      <article class="card"><h3>3. Execute later</h3><p>Execution stays beta-gated and operator-approved on Base Sepolia.</p></article>
+    </section>
+
+    <section class="section">
+      <h2>Minimal JavaScript</h2>
+      <pre><code>import { routeIntent } from './xoggai-sdk.js'
+
+const route = await routeIntent('what is the ETH price?', {
+  budget: 0.005
+})
+
+console.log(route.endpoint)</code></pre>
+    </section>
+
+    <section class="section">
+      <h2>curl</h2>
+      <pre><code>curl "https://xoggai-backend.onrender.com/intent?q=what%20is%20the%20ETH%20price&budget=0.005&dry=true"</code></pre>
+    </section>
+
+    <section class="section">
+      <h2>Agent files</h2>
+      <div class="links">
+        <a class="btn" href="/skill.md">skill.md</a>
+        <a class="btn" href="/llms.txt">llms.txt</a>
+        <a class="btn" href="/examples/claude.md">Claude</a>
+        <a class="btn" href="/examples/codex.md">Codex</a>
+        <a class="btn" href="/examples/cursor.md">Cursor</a>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

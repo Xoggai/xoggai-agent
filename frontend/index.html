@@ -1153,7 +1153,7 @@ footer{
     <li><a href="/docs">Docs</a></li>
     <li><a href="/beta/">Beta Console</a></li>
   </ul>
-  <a class="nav-cta" href="#cta">Connect Agent →</a>
+  <a class="nav-cta" href="/connect-agent/">Connect Agent →</a>
 </nav>
 
 <!-- ===================== TICKER ===================== -->
@@ -1499,7 +1499,7 @@ footer{
     <div class="cta-btns">
       <button class="btn-secondary" type="button" onclick="copyAgentSnippet(this)">Copy agent snippet</button>
       <button class="btn-secondary" type="button" onclick="downloadStarter()">Download starter</button>
-      <a class="btn-secondary" href="/docs">OpenAPI</a>
+      <a class="btn-secondary" href="/connect-agent/">Developer kit</a>
     </div>
 
     <div class="compat-row">
@@ -1578,7 +1578,7 @@ function agentSnippet() {
   return [
     "const XOGGAI_API = '" + API_BASE + "';",
     '',
-    'export async function routeIntent(intent, budget = 0.05) {',
+    'export async function routeIntent(intent, budget = 0.005) {',
     '  const url = new URL(`${XOGGAI_API}/intent`);',
     "  url.searchParams.set('q', intent);",
     "  url.searchParams.set('budget', String(budget));",
@@ -1764,9 +1764,12 @@ function docsPayload() {
   const origin = location.protocol === 'file:' ? 'https://xoggai-agent.com' : location.origin;
   return {
     docs: `${origin}/docs`,
+    connect: `${origin}/connect-agent/`,
     skill: `${origin}/skill.md`,
     llms: `${origin}/llms.txt`,
     openapi: `${origin}/openapi.json`,
+    sdk: `${origin}/examples/xoggai-sdk.js`,
+    curl: `${origin}/examples/curl.md`,
     raw: {
       skill: `${origin}/skill.md`,
       llms: `${origin}/llms.txt`,
@@ -1815,12 +1818,15 @@ function connectPayload() {
     mode: 'dry-run first',
     backend: `${API_BASE}/intent`,
     docs: links.docs,
+    developerKit: links.connect,
+    sdk: links.sdk,
+    examples: links.curl,
     agentFiles: {
       skill: links.raw.skill,
       llms: links.raw.llms,
       openapi: links.raw.openapi,
     },
-    nextCall: `GET ${API_BASE}/intent?q=<intent>&budget=0.05&dry=true`,
+    nextCall: `GET ${API_BASE}/intent?q=<intent>&budget=0.005&dry=true`,
     payment: 'not sent while dry=true',
   };
 }

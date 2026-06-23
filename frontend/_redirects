@@ -4,3 +4,5 @@
 /beta/ /beta/index.html 200
 /admin /admin/index.html 200
 /admin/ /admin/index.html 200
+/connect-agent /connect-agent.html 200
+/connect-agent/ /connect-agent.html 200

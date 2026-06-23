@@ -45,6 +45,7 @@ The public product is live as a testnet beta. The default user flow starts with 
 - Website: https://xoggai-agent.com
 - Terminal demo: https://xoggai-agent.com/#agent-console
 - Docs UI: https://xoggai-agent.com/docs
+- Developer kit: https://xoggai-agent.com/connect-agent/
 - OpenAPI: https://xoggai-agent.com/openapi.json
 - Agent skill: https://xoggai-agent.com/skill.md
 - LLM context: https://xoggai-agent.com/llms.txt
@@ -88,7 +89,7 @@ frontend terminal/docs
 -> backend intent router
 -> endpoint index + rating engine
 -> dry-run preview response
--> optional future x402 execution path
+-> controlled operator-approved Base Sepolia execution path
 ```
 
 ## Public API
@@ -106,7 +107,7 @@ GET /
 GET /health
 GET /api/info
 GET /api/execution-status
-GET /intent?q=what%20is%20the%20ETH%20price&budget=0.05&dry=true
+GET /intent?q=what%20is%20the%20ETH%20price&budget=0.005&dry=true
 GET /search?q=crypto%20price&limit=5&dry=true
 GET /api/stats
 GET /api/feed
@@ -118,7 +119,7 @@ Minimal agent snippet:
 ```ts
 const XOGGAI_API = 'https://xoggai-backend.onrender.com';
 
-export async function routeIntent(intent: string, budget = 0.05) {
+export async function routeIntent(intent: string, budget = 0.005) {
   const url = new URL(`${XOGGAI_API}/intent`);
   url.searchParams.set('q', intent);
   url.searchParams.set('budget', String(budget));
@@ -134,7 +135,7 @@ export async function routeIntent(intent: string, budget = 0.05) {
 
 ```powershell
 curl.exe https://xoggai-backend.onrender.com/health
-curl.exe "https://xoggai-backend.onrender.com/intent?q=what%20is%20the%20ETH%20price&budget=0.05&dry=true"
+curl.exe "https://xoggai-backend.onrender.com/intent?q=what%20is%20the%20ETH%20price&budget=0.005&dry=true"
 ```
 
 Expected behavior: dry-run responses only. Public demos do not send payment.
@@ -407,6 +408,12 @@ Phase 11 adds a private `/admin/` operator console for queue review,
 approve/reject/cancel actions, approved request execution on Base Sepolia, and
 operator-visible lifecycle proof. See `docs/PHASE11_OPERATOR_CONSOLE.md`.
 
+Phase 12 adds the `/connect-agent/` developer integration kit with a reusable
+JavaScript helper, curl recipes, tool-specific instructions for Claude, Codex,
+and Cursor, and production-aligned agent files. Public integrations remain
+dry-run-first; controlled execution remains operator-approved on Base Sepolia.
+See `docs/PHASE12_DEVELOPER_INTEGRATION_KIT.md`.
+
 ## Repository Map
 
 - `src/` - backend API source.
@@ -422,6 +429,7 @@ operator-visible lifecycle proof. See `docs/PHASE11_OPERATOR_CONSOLE.md`.
 - `docs/PHASE9_TESTNET_PRODUCT_EXECUTION.md` - public testnet product execution.
 - `docs/PHASE10_USER_CONSOLE_UPGRADE.md` - beta user console upgrade.
 - `docs/PHASE11_OPERATOR_CONSOLE.md` - private operator console.
+- `docs/PHASE12_DEVELOPER_INTEGRATION_KIT.md` - SDK, curl, and agent integration kit.
 - `docs/INCIDENT_RESPONSE.md` - severity, containment, and recovery.
 - `docs/BACKUP_RECOVERY.md` - PostgreSQL backup and restore drills.
 - `docs/OPERATOR_RUNBOOK.md` - closed-beta ticket and signing runbook.

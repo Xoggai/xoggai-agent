@@ -2,8 +2,12 @@
   "openapi": "3.1.0",
   "info": {
     "title": "XoggAI API",
-    "version": "1.0.0",
-    "description": "Intent routing API for x402 endpoints."
+    "version": "1.1.0",
+    "description": "Dry-run-first intent routing and controlled Base Sepolia x402 execution for AI agents. Public routing never sends payment; testnet execution requires authenticated beta access and operator approval."
+  },
+  "externalDocs": {
+    "description": "XoggAI Developer Integration Kit",
+    "url": "https://xoggai-agent.com/connect-agent/"
   },
   "servers": [
     { "url": "http://localhost:3000", "description": "Local development" },
@@ -47,7 +51,7 @@
             "name": "budget",
             "in": "query",
             "required": false,
-            "schema": { "type": "number", "default": 0.05, "maximum": 10 }
+            "schema": { "type": "number", "default": 0.005, "maximum": 10 }
           },
           {
             "name": "dry",
