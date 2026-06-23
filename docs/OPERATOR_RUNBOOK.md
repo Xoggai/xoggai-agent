@@ -34,7 +34,7 @@ Before every rehearsal:
 npm run x402:operator -- status
 ```
 
-Expected:
+Expected for dry-run or ticket rehearsal environments:
 
 ```json
 {
@@ -47,6 +47,23 @@ Expected:
 
 Stop if `liveExecutionEnabled`, `paymentSigningEnabled`, or
 `paymentSendingEnabled` is `true`.
+
+Expected for the production Base Sepolia public beta:
+
+```json
+{
+  "safetyMode": "testnet-upstream-execution",
+  "network": "base-sepolia",
+  "liveExecutionEnabled": false,
+  "upstreamExecutionEnabled": true,
+  "paymentSigningEnabled": true,
+  "paymentVerificationEnabled": true,
+  "paymentSendingEnabled": true
+}
+```
+
+In this mode, stop if `liveExecutionEnabled` is `true`, the network is not
+`base-sepolia`, or the endpoint is not on the managed allowlist.
 
 Before the Phase 5 upstream execution rehearsal, run the stricter preflight:
 

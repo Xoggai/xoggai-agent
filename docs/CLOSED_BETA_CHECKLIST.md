@@ -27,11 +27,19 @@ Public preview must stay dry-run first until every item below is complete.
 - Confirm `EXECUTION_ENDPOINT_ALLOWLIST` contains only reviewed endpoint UUIDs.
 - Start from `render.beta.yaml`; its allowlist is intentionally empty until a
   Base Sepolia endpoint passes `docs/BETA_ENDPOINT_AUDIT.md`.
-- Confirm `/api/execution-status` reports:
+- For dry-run or ticket rehearsal environments, confirm `/api/execution-status` reports:
   - `liveExecutionEnabled: false`
   - `paymentSigningEnabled: false`
   - `paymentSendingEnabled: false`
   - `safetyMode: dry-run-preview` or `ticket-rehearsal`
+- For the production Base Sepolia public beta, confirm `/api/execution-status`
+  reports:
+  - `liveExecutionEnabled: false`
+  - `network: base-sepolia`
+  - `upstreamExecutionEnabled: true`
+  - `paymentSigningEnabled: true`
+  - `paymentVerificationEnabled: true`
+  - `paymentSendingEnabled: true`
 
 ## Wallet And Payment Safety
 

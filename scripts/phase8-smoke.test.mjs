@@ -41,9 +41,13 @@ const result = await runPhase8Smoke({
     }
     if (url.endsWith('/api/execution-status')) {
       return json({
-        safetyMode: 'dry-run-preview',
+        safetyMode: 'testnet-upstream-execution',
+        network: 'base-sepolia',
+        upstreamExecutionEnabled: true,
         liveExecutionEnabled: false,
-        paymentSendingEnabled: false,
+        paymentSigningEnabled: true,
+        paymentVerificationEnabled: true,
+        paymentSendingEnabled: true,
         operationsKillSwitchActive: false,
         publicBetaEnabled: true,
         publicBetaAdminConfigured: true,
@@ -57,5 +61,5 @@ const result = await runPhase8Smoke({
 })
 
 assert.equal(result.success, true)
-assert.equal(result.paymentSendingEnabled, false)
+assert.equal(result.paymentSendingEnabled, true)
 console.log('phase 8 production smoke tests passed')

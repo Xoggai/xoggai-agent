@@ -53,7 +53,9 @@ Use this before sharing XoggAI publicly or shipping a new launch update.
   - the Netlify fallback URL
 - `PUBLIC_BETA_ENABLED=true`.
 - `OPERATIONS_KILL_SWITCH=false`.
-- `/api/admin/ops` reports `paymentSendingEnabled: false`.
+- `/api/admin/ops` reports `paymentSendingEnabled: true` only while
+  `network: base-sepolia`, `upstreamExecutionEnabled: true`, and
+  `liveExecutionEnabled: false`.
 
 ## Post-Launch
 
