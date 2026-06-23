@@ -14,7 +14,7 @@
     "frontend:serve": "python -m http.server 5173",
     "netlify:prepare": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/prepare-netlify.ps1",
     "seed": "tsx src/db/seed.ts",
-    "test": "npm run build --silent && node dist/services/betaAccess.test.js && node dist/services/publicBetaAuth.test.js && node dist/services/executionPolicy.test.js && node dist/services/x402PaymentPreview.test.js && node dist/services/x402PaymentSigning.test.js && node dist/services/x402PaymentVerification.test.js && node dist/services/x402PaymentSettlement.test.js && node dist/services/x402UpstreamExecution.test.js && node dist/routes/executionStatus.test.js && node dist/routes/betaExecutions.integration.test.js && node dist/routes/execute.integration.test.js && node dist/routes/prepareExecution.integration.test.js && node dist/routes/approveExecution.integration.test.js && node dist/routes/consumeExecution.integration.test.js && node dist/routes/signExecution.integration.test.js && node dist/routes/verifyExecution.integration.test.js && node dist/routes/settleExecution.integration.test.js && node dist/routes/upstreamExecution.integration.test.js && node scripts/test-x402-prepare-cli.test.mjs && node scripts/x402-operator-cli.test.mjs && node scripts/public-beta-admin.test.mjs",
+    "test": "npm run build --silent && node dist/services/betaAccess.test.js && node dist/services/publicBetaAuth.test.js && node dist/services/runtimeHealth.test.js && node dist/services/executionPolicy.test.js && node dist/services/x402PaymentPreview.test.js && node dist/services/x402PaymentSigning.test.js && node dist/services/x402PaymentVerification.test.js && node dist/services/x402PaymentSettlement.test.js && node dist/services/x402UpstreamExecution.test.js && node dist/routes/executionStatus.test.js && node dist/routes/betaExecutions.integration.test.js && node dist/routes/execute.integration.test.js && node dist/routes/prepareExecution.integration.test.js && node dist/routes/approveExecution.integration.test.js && node dist/routes/consumeExecution.integration.test.js && node dist/routes/signExecution.integration.test.js && node dist/routes/verifyExecution.integration.test.js && node dist/routes/settleExecution.integration.test.js && node dist/routes/upstreamExecution.integration.test.js && node scripts/test-x402-prepare-cli.test.mjs && node scripts/x402-operator-cli.test.mjs && node scripts/public-beta-admin.test.mjs && node scripts/phase8-smoke.test.mjs",
     "test:execution-simulation": "node scripts/test-execution-simulation.mjs",
     "test:x402-prepare": "node scripts/test-x402-prepare.mjs",
     "production:check": "node scripts/production-readiness-check.mjs",
@@ -22,6 +22,9 @@
     "phase6:ledger": "node scripts/x402-operator.mjs ledger",
     "phase6:run": "node scripts/x402-operator.mjs phase6-run",
     "phase7:admin": "node scripts/public-beta-admin.mjs",
+    "phase8:ops": "node scripts/public-beta-admin.mjs ops",
+    "phase8:smoke": "node scripts/phase8-smoke.mjs",
+    "backup:database": "node scripts/database-backup.mjs",
     "x402:operator": "node scripts/x402-operator.mjs"
   },
   "dependencies": {

@@ -387,6 +387,12 @@ Phase 7 adds an invite-only browser console at `/beta/`. User API keys are
 stored as hashes, exchanged for short-lived sessions, and can create dry-run
 execution requests for operator approval. See `docs/PHASE7_PUBLIC_BETA.md`.
 
+Phase 8 adds production operations: dependency readiness at `/ready`,
+structured request logs, an emergency kill switch, protected operational
+status, CI release gates, deployment smoke tests, and backup/recovery
+procedures. Paid execution remains disabled and operator-controlled. See
+`docs/PHASE8_PRODUCTION_LAUNCH.md`.
+
 ## Repository Map
 
 - `src/` - backend API source.
@@ -398,6 +404,9 @@ execution requests for operator approval. See `docs/PHASE7_PUBLIC_BETA.md`.
 - `docs/PHASE5_TESTNET_EXECUTION.md` - first controlled Base Sepolia execution.
 - `docs/PHASE6_CLOSED_BETA.md` - multi-agent beta access, quotas, and ledger.
 - `docs/PHASE7_PUBLIC_BETA.md` - invite accounts, sessions, and approval UX.
+- `docs/PHASE8_PRODUCTION_LAUNCH.md` - final production launch controls.
+- `docs/INCIDENT_RESPONSE.md` - severity, containment, and recovery.
+- `docs/BACKUP_RECOVERY.md` - PostgreSQL backup and restore drills.
 - `docs/OPERATOR_RUNBOOK.md` - closed-beta ticket and signing runbook.
 - `docs/CLOSED_BETA_CHECKLIST.md` - beta readiness checklist.
 - `SECURITY.md` - security and public preview safety notes.

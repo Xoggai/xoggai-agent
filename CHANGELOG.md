@@ -10,6 +10,9 @@
 - Added one-shot Phase 6 execution and scoped ledger operator commands.
 - Added the Phase 7 invite-only beta console, hashed API keys, sessions, and
   operator approval queue.
+- Added Phase 8 dependency readiness, structured request logging, operational
+  kill switches, protected ops status, CI release gates, production smoke
+  tests, and database backup/recovery procedures.
 
 ## 2026-05-31
 

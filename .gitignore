@@ -37,6 +37,7 @@ pg_data/
 # Runtime temp files
 tmp/
 temp/
+backups/
 
 # Local Netlify folder
 .netlify

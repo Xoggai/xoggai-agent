@@ -25,6 +25,7 @@ Use this before sharing XoggAI publicly or shipping a new launch update.
 
 - `https://xoggai-backend.onrender.com/` returns service metadata.
 - `https://xoggai-backend.onrender.com/health` returns `status: ok`.
+- `https://xoggai-backend.onrender.com/ready` reports PostgreSQL and Redis `ok`.
 - `https://xoggai-backend.onrender.com/api/info` returns public preview mode and `liveExecutionEnabled: false`.
 - `https://xoggai-backend.onrender.com/api/execution-status` returns:
   - `liveExecutionEnabled: false`
@@ -38,6 +39,7 @@ Use this before sharing XoggAI publicly or shipping a new launch update.
 
 - Netlify latest production deploy is green.
 - Render latest backend deploy is live.
+- GitHub Actions production checks are green.
 - Render free instance cold-start behavior is acceptable for demo traffic.
 - `ALLOW_LIVE_EXECUTION=false` is set for public preview.
 - `X402_SIGNING_ENABLED=false`, `X402_VERIFY_ENABLED=false`,
@@ -47,6 +49,9 @@ Use this before sharing XoggAI publicly or shipping a new launch update.
   - `https://xoggai-agent.com`
   - `https://www.xoggai-agent.com`
   - the Netlify fallback URL
+- `PUBLIC_BETA_ENABLED=true`.
+- `OPERATIONS_KILL_SWITCH=false`.
+- `/api/admin/ops` reports `paymentSendingEnabled: false`.
 
 ## Post-Launch
 
@@ -61,3 +66,4 @@ Use this before sharing XoggAI publicly or shipping a new launch update.
 - `npm audit --omit=dev`
 - `npm run production:check`
 - `git diff --check`
+- `npm run phase8:smoke` after deployment

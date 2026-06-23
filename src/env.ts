@@ -4,6 +4,13 @@ import { z } from 'zod'
 const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3000),
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  SERVICE_VERSION: z
+    .string()
+    .min(1)
+    .default(process.env.RENDER_GIT_COMMIT?.slice(0, 12) || 'development'),
+  DEPLOYMENT_ENVIRONMENT: z
+    .enum(['development', 'staging', 'production'])
+    .default('development'),
   DATABASE_URL: z.string().url(),
   REDIS_URL: z.string().url(),
   ANTHROPIC_API_KEY: z.string().min(1),
@@ -76,6 +83,20 @@ const envSchema = z.object({
     .min(900)
     .max(604800)
     .default(86400),
+  PUBLIC_BETA_ENABLED: z
+    .enum(['true', 'false'])
+    .transform((value) => value === 'true')
+    .default('true'),
+  OPERATIONS_KILL_SWITCH: z
+    .enum(['true', 'false'])
+    .transform((value) => value === 'true')
+    .default('false'),
+  READINESS_TIMEOUT_MS: z.coerce
+    .number()
+    .int()
+    .min(250)
+    .max(10_000)
+    .default(2_500),
   MAX_EXECUTION_BUDGET_USDC: z.coerce.number().positive().max(10).default(0.05),
   EXECUTION_ENDPOINT_ALLOWLIST: z.string().default(''),
 })

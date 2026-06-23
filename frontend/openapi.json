@@ -20,6 +20,19 @@
         }
       }
     },
+    "/ready": {
+      "get": {
+        "summary": "Dependency readiness check",
+        "responses": {
+          "200": {
+            "description": "PostgreSQL and Redis are available"
+          },
+          "503": {
+            "description": "One or more required dependencies are unavailable"
+          }
+        }
+      }
+    },
     "/intent": {
       "get": {
         "summary": "Route a natural-language intent",

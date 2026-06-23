@@ -8,6 +8,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: DEPLOYMENT_ENVIRONMENT
+        value: "staging"
       - key: PORT
         value: "3000"
       - key: DATABASE_URL
@@ -71,6 +73,12 @@ services:
         sync: false
       - key: PUBLIC_BETA_SESSION_TTL_SECONDS
         value: "86400"
+      - key: PUBLIC_BETA_ENABLED
+        value: "true"
+      - key: OPERATIONS_KILL_SWITCH
+        value: "false"
+      - key: READINESS_TIMEOUT_MS
+        value: "2500"
       - key: MAX_EXECUTION_BUDGET_USDC
         value: "0.005"
       # Intentionally empty until a Base Sepolia endpoint passes the audit.

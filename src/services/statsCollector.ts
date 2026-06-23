@@ -51,7 +51,7 @@ export async function collectStats() {
 }
 
 export function startStatsCollector() {
-  cron.schedule('* * * * *', async () => {
+  const task = cron.schedule('* * * * *', async () => {
     try {
       await collectStats()
     } catch (error) {
@@ -62,4 +62,6 @@ export function startStatsCollector() {
   void collectStats().catch((error) => {
     console.error('initial statsCollector run failed', error)
   })
+
+  return task
 }

@@ -31,6 +31,7 @@ function assertRenderValue(file, key, value) {
 const requiredFiles = [
   'README.md',
   'SECURITY.md',
+  'Dockerfile',
   'netlify.toml',
   'render.yaml',
   'render.beta.yaml',
@@ -46,7 +47,13 @@ const requiredFiles = [
   'docs/PRODUCTION_READINESS.md',
   'docs/PHASE6_CLOSED_BETA.md',
   'docs/PHASE7_PUBLIC_BETA.md',
+  'docs/PHASE8_PRODUCTION_LAUNCH.md',
+  'docs/INCIDENT_RESPONSE.md',
+  'docs/BACKUP_RECOVERY.md',
   'frontend/beta/index.html',
+  'scripts/phase8-smoke.mjs',
+  'scripts/database-backup.mjs',
+  '.github/workflows/production.yml',
 ]
 
 for (const file of requiredFiles) {
@@ -58,6 +65,9 @@ JSON.parse(read('frontend/openapi.json'))
 assertIncludes('netlify.toml', 'publish = "frontend"')
 assertIncludes('netlify.toml', 'for = "/config.js"')
 assertIncludes('netlify.toml', 'Cache-Control = "no-store"')
+assertIncludes('netlify.toml', 'Permissions-Policy')
+assertIncludes('Dockerfile', 'HEALTHCHECK')
+assertIncludes('Dockerfile', '/ready')
 
 for (const key of [
   'ALLOW_LIVE_EXECUTION',
@@ -67,9 +77,12 @@ for (const key of [
   'X402_VERIFY_ENABLED',
   'X402_SETTLEMENT_ENABLED',
   'X402_UPSTREAM_EXECUTION_ENABLED',
+  'OPERATIONS_KILL_SWITCH',
 ]) {
   assertRenderValue('render.yaml', key, 'false')
 }
+assertRenderValue('render.yaml', 'PUBLIC_BETA_ENABLED', 'true')
+assertRenderValue('render.yaml', 'DEPLOYMENT_ENVIRONMENT', 'production')
 
 for (const key of [
   'X402_SIGNING_ENABLED',
@@ -97,8 +110,13 @@ assertIncludes('README.md', 'X402_UPSTREAM_EXECUTION_ENABLED=false')
 assertIncludes('SECURITY.md', 'ALLOW_LIVE_EXECUTION=false')
 assertIncludes('docs/OPERATOR_RUNBOOK.md', 'X402_UPSTREAM_EXECUTION_ENABLED=false')
 assertIncludes('docs/CLOSED_BETA_CHECKLIST.md', 'Unknown upstream execution results are never retried automatically.')
-assertIncludes('docs/PRODUCTION_READINESS.md', 'Phase 4')
+assertIncludes('docs/PRODUCTION_READINESS.md', 'OPERATIONS_KILL_SWITCH')
 assertIncludes('docs/PHASE6_CLOSED_BETA.md', 'Ticket Ownership')
 assertIncludes('docs/PHASE7_PUBLIC_BETA.md', 'API keys are generated')
+assertIncludes('docs/PHASE8_PRODUCTION_LAUNCH.md', 'OPERATIONS_KILL_SWITCH=true')
+assertIncludes('docs/INCIDENT_RESPONSE.md', 'SEV-1')
+assertIncludes('docs/BACKUP_RECOVERY.md', 'pg_restore')
+assertIncludes('frontend/openapi.json', '"/ready"')
+assertIncludes('.github/workflows/production.yml', 'npm audit --omit=dev')
 
 console.log('production readiness checks passed')

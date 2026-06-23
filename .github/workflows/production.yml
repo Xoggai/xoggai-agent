@@ -1,0 +1,32 @@
+name: Production checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://xoggai:xoggai@localhost:5432/xoggai
+      REDIS_URL: redis://localhost:6379
+      ANTHROPIC_API_KEY: placeholder
+      ALLOWED_ORIGINS: http://localhost:5173
+      PUBLIC_BETA_ENABLED: "true"
+      OPERATIONS_KILL_SWITCH: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm audit --omit=dev
+      - run: npm run production:check

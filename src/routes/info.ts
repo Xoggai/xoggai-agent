@@ -4,11 +4,11 @@ import { env, hasLiveAnthropicKey, hasLiveX402Wallet } from '../env.js'
 export const infoRoute = new Hono().get('/', (c) => {
   return c.json({
     name: 'XoggAI Backend',
-    version: '1.0.0',
+    version: env.SERVICE_VERSION,
     description: 'Dry-run-first intent router for AI agents and x402 API endpoints.',
     status: 'live',
     mode: 'public-preview',
-    environment: env.NODE_ENV,
+    environment: env.DEPLOYMENT_ENVIRONMENT,
     network: env.X402_NETWORK,
     liveExecutionEnabled: env.ALLOW_LIVE_EXECUTION,
     executionSimulationEnabled: env.EXECUTION_SIMULATION_ENABLED,
@@ -16,6 +16,8 @@ export const infoRoute = new Hono().get('/', (c) => {
     verificationEnabled: env.X402_VERIFY_ENABLED,
     settlementEnabled: env.X402_SETTLEMENT_ENABLED,
     upstreamExecutionEnabled: env.X402_UPSTREAM_EXECUTION_ENABLED,
+    operationsKillSwitchActive: env.OPERATIONS_KILL_SWITCH,
+    publicBetaEnabled: env.PUBLIC_BETA_ENABLED,
     defaultExecution: 'dry-run',
     safety: {
       dryRunDefault: true,
@@ -39,6 +41,7 @@ export const infoRoute = new Hono().get('/', (c) => {
     },
     sampleRequests: {
       health: 'GET /health',
+      readiness: 'GET /ready',
       executionStatus: 'GET /api/execution-status',
       betaExecutions: 'GET /api/beta/executions (requires x-beta-key)',
       betaConsole: 'https://xoggai-agent.com/beta/',
@@ -61,6 +64,7 @@ export const infoRoute = new Hono().get('/', (c) => {
       root: '/',
       info: '/api/info',
       health: '/health',
+      readiness: '/ready',
       executionStatus: '/api/execution-status',
       betaExecutions: '/api/beta/executions',
       betaLogin: '/api/beta/auth/login',

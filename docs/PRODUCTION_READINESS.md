@@ -1,31 +1,23 @@
 # Production Readiness
 
-Phase 4 keeps XoggAI deployable without making paid execution public.
+XoggAI is an invite-only production beta with dry-run-first routing and
+operator-controlled execution approval. Paid execution remains disabled by
+default.
 
-The production website remains a public preview. Public users can inspect routes,
-use the terminal demo, read agent files, and call dry-run APIs. Paid x402
-execution remains closed-beta only and disabled by default in deployment config.
+## Required Capabilities
 
-## Phase 4 Boundary
-
-In scope:
-
-- Production deploy guardrails.
-- Static docs and agent files that describe the gated flow accurately.
-- Render and Netlify configuration checks.
-- Operator runbook coverage for payment-adjacent paths.
-- Repeatable pre-push checks.
-
-Out of scope:
-
-- Funding a Base Sepolia wallet.
-- Running a real paid upstream x402 request.
-- Opening paid execution to public users.
-- Building tester accounts, public billing, or user wallets.
+- Process liveness at `/health`.
+- PostgreSQL and Redis readiness at `/ready`.
+- Structured JSON request logs with `X-Request-Id`.
+- Emergency `OPERATIONS_KILL_SWITCH`.
+- Independent `PUBLIC_BETA_ENABLED` gate.
+- Hashed API keys and sessions.
+- Server-side per-request and daily quotas.
+- Protected operational status at `/api/admin/ops`.
+- CI build, test, dependency audit, and readiness checks.
+- Production smoke test and database backup procedure.
 
 ## Production Defaults
-
-The public Render Blueprint must keep these values disabled:
 
 ```text
 ALLOW_LIVE_EXECUTION=false
@@ -35,33 +27,12 @@ X402_SIGNING_ENABLED=false
 X402_VERIFY_ENABLED=false
 X402_SETTLEMENT_ENABLED=false
 X402_UPSTREAM_EXECUTION_ENABLED=false
+PUBLIC_BETA_ENABLED=true
+OPERATIONS_KILL_SWITCH=false
+DEPLOYMENT_ENVIRONMENT=production
 ```
 
-The beta Blueprint may enable ticket preparation, but must still keep signing,
-verification, settlement, and upstream execution disabled until a trusted
-operator intentionally schedules one testnet run.
-
-## Public Product State
-
-User-visible functionality:
-
-- Website and docs UI.
-- Terminal demo.
-- Dry-run `/intent` route selection.
-- Endpoint search.
-- Static agent files: `skill.md`, `llms.txt`, `openapi.json`.
-
-Not public:
-
-- Server-side beta key.
-- Wallet signing.
-- Facilitator verification.
-- Standalone settlement.
-- Paid upstream execution.
-
-## Pre-Push Commands
-
-Run these before pushing production-facing work:
+## Pre-Push Gate
 
 ```powershell
 npm test
@@ -70,40 +41,44 @@ npm run production:check
 git diff --check
 ```
 
-Expected result:
+## Post-Deploy Gate
 
-- all tests pass
-- zero production dependency vulnerabilities
-- production readiness checks pass
-- no whitespace errors
+```powershell
+npm run phase8:smoke
+```
 
-## Post-Push Checks
+Also verify the protected endpoint with the admin secret:
 
-After Netlify and Render finish deploying:
+```powershell
+curl.exe https://xoggai-backend.onrender.com/api/admin/ops `
+  -H "x-admin-key: $env:PUBLIC_BETA_ADMIN_KEY"
+```
 
-- `https://xoggai-agent.com` loads over HTTPS.
-- `https://xoggai-agent.com/docs` loads.
-- `https://xoggai-agent.com/openapi.json` is valid JSON.
-- `https://xoggai-backend.onrender.com/health` returns `status: ok`.
-- `https://xoggai-backend.onrender.com/api/execution-status` reports:
-  - `liveExecutionEnabled: false`
-  - `paymentSigningEnabled: false`
-  - `paymentVerificationEnabled: false`
-  - `paymentSendingEnabled: false`
-- The terminal `status` and `route what is the ETH price?` commands still work.
+Expected:
+
+- readiness is healthy
+- kill switch is false
+- public beta is true
+- payment sending is false
+- pending request count is plausible
+
+## Backup Gate
+
+Create an encrypted backup before schema or payment-control changes:
+
+```powershell
+npm run backup:database
+```
+
+Record a restore drill using `docs/BACKUP_RECOVERY.md`.
 
 ## Rollback
 
-If production behavior looks unsafe:
+1. Set `OPERATIONS_KILL_SWITCH=true`.
+2. Keep every payment flag false.
+3. Roll back Render and Netlify to the last known-good commit.
+4. Verify `/health`, `/ready`, and `/api/admin/ops`.
+5. Rotate affected credentials and revoke sessions.
+6. Reopen the beta only after the incident checklist passes.
 
-- Stop sharing the new URL or post.
-- Revert the last GitHub commit or roll back the Netlify deploy.
-- Pause or roll back the Render service.
-- Confirm all x402 execution flags are disabled.
-- Rotate `BETA_EXECUTION_KEY` if it was exposed.
-
-## Next Phase
-
-Phase 5 is the first real Base Sepolia end-to-end execution. It requires a
-dedicated funded testnet wallet and should run only after this Phase 4 checklist
-passes on the deployed environment.
+Phase 8 details are in `docs/PHASE8_PRODUCTION_LAUNCH.md`.

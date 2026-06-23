@@ -9,6 +9,8 @@ assert.equal(json.status, 'ok')
 assert.equal(json.defaultExecution, 'dry-run')
 assert.equal(json.dryRunEnabled, true)
 assert.equal(json.liveExecutionEnabled, false)
+assert.equal(json.operationsKillSwitchActive, false)
+assert.equal(json.publicBetaEnabled, true)
 assert.equal(
   json.paymentSigningEnabled,
   process.env.X402_SIGNING_ENABLED === 'true',
@@ -51,5 +53,7 @@ assert.equal(guardrails.upstreamExecutionRequiresVerifiedTicket, true)
 assert.equal(guardrails.upstreamExecutionRequiresExplicitConfirmation, true)
 assert.equal(guardrails.upstreamExecutionHasNoAutomaticRetry, true)
 assert.equal(guardrails.dryRunsNeverSendPayment, true)
+assert.equal(guardrails.operationsKillSwitchAvailable, true)
+assert.equal(guardrails.publicBetaCanBeDisabledIndependently, true)
 
 console.log('execution status route tests passed')

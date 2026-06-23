@@ -34,6 +34,36 @@ function response(body, status = 200) {
 
 {
   await runPublicBetaAdmin({
+    argv: ['ops'],
+    env,
+    log: () => {},
+    async fetchImpl(url, options) {
+      assert.equal(url, 'https://example.test/api/admin/ops')
+      assert.equal(options.method, 'GET')
+      return response({ success: true, operations: {} })
+    },
+  })
+}
+
+{
+  await runPublicBetaAdmin({
+    argv: ['set-user-status', 'user-id', 'SUSPENDED'],
+    env,
+    log: () => {},
+    async fetchImpl(url, options) {
+      assert.equal(url, 'https://example.test/api/admin/beta/users/user-id')
+      assert.equal(options.method, 'PATCH')
+      assert.deepEqual(JSON.parse(options.body), {
+        status: 'SUSPENDED',
+        actorId: 'test-admin',
+      })
+      return response({ success: true })
+    },
+  })
+}
+
+{
+  await runPublicBetaAdmin({
     argv: ['keys', 'user-id'],
     env,
     log: () => {},

@@ -59,7 +59,11 @@ export const executionStatusRoute = new Hono().get('/', (c) => {
     betaDailyRequestLimit: env.BETA_DAILY_REQUEST_LIMIT,
     betaDailyBudgetUsdc: env.BETA_DAILY_BUDGET_USDC,
     publicBetaAdminConfigured: Boolean(env.PUBLIC_BETA_ADMIN_KEY),
+    publicBetaEnabled: env.PUBLIC_BETA_ENABLED,
     publicBetaSessionTtlSeconds: env.PUBLIC_BETA_SESSION_TTL_SECONDS,
+    operationsKillSwitchActive: env.OPERATIONS_KILL_SWITCH,
+    version: env.SERVICE_VERSION,
+    environment: env.DEPLOYMENT_ENVIRONMENT,
     allowlistedEndpointCount: allowlist.size,
     maxExecutionBudgetUsdc: env.MAX_EXECUTION_BUDGET_USDC,
     guardrails: {
@@ -79,6 +83,8 @@ export const executionStatusRoute = new Hono().get('/', (c) => {
       upstreamExecutionHasNoAutomaticRetry: true,
       browserNeverReceivesBetaKey: true,
       dryRunsNeverSendPayment: true,
+      operationsKillSwitchAvailable: true,
+      publicBetaCanBeDisabledIndependently: true,
     },
     endpoints: {
       prepare: '/execute/prepare',

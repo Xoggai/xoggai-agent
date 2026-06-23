@@ -84,6 +84,33 @@ export async function runPublicBetaAdmin({
     log(JSON.stringify(result, null, 2))
     return result
   }
+  if (command === 'ops') {
+    const result = await request('/api/admin/ops', {
+      env,
+      fetchImpl,
+    })
+    log(JSON.stringify(result, null, 2))
+    return result
+  }
+  if (command === 'set-user-status') {
+    const [userId, status] = argv.slice(1)
+    if (!userId || !['ACTIVE', 'SUSPENDED'].includes(status)) {
+      throw new Error(
+        'set-user-status requires <userId> <ACTIVE|SUSPENDED>',
+      )
+    }
+    const result = await request(`/api/admin/beta/users/${userId}`, {
+      env,
+      method: 'PATCH',
+      fetchImpl,
+      body: {
+        status,
+        actorId: env.X402_OPERATOR || 'public-beta-admin-cli',
+      },
+    })
+    log(JSON.stringify(result, null, 2))
+    return result
+  }
   if (command === 'create-key') {
     const [userId, label = 'Rotated key'] = argv.slice(1)
     if (!userId) throw new Error('create-key requires <userId> [label]')
@@ -138,7 +165,7 @@ export async function runPublicBetaAdmin({
     return result
   }
   throw new Error(
-    'Use: create-user <email> <displayName> [keyLabel], users, keys <userId>, create-key <userId> [label], revoke-key <keyId>, requests [status], or decide <id> <status> [reason]',
+    'Use: create-user <email> <displayName> [keyLabel], users, ops, set-user-status <userId> <ACTIVE|SUSPENDED>, keys <userId>, create-key <userId> [label], revoke-key <keyId>, requests [status], or decide <id> <status> [reason]',
   )
 }
 

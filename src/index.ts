@@ -1,8 +1,14 @@
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { env, hasLiveAnthropicKey, hasLiveX402Wallet } from './env.js'
+import { pool } from './db/client.js'
+import { redis } from './lib/redis.js'
 import { corsMiddleware } from './middleware/cors.js'
 import { loggerMiddleware } from './middleware/logger.js'
+import {
+  executionOperationalGate,
+  publicBetaOperationalGate,
+} from './middleware/operationalGate.js'
 import { rateLimitMiddleware } from './middleware/rateLimit.js'
 import { approveExecutionRoute } from './routes/approveExecution.js'
 import { betaExecutionsRoute } from './routes/betaExecutions.js'
@@ -15,9 +21,11 @@ import { healthRoute } from './routes/health.js'
 import { infoRoute } from './routes/info.js'
 import { intentRoute } from './routes/intent.js'
 import { prepareExecutionRoute } from './routes/prepareExecution.js'
+import { operationsRoute } from './routes/operations.js'
 import { publicBetaAdminRoute } from './routes/publicBetaAdmin.js'
 import { publicBetaAuthRoute } from './routes/publicBetaAuth.js'
 import { publicBetaDashboardRoute } from './routes/publicBetaDashboard.js'
+import { readinessRoute } from './routes/readiness.js'
 import { searchRoute } from './routes/search.js'
 import { settleExecutionRoute } from './routes/settleExecution.js'
 import { signExecutionRoute } from './routes/signExecution.js'
@@ -33,10 +41,15 @@ app.use('*', loggerMiddleware)
 app.use('*', corsMiddleware)
 app.use('/intent', rateLimitMiddleware)
 app.use('/search', rateLimitMiddleware)
+app.use('/execute', executionOperationalGate)
+app.use('/execute/*', executionOperationalGate)
 app.use('/execute', rateLimitMiddleware)
 app.use('/execute/*', rateLimitMiddleware)
+app.use('/api/beta/auth/*', publicBetaOperationalGate)
+app.use('/api/beta/dashboard/*', publicBetaOperationalGate)
 app.use('/api/beta/*', rateLimitMiddleware)
 app.use('/api/admin/beta/*', rateLimitMiddleware)
+app.use('/api/admin/ops/*', rateLimitMiddleware)
 
 app.get('/', (c) =>
   c.json({
@@ -91,6 +104,7 @@ app.get('/', (c) =>
     endpoints: {
       info: '/api/info',
       health: '/health',
+      readiness: '/ready',
       executionStatus: '/api/execution-status',
       betaExecutions: '/api/beta/executions',
       betaLogin: '/api/beta/auth/login',
@@ -129,17 +143,42 @@ app.route('/api/beta/executions', betaExecutionsRoute)
 app.route('/api/beta/auth', publicBetaAuthRoute)
 app.route('/api/beta/dashboard', publicBetaDashboardRoute)
 app.route('/api/admin/beta', publicBetaAdminRoute)
+app.route('/api/admin/ops', operationsRoute)
 app.route('/api/stats', statsRoute)
 app.route('/api/feed', feedRoute)
 app.route('/api/endpoints', endpointsRoute)
 app.route('/health', healthRoute)
+app.route('/ready', readinessRoute)
 
-startStatsCollector()
+app.onError((error, c) => {
+  const requestId = c.res.headers.get('X-Request-Id')
+  console.error(
+    JSON.stringify({
+      level: 'error',
+      event: 'unhandled_error',
+      requestId,
+      method: c.req.method,
+      path: new URL(c.req.url).pathname,
+      error: error instanceof Error ? error.message : 'unknown_error',
+      ts: new Date().toISOString(),
+    }),
+  )
+  return c.json(
+    {
+      success: false,
+      error: 'internal_server_error',
+      requestId,
+    },
+    500,
+  )
+})
+
+const statsCollector = startStatsCollector()
 void ratingWorker.waitUntilReady().catch((error) => {
   console.error('ratingWorker failed to initialize', error)
 })
 
-serve(
+const server = serve(
   {
     fetch: app.fetch,
     port: env.PORT,
@@ -148,6 +187,37 @@ serve(
     console.log(`XoggAI backend listening on http://localhost:${info.port}`)
   },
 )
+
+let shuttingDown = false
+async function shutdown(signal: string) {
+  if (shuttingDown) return
+  shuttingDown = true
+  console.log(
+    JSON.stringify({
+      level: 'info',
+      event: 'graceful_shutdown_started',
+      signal,
+      ts: new Date().toISOString(),
+    }),
+  )
+  statsCollector.stop()
+  const forceExit = setTimeout(() => process.exit(1), 10_000)
+  forceExit.unref()
+  await Promise.race([
+    new Promise<void>((resolve) => server.close(() => resolve())),
+    new Promise<void>((resolve) => setTimeout(resolve, 5_000)),
+  ])
+  await Promise.allSettled([
+    ratingWorker.close(),
+    redis.quit(),
+    pool.end(),
+  ])
+  clearTimeout(forceExit)
+  process.exit(0)
+}
+
+process.once('SIGTERM', () => void shutdown('SIGTERM'))
+process.once('SIGINT', () => void shutdown('SIGINT'))
 
 export { app }
 export default {

@@ -15,9 +15,22 @@ Keep this value disabled for public demos:
 ALLOW_LIVE_EXECUTION=false
 ```
 
+Production also provides an emergency operational stop:
+
+```text
+OPERATIONS_KILL_SWITCH=true
+```
+
+This blocks execution and public-beta mutations while leaving health,
+readiness, and protected administration available. `PUBLIC_BETA_ENABLED=false`
+can disable only beta access.
+
 ## Sensitive Data
 
 Never commit real secrets, wallet private keys, API keys, database URLs, or Render/Netlify tokens.
+
+Database dumps under `backups/` are sensitive and must remain encrypted and
+outside source control.
 
 Use `.env.example` for placeholders only. Local `.env` files are ignored by git.
 
