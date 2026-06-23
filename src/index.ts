@@ -15,6 +15,9 @@ import { healthRoute } from './routes/health.js'
 import { infoRoute } from './routes/info.js'
 import { intentRoute } from './routes/intent.js'
 import { prepareExecutionRoute } from './routes/prepareExecution.js'
+import { publicBetaAdminRoute } from './routes/publicBetaAdmin.js'
+import { publicBetaAuthRoute } from './routes/publicBetaAuth.js'
+import { publicBetaDashboardRoute } from './routes/publicBetaDashboard.js'
 import { searchRoute } from './routes/search.js'
 import { settleExecutionRoute } from './routes/settleExecution.js'
 import { signExecutionRoute } from './routes/signExecution.js'
@@ -32,6 +35,8 @@ app.use('/intent', rateLimitMiddleware)
 app.use('/search', rateLimitMiddleware)
 app.use('/execute', rateLimitMiddleware)
 app.use('/execute/*', rateLimitMiddleware)
+app.use('/api/beta/*', rateLimitMiddleware)
+app.use('/api/admin/beta/*', rateLimitMiddleware)
 
 app.get('/', (c) =>
   c.json({
@@ -67,6 +72,7 @@ app.get('/', (c) =>
       health: 'GET /health',
       executionStatus: 'GET /api/execution-status',
       betaExecutions: 'GET /api/beta/executions (requires x-beta-key)',
+      betaConsole: 'https://xoggai-agent.com/beta/',
       routeIntent:
         'GET /intent?q=what%20is%20the%20ETH%20price&budget=0.05&dry=true',
       searchEndpoints: 'GET /search?q=crypto%20price&limit=5&dry=true',
@@ -87,6 +93,8 @@ app.get('/', (c) =>
       health: '/health',
       executionStatus: '/api/execution-status',
       betaExecutions: '/api/beta/executions',
+      betaLogin: '/api/beta/auth/login',
+      betaDashboard: '/api/beta/dashboard/me',
       intent: '/intent?q=what%20is%20the%20ETH%20price&budget=0.05&dry=true',
       search: '/search?q=crypto%20price&limit=5&dry=true',
       stats: '/api/stats',
@@ -118,6 +126,9 @@ app.route('/execute/upstream', upstreamExecutionRoute)
 app.route('/api/info', infoRoute)
 app.route('/api/execution-status', executionStatusRoute)
 app.route('/api/beta/executions', betaExecutionsRoute)
+app.route('/api/beta/auth', publicBetaAuthRoute)
+app.route('/api/beta/dashboard', publicBetaDashboardRoute)
+app.route('/api/admin/beta', publicBetaAdminRoute)
 app.route('/api/stats', statsRoute)
 app.route('/api/feed', feedRoute)
 app.route('/api/endpoints', endpointsRoute)

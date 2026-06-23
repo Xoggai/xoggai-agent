@@ -41,6 +41,7 @@ export const infoRoute = new Hono().get('/', (c) => {
       health: 'GET /health',
       executionStatus: 'GET /api/execution-status',
       betaExecutions: 'GET /api/beta/executions (requires x-beta-key)',
+      betaConsole: 'https://xoggai-agent.com/beta/',
       routeIntent:
         'GET /intent?q=what%20is%20the%20ETH%20price&budget=0.05&dry=true',
       searchEndpoints: 'GET /search?q=crypto%20price&limit=5&dry=true',
@@ -62,6 +63,8 @@ export const infoRoute = new Hono().get('/', (c) => {
       health: '/health',
       executionStatus: '/api/execution-status',
       betaExecutions: '/api/beta/executions',
+      betaLogin: '/api/beta/auth/login',
+      betaDashboard: '/api/beta/dashboard/me',
       intent: '/intent?q=what%20is%20the%20ETH%20price&budget=0.05&dry=true',
       search: '/search?q=crypto%20price&limit=5&dry=true',
       stats: '/api/stats',

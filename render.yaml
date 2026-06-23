@@ -63,6 +63,10 @@ services:
         value: "25"
       - key: BETA_DAILY_BUDGET_USDC
         value: "0.05"
+      - key: PUBLIC_BETA_ADMIN_KEY
+        sync: false
+      - key: PUBLIC_BETA_SESSION_TTL_SECONDS
+        value: "86400"
       - key: MAX_EXECUTION_BUDGET_USDC
         value: "0.05"
   - type: keyvalue

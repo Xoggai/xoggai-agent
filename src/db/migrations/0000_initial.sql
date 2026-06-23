@@ -51,6 +51,84 @@ CREATE TABLE IF NOT EXISTS stats (
 
 INSERT INTO stats (id) VALUES (1) ON CONFLICT (id) DO NOTHING;
 
+CREATE TABLE IF NOT EXISTS beta_users (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  email text NOT NULL UNIQUE,
+  display_name text NOT NULL,
+  status text NOT NULL DEFAULT 'ACTIVE',
+  max_budget_usdc real NOT NULL DEFAULT 0.005,
+  daily_request_limit integer NOT NULL DEFAULT 25,
+  daily_budget_usdc real NOT NULL DEFAULT 0.05,
+  created_at timestamp NOT NULL DEFAULT now(),
+  updated_at timestamp NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS beta_api_keys (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES beta_users(id),
+  label text NOT NULL,
+  key_prefix text NOT NULL,
+  key_hash text NOT NULL UNIQUE,
+  status text NOT NULL DEFAULT 'ACTIVE',
+  created_at timestamp NOT NULL DEFAULT now(),
+  last_used_at timestamp,
+  revoked_at timestamp
+);
+
+CREATE INDEX IF NOT EXISTS beta_api_keys_user_idx ON beta_api_keys (user_id);
+
+CREATE TABLE IF NOT EXISTS beta_sessions (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES beta_users(id),
+  token_hash text NOT NULL UNIQUE,
+  created_at timestamp NOT NULL DEFAULT now(),
+  last_seen_at timestamp NOT NULL DEFAULT now(),
+  expires_at timestamp NOT NULL,
+  revoked_at timestamp
+);
+
+CREATE INDEX IF NOT EXISTS beta_sessions_user_idx ON beta_sessions (user_id);
+CREATE INDEX IF NOT EXISTS beta_sessions_expiry_idx ON beta_sessions (expires_at);
+
+CREATE TABLE IF NOT EXISTS beta_execution_requests (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES beta_users(id),
+  intent text NOT NULL,
+  budget_usdc real NOT NULL,
+  endpoint_id uuid REFERENCES endpoints(id),
+  endpoint_name text,
+  endpoint_url text,
+  endpoint_price_usdc real,
+  status text NOT NULL DEFAULT 'REQUESTED',
+  decision_reason text,
+  approved_by text,
+  approved_at timestamp,
+  created_at timestamp NOT NULL DEFAULT now(),
+  updated_at timestamp NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS beta_execution_requests_user_idx
+  ON beta_execution_requests (user_id);
+CREATE INDEX IF NOT EXISTS beta_execution_requests_user_created_idx
+  ON beta_execution_requests (user_id, created_at);
+CREATE INDEX IF NOT EXISTS beta_execution_requests_status_idx
+  ON beta_execution_requests (status);
+
+CREATE TABLE IF NOT EXISTS beta_audit_events (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid REFERENCES beta_users(id),
+  actor_type text NOT NULL,
+  actor_id text,
+  action text NOT NULL,
+  target_type text,
+  target_id text,
+  metadata jsonb,
+  created_at timestamp NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS beta_audit_events_user_idx
+  ON beta_audit_events (user_id);
+
 CREATE TABLE IF NOT EXISTS payment_prepare_tickets (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   request_id text NOT NULL,

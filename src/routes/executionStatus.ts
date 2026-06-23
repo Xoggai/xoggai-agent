@@ -58,6 +58,8 @@ export const executionStatusRoute = new Hono().get('/', (c) => {
     betaAccessProfileCount: betaAccessProfileCount(),
     betaDailyRequestLimit: env.BETA_DAILY_REQUEST_LIMIT,
     betaDailyBudgetUsdc: env.BETA_DAILY_BUDGET_USDC,
+    publicBetaAdminConfigured: Boolean(env.PUBLIC_BETA_ADMIN_KEY),
+    publicBetaSessionTtlSeconds: env.PUBLIC_BETA_SESSION_TTL_SECONDS,
     allowlistedEndpointCount: allowlist.size,
     maxExecutionBudgetUsdc: env.MAX_EXECUTION_BUDGET_USDC,
     guardrails: {

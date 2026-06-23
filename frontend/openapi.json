@@ -193,6 +193,78 @@
         }
       }
     },
+    "/api/beta/auth/login": {
+      "post": {
+        "summary": "Exchange an invited beta API key for a short-lived session",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["apiKey"],
+                "properties": { "apiKey": { "type": "string" } }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Authenticated user and one-time session token" },
+          "401": { "description": "Invalid or revoked beta credentials" }
+        }
+      }
+    },
+    "/api/beta/dashboard/me": {
+      "get": {
+        "summary": "Get the authenticated beta account and daily usage",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string", "example": "Bearer xg_session_..." }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Scoped beta account, limits, and usage" },
+          "401": { "description": "Invalid or expired session" }
+        }
+      }
+    },
+    "/api/beta/dashboard/requests": {
+      "get": {
+        "summary": "List the authenticated user's execution requests",
+        "responses": {
+          "200": { "description": "User-scoped approval requests" },
+          "401": { "description": "Invalid or expired session" }
+        }
+      },
+      "post": {
+        "summary": "Dry-run an intent and submit it for operator approval",
+        "description": "This endpoint cannot send payment.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["intent", "budgetUsdc"],
+                "properties": {
+                  "intent": { "type": "string", "minLength": 3, "maxLength": 500 },
+                  "budgetUsdc": { "type": "number", "exclusiveMinimum": 0, "maximum": 0.005 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Dry-run preview and pending approval request" },
+          "401": { "description": "Invalid or expired session" },
+          "403": { "description": "Per-request budget exceeded" },
+          "429": { "description": "Daily quota exceeded" }
+        }
+      }
+    },
     "/api/stats": {
       "get": {
         "summary": "Platform statistics",

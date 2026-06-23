@@ -383,6 +383,10 @@ Trusted beta operators can inspect their scoped ledger with
 `npm run phase6:ledger -- 25` and execute the time-sensitive ticket lifecycle
 with `npm run phase6:run` after setting the explicit Base Sepolia confirmation.
 
+Phase 7 adds an invite-only browser console at `/beta/`. User API keys are
+stored as hashes, exchanged for short-lived sessions, and can create dry-run
+execution requests for operator approval. See `docs/PHASE7_PUBLIC_BETA.md`.
+
 ## Repository Map
 
 - `src/` - backend API source.
@@ -393,6 +397,7 @@ with `npm run phase6:run` after setting the explicit Base Sepolia confirmation.
 - `docs/LAUNCH_CHECKLIST.md` - public launch checklist.
 - `docs/PHASE5_TESTNET_EXECUTION.md` - first controlled Base Sepolia execution.
 - `docs/PHASE6_CLOSED_BETA.md` - multi-agent beta access, quotas, and ledger.
+- `docs/PHASE7_PUBLIC_BETA.md` - invite accounts, sessions, and approval UX.
 - `docs/OPERATOR_RUNBOOK.md` - closed-beta ticket and signing runbook.
 - `docs/CLOSED_BETA_CHECKLIST.md` - beta readiness checklist.
 - `SECURITY.md` - security and public preview safety notes.

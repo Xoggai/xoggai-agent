@@ -8,6 +8,8 @@
 - Added a scoped beta execution ledger at `/api/beta/executions`.
 - Added atomic PostgreSQL quota reservation to prevent concurrent limit bypass.
 - Added one-shot Phase 6 execution and scoped ledger operator commands.
+- Added the Phase 7 invite-only beta console, hashed API keys, sessions, and
+  operator approval queue.
 
 ## 2026-05-31
 

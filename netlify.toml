@@ -5,3 +5,10 @@
   for = "/config.js"
   [headers.values]
     Cache-Control = "no-store"
+
+[[headers]]
+  for = "/beta/*"
+  [headers.values]
+    Referrer-Policy = "no-referrer"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"

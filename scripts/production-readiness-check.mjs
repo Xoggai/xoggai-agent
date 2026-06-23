@@ -45,6 +45,8 @@ const requiredFiles = [
   'docs/X402_EXECUTION_PLAN.md',
   'docs/PRODUCTION_READINESS.md',
   'docs/PHASE6_CLOSED_BETA.md',
+  'docs/PHASE7_PUBLIC_BETA.md',
+  'frontend/beta/index.html',
 ]
 
 for (const file of requiredFiles) {
@@ -85,6 +87,9 @@ assertNotIncludes('frontend/index.html', 'BETA_EXECUTION_KEY')
 assertNotIncludes('frontend/config.js', 'BETA_EXECUTION_KEY')
 assertNotIncludes('frontend/index.html', 'BETA_ACCESS_KEYS')
 assertNotIncludes('frontend/config.js', 'BETA_ACCESS_KEYS')
+assertNotIncludes('frontend/beta/index.html', 'PUBLIC_BETA_ADMIN_KEY')
+assertNotIncludes('frontend/beta/index.html', 'X402_WALLET_PRIVATE_KEY')
+assertNotIncludes('frontend/beta/index.html', 'BETA_EXECUTION_KEY')
 assertIncludes('frontend/config.js', 'https://xoggai-backend.onrender.com')
 
 assertIncludes('README.md', 'Public Preview Boundary')
@@ -94,5 +99,6 @@ assertIncludes('docs/OPERATOR_RUNBOOK.md', 'X402_UPSTREAM_EXECUTION_ENABLED=fals
 assertIncludes('docs/CLOSED_BETA_CHECKLIST.md', 'Unknown upstream execution results are never retried automatically.')
 assertIncludes('docs/PRODUCTION_READINESS.md', 'Phase 4')
 assertIncludes('docs/PHASE6_CLOSED_BETA.md', 'Ticket Ownership')
+assertIncludes('docs/PHASE7_PUBLIC_BETA.md', 'API keys are generated')
 
 console.log('production readiness checks passed')

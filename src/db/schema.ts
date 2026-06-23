@@ -72,6 +72,105 @@ export const stats = pgTable('stats', {
   updatedAt: timestamp('updated_at').defaultNow(),
 })
 
+export const betaUsers = pgTable('beta_users', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  email: text('email').notNull().unique(),
+  displayName: text('display_name').notNull(),
+  status: text('status').notNull().default('ACTIVE'),
+  maxBudgetUsdc: real('max_budget_usdc').notNull().default(0.005),
+  dailyRequestLimit: integer('daily_request_limit').notNull().default(25),
+  dailyBudgetUsdc: real('daily_budget_usdc').notNull().default(0.05),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
+export const betaApiKeys = pgTable(
+  'beta_api_keys',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => betaUsers.id),
+    label: text('label').notNull(),
+    keyPrefix: text('key_prefix').notNull(),
+    keyHash: text('key_hash').notNull().unique(),
+    status: text('status').notNull().default('ACTIVE'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    lastUsedAt: timestamp('last_used_at'),
+    revokedAt: timestamp('revoked_at'),
+  },
+  (t) => ({
+    userIdx: index('beta_api_keys_user_idx').on(t.userId),
+  }),
+)
+
+export const betaSessions = pgTable(
+  'beta_sessions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => betaUsers.id),
+    tokenHash: text('token_hash').notNull().unique(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    lastSeenAt: timestamp('last_seen_at').defaultNow().notNull(),
+    expiresAt: timestamp('expires_at').notNull(),
+    revokedAt: timestamp('revoked_at'),
+  },
+  (t) => ({
+    userIdx: index('beta_sessions_user_idx').on(t.userId),
+    expiryIdx: index('beta_sessions_expiry_idx').on(t.expiresAt),
+  }),
+)
+
+export const betaExecutionRequests = pgTable(
+  'beta_execution_requests',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => betaUsers.id),
+    intent: text('intent').notNull(),
+    budgetUsdc: real('budget_usdc').notNull(),
+    endpointId: uuid('endpoint_id').references(() => endpoints.id),
+    endpointName: text('endpoint_name'),
+    endpointUrl: text('endpoint_url'),
+    endpointPriceUsdc: real('endpoint_price_usdc'),
+    status: text('status').notNull().default('REQUESTED'),
+    decisionReason: text('decision_reason'),
+    approvedBy: text('approved_by'),
+    approvedAt: timestamp('approved_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (t) => ({
+    userIdx: index('beta_execution_requests_user_idx').on(t.userId),
+    userCreatedIdx: index('beta_execution_requests_user_created_idx').on(
+      t.userId,
+      t.createdAt,
+    ),
+    statusIdx: index('beta_execution_requests_status_idx').on(t.status),
+  }),
+)
+
+export const betaAuditEvents = pgTable(
+  'beta_audit_events',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').references(() => betaUsers.id),
+    actorType: text('actor_type').notNull(),
+    actorId: text('actor_id'),
+    action: text('action').notNull(),
+    targetType: text('target_type'),
+    targetId: text('target_id'),
+    metadata: jsonb('metadata').$type<Record<string, unknown> | null>(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (t) => ({
+    userIdx: index('beta_audit_events_user_idx').on(t.userId),
+  }),
+)
+
 export const paymentPrepareTickets = pgTable(
   'payment_prepare_tickets',
   {

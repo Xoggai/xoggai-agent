@@ -66,6 +66,16 @@ const envSchema = z.object({
   BETA_ACCESS_KEYS: z.string().default(''),
   BETA_DAILY_REQUEST_LIMIT: z.coerce.number().int().positive().default(25),
   BETA_DAILY_BUDGET_USDC: z.coerce.number().positive().default(0.05),
+  PUBLIC_BETA_ADMIN_KEY: z.preprocess(
+    (value) => (value === '' ? undefined : value),
+    z.string().min(32).optional(),
+  ),
+  PUBLIC_BETA_SESSION_TTL_SECONDS: z.coerce
+    .number()
+    .int()
+    .min(900)
+    .max(604800)
+    .default(86400),
   MAX_EXECUTION_BUDGET_USDC: z.coerce.number().positive().max(10).default(0.05),
   EXECUTION_ENDPOINT_ALLOWLIST: z.string().default(''),
 })
