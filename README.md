@@ -399,6 +399,10 @@ console shows `REQUESTED -> APPROVED -> TESTNET_* -> EXECUTED` lifecycle
 status, ticket ids, response hashes, and settlement transaction metadata.
 Mainnet remains disabled.
 
+Phase 10 upgrades the `/beta/` user console with quota progress, quick intents,
+request search, status filters, lifecycle detail views, testnet proof display,
+and optional auto-refresh. See `docs/PHASE10_USER_CONSOLE_UPGRADE.md`.
+
 ## Repository Map
 
 - `src/` - backend API source.
@@ -412,6 +416,7 @@ Mainnet remains disabled.
 - `docs/PHASE7_PUBLIC_BETA.md` - invite accounts, sessions, and approval UX.
 - `docs/PHASE8_PRODUCTION_LAUNCH.md` - final production launch controls.
 - `docs/PHASE9_TESTNET_PRODUCT_EXECUTION.md` - public testnet product execution.
+- `docs/PHASE10_USER_CONSOLE_UPGRADE.md` - beta user console upgrade.
 - `docs/INCIDENT_RESPONSE.md` - severity, containment, and recovery.
 - `docs/BACKUP_RECOVERY.md` - PostgreSQL backup and restore drills.
 - `docs/OPERATOR_RUNBOOK.md` - closed-beta ticket and signing runbook.

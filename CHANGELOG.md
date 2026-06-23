@@ -16,6 +16,9 @@
 - Added Phase 9 public testnet execution: approved beta requests can run
   through the Base Sepolia x402 path with user-visible lifecycle status,
   ticket ids, response hashes, and settlement metadata while mainnet stays off.
+- Added Phase 10 user console upgrade with quota progress, request search,
+  status filters, quick intents, lifecycle details, proof drawer, and
+  auto-refresh for the public beta surface.
 
 ## 2026-05-31
 
