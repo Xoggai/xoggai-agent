@@ -106,6 +106,30 @@ The response includes:
 
 The endpoint never returns wallet keys, beta secrets, or payment credentials.
 
+The operator CLI exposes the same scoped view:
+
+```powershell
+npm run phase6:ledger -- 25
+```
+
+## One-Shot Beta Execution
+
+The x402 challenge expires quickly. Use the one-shot command instead of pausing
+between prepare, approve, consume, sign, verify, and upstream execution:
+
+```powershell
+$env:XOGGAI_API_BASE='https://xoggai-backend.onrender.com'
+$env:BETA_EXECUTION_KEY='<the agent beta key>'
+$env:X402_CONFIRM_UPSTREAM_EXECUTION='EXECUTE_X402_BASE_SEPOLIA'
+$env:TEST_X402_BUDGET='0.005'
+npm run phase6:run
+```
+
+The command runs the full preflight first and stops before creating a ticket if
+the backend, wallet, network, budget cap, or explicit confirmation is unsafe.
+It then completes the ticket lifecycle in one process and prints only the final
+audited result.
+
 ## Safe Operating State
 
 Keep these disabled outside scheduled beta sessions:

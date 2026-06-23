@@ -7,6 +7,7 @@
 - Bound payment tickets to their creating beta key identity.
 - Added a scoped beta execution ledger at `/api/beta/executions`.
 - Added atomic PostgreSQL quota reservation to prevent concurrent limit bypass.
+- Added one-shot Phase 6 execution and scoped ledger operator commands.
 
 ## 2026-05-31
 

@@ -103,6 +103,29 @@ await assert.rejects(
 
 {
   const output = await runOperatorCli({
+    argv: ['ledger', '10'],
+    env,
+    log: () => {},
+    async fetchImpl(url, options) {
+      assert.equal(
+        url.toString(),
+        'http://127.0.0.1:3000/api/beta/executions?limit=10',
+      )
+      assert.equal(options.method, 'GET')
+      assert.equal(options.headers['x-beta-key'], betaKey)
+      return jsonResponse({
+        success: true,
+        betaAccess: { id: 'agent-alpha', label: 'Agent Alpha' },
+        usage: { requestCount: 1, remainingRequests: 4 },
+        executions: [{ id: ticketId, status: 'EXECUTED' }],
+      })
+    },
+  })
+  assert.equal(output.executions[0].status, 'EXECUTED')
+}
+
+{
+  const output = await runOperatorCli({
     argv: ['prepare'],
     env,
     log: () => {},
@@ -465,6 +488,116 @@ await assert.rejects(
   }),
   /X402_CONFIRM_UPSTREAM_EXECUTION must equal EXECUTE_X402_BASE_SEPOLIA/,
 )
+
+{
+  const calls = []
+  const executionEnv = {
+    ...env,
+    X402_CONFIRM_UPSTREAM_EXECUTION: 'EXECUTE_X402_BASE_SEPOLIA',
+  }
+  const output = await runOperatorCli({
+    argv: ['phase6-run', '0.005'],
+    env: executionEnv,
+    log: () => {},
+    async fetchImpl(url) {
+      const path = new URL(url).pathname
+      calls.push(path)
+      if (path === '/api/execution-status') {
+        return jsonResponse({
+          safetyMode: 'testnet-upstream-execution',
+          network: 'base-sepolia',
+          prepareEnabled: true,
+          ticketSigningEnabled: true,
+          ticketVerificationEnabled: true,
+          ticketSettlementEnabled: false,
+          upstreamExecutionEnabled: true,
+          liveExecutionEnabled: false,
+          paymentSendingEnabled: true,
+          walletConfigured: true,
+          betaAccessConfigured: true,
+          maxExecutionBudgetUsdc: 0.005,
+        })
+      }
+      if (path === '/execute/prepare') {
+        return jsonResponse({
+          mode: 'prepare-only',
+          requestId: 'phase6-prepare',
+          betaAccess: { id: 'agent-alpha', label: 'Agent Alpha' },
+          paymentPrepared: true,
+          paymentSigned: false,
+          paymentSent: false,
+          ticket: { id: ticketId, status: 'PREPARED' },
+          preview: { amountUsdc: 0.002 },
+        })
+      }
+      if (path === '/execute/approve') {
+        return jsonResponse({
+          mode: 'approval-only',
+          paymentApproved: true,
+          paymentSigned: false,
+          paymentSent: false,
+          ticket: { id: ticketId, status: 'APPROVED' },
+        })
+      }
+      if (path === '/execute/consume') {
+        return jsonResponse({
+          mode: 'consume-only',
+          paymentConsumed: true,
+          paymentSigned: false,
+          paymentSent: false,
+          ticket: { id: ticketId, status: 'CONSUMED' },
+        })
+      }
+      if (path === '/execute/sign') {
+        return jsonResponse({
+          mode: 'sign-only',
+          paymentSigned: true,
+          paymentSent: false,
+          credential: {
+            paymentPayload: {
+              x402Version: 2,
+              resource: { url: 'https://example.test/paid' },
+              accepted: { network: 'eip155:84532' },
+              payload: { signature: '0xsecret' },
+            },
+          },
+        })
+      }
+      if (path === '/execute/verify') {
+        return jsonResponse({
+          mode: 'verify-only',
+          paymentVerified: true,
+          paymentSettled: false,
+          paymentSent: false,
+          ticket: { id: ticketId, status: 'VERIFIED' },
+        })
+      }
+      return jsonResponse({
+        mode: 'upstream-execution',
+        paymentSent: true,
+        ticket: { id: ticketId, status: 'EXECUTED' },
+        upstream: { statusCode: 200, responseHash: 'b'.repeat(64) },
+        settlement: {
+          transaction: `0x${'c'.repeat(64)}`,
+          network: 'eip155:84532',
+        },
+      })
+    },
+  })
+
+  assert.deepEqual(calls, [
+    '/api/execution-status',
+    '/execute/prepare',
+    '/execute/approve',
+    '/execute/consume',
+    '/execute/sign',
+    '/execute/verify',
+    '/execute/upstream',
+  ])
+  assert.equal(output.mode, 'phase6-run')
+  assert.equal(output.paymentSent, true)
+  assert.equal(output.betaAccess.id, 'agent-alpha')
+}
 
 await assert.rejects(
   runOperatorCli({

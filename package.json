@@ -19,6 +19,8 @@
     "test:x402-prepare": "node scripts/test-x402-prepare.mjs",
     "production:check": "node scripts/production-readiness-check.mjs",
     "phase5:preflight": "node scripts/x402-operator.mjs phase5-preflight",
+    "phase6:ledger": "node scripts/x402-operator.mjs ledger",
+    "phase6:run": "node scripts/x402-operator.mjs phase6-run",
     "x402:operator": "node scripts/x402-operator.mjs"
   },
   "dependencies": {

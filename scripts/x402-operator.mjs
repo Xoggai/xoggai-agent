@@ -25,6 +25,20 @@ function requireBetaKey(env) {
   return betaKey
 }
 
+function prepareBudget(env, argument) {
+  const budget = Number(
+    env.TEST_X402_BUDGET || argument || String(MAX_PREPARE_BUDGET_USDC),
+  )
+  if (
+    !Number.isFinite(budget) ||
+    budget <= 0 ||
+    budget > MAX_PREPARE_BUDGET_USDC
+  ) {
+    throw new Error('Prepare budget must be between 0 and 0.005 USDC')
+  }
+  return budget
+}
+
 function endpoint(baseUrl, path) {
   return new URL(path, `${baseUrl.toString().replace(/\/$/, '')}/`)
 }
@@ -277,15 +291,82 @@ export async function runOperatorCli({
 
   const betaKey = requireBetaKey(env)
 
-  if (command === 'prepare') {
-    const budget = Number(env.TEST_X402_BUDGET || argv[1] || String(MAX_PREPARE_BUDGET_USDC))
-    if (
-      !Number.isFinite(budget) ||
-      budget <= 0 ||
-      budget > MAX_PREPARE_BUDGET_USDC
-    ) {
-      throw new Error('Prepare budget must be between 0 and 0.005 USDC')
+  if (command === 'ledger') {
+    const limit = Number(argv[1] || '25')
+    if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+      throw new Error('ledger limit must be an integer between 1 and 100')
     }
+    const ledgerUrl = endpoint(baseUrl, '/api/beta/executions')
+    ledgerUrl.searchParams.set('limit', String(limit))
+    const response = await fetchImpl(ledgerUrl, {
+      method: 'GET',
+      headers: { 'x-beta-key': betaKey },
+      redirect: 'error',
+      signal: AbortSignal.timeout(10_000),
+    })
+    const body = await parseJsonResponse(response, 'Beta ledger')
+    if (!response.ok) {
+      throw new Error(
+        `Beta ledger failed (${response.status}): ${JSON.stringify(body)}`,
+      )
+    }
+    log(JSON.stringify(body, null, 2))
+    return body
+  }
+
+  if (command === 'phase6-run') {
+    const status = await fetchExecutionStatus({ baseUrl, fetchImpl })
+    const report = buildPhase5Preflight({ baseUrl, status, env })
+    if (!report.ready) {
+      throw new Error(
+        `Phase 6 execution preflight blocked: ${report.blockedBy.join('; ')}`,
+      )
+    }
+
+    const budget = prepareBudget(env, argv[1])
+    const silent = () => {}
+    const prepared = await runOperatorCli({
+      argv: ['prepare', String(budget)],
+      env,
+      fetchImpl,
+      log: silent,
+    })
+    const ticketId = prepared.ticket?.id
+    if (!ticketId) {
+      throw new Error('Phase 6 execution did not receive a prepared ticket id')
+    }
+    await runOperatorCli({
+      argv: ['approve', ticketId],
+      env,
+      fetchImpl,
+      log: silent,
+    })
+    await runOperatorCli({
+      argv: ['consume', ticketId],
+      env,
+      fetchImpl,
+      log: silent,
+    })
+    const executed = await runOperatorCli({
+      argv: ['sign-verify-execute', ticketId],
+      env,
+      fetchImpl,
+      log: silent,
+    })
+    const output = {
+      ...executed,
+      mode: 'phase6-run',
+      betaAccess: prepared.betaAccess,
+      budgetUsdc: budget,
+      ticketId,
+      preparedRequestId: prepared.requestId,
+    }
+    log(JSON.stringify(output, null, 2))
+    return output
+  }
+
+  if (command === 'prepare') {
+    const budget = prepareBudget(env, argv[1])
 
     const { response, body } = await postJson({
       baseUrl,
@@ -307,6 +388,7 @@ export async function runOperatorCli({
       paymentPrepared: body.paymentPrepared,
       paymentSigned: body.paymentSigned,
       paymentSent: body.paymentSent,
+      betaAccess: body.betaAccess,
       ticket: body.ticket,
       preview: body.preview,
     }
@@ -676,7 +758,7 @@ export async function runOperatorCli({
   }
 
   throw new Error(
-    'Unknown command. Use one of: status, phase5-preflight, prepare, approve <ticketId>, consume <ticketId>, sign <ticketId>, sign-verify <ticketId>, sign-verify-settle <ticketId>, sign-verify-execute <ticketId>',
+    'Unknown command. Use one of: status, phase5-preflight, ledger [limit], phase6-run [budget], prepare, approve <ticketId>, consume <ticketId>, sign <ticketId>, sign-verify <ticketId>, sign-verify-settle <ticketId>, sign-verify-execute <ticketId>',
   )
 }
 

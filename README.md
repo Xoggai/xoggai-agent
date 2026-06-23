@@ -379,6 +379,10 @@ x-beta-key: <beta key>
 See `docs/PHASE6_CLOSED_BETA.md` for the registry format, quota behavior, and
 rollback process.
 
+Trusted beta operators can inspect their scoped ledger with
+`npm run phase6:ledger -- 25` and execute the time-sensitive ticket lifecycle
+with `npm run phase6:run` after setting the explicit Base Sepolia confirmation.
+
 ## Repository Map
 
 - `src/` - backend API source.
