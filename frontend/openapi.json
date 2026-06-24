@@ -37,6 +37,55 @@
         }
       }
     },
+    "/api/execution-status": {
+      "get": {
+        "summary": "Inspect public testnet execution guardrails",
+        "description": "Returns the deployed execution mode, Base Sepolia payment flags, wallet/configuration status, and safety guardrails. This endpoint never exposes wallet secrets.",
+        "responses": {
+          "200": {
+            "description": "Current execution status and guardrails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "safetyMode",
+                    "network",
+                    "liveExecutionEnabled",
+                    "paymentSendingEnabled",
+                    "guardrails"
+                  ],
+                  "properties": {
+                    "status": { "type": "string" },
+                    "safetyMode": { "type": "string" },
+                    "network": { "type": "string", "enum": ["base-sepolia", "base-mainnet"] },
+                    "liveExecutionEnabled": { "type": "boolean" },
+                    "upstreamExecutionEnabled": { "type": "boolean" },
+                    "paymentSigningEnabled": { "type": "boolean" },
+                    "paymentVerificationEnabled": { "type": "boolean" },
+                    "paymentSendingEnabled": { "type": "boolean" },
+                    "walletConfigured": { "type": "boolean" },
+                    "operationsKillSwitchActive": { "type": "boolean" },
+                    "maxExecutionBudgetUsdc": { "type": "number" },
+                    "guardrails": {
+                      "type": "object",
+                      "properties": {
+                        "browserNeverReceivesBetaKey": { "type": "boolean" },
+                        "dryRunsNeverSendPayment": { "type": "boolean" },
+                        "betaRequestsRequireIdempotencyKeys": { "type": "boolean" },
+                        "betaRequestsExpireBeforeExecution": { "type": "boolean" },
+                        "testnetExecutionRequiresManagedAllowlist": { "type": "boolean" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/intent": {
       "get": {
         "summary": "Route a natural-language intent",

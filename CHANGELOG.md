@@ -10,6 +10,9 @@
 - Added Phase 13 identity rate limits, idempotent request creation, replay
   conflict protection, expiring approvals, structured audit fields, managed
   endpoint allowlisting, and operational reliability alerts.
+- Added Phase 14 final testnet launch QA with a live E2E command, wallet
+  configuration/funded checks, backup and incident drill coverage, mobile/docs
+  audits, and go/no-go criteria for the public Base Sepolia product.
 
 ## 2026-06-23
 

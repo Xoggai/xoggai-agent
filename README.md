@@ -43,7 +43,7 @@ The public product is live as a testnet beta. The default user flow starts with 
 ## Live Preview
 
 - Website: https://xoggai-agent.com
-- Terminal demo: https://xoggai-agent.com/#agent-console
+- Terminal demo: https://xoggai-agent.com/
 - Docs UI: https://xoggai-agent.com/docs
 - Developer kit: https://xoggai-agent.com/connect-agent/
 - OpenAPI: https://xoggai-agent.com/openapi.json
@@ -228,14 +228,15 @@ X402_WALLET_PRIVATE_KEY=0x...
 X402_WALLET_ADDRESS=0x...
 ALLOW_LIVE_EXECUTION=false
 EXECUTION_SIMULATION_ENABLED=false
-X402_PREPARE_ENABLED=false
-X402_SIGNING_ENABLED=false
-X402_VERIFY_ENABLED=false
+X402_NETWORK=base-sepolia
+X402_PREPARE_ENABLED=true
+X402_SIGNING_ENABLED=true
+X402_VERIFY_ENABLED=true
 X402_SETTLEMENT_ENABLED=false
 X402_UPSTREAM_EXECUTION_ENABLED=true
 X402_FACILITATOR_URL=https://x402.org/facilitator
 BETA_EXECUTION_KEY=<server-side-secret-at-least-32-characters>
-MAX_EXECUTION_BUDGET_USDC=0.05
+MAX_EXECUTION_BUDGET_USDC=0.005
 EXECUTION_ENDPOINT_ALLOWLIST=<comma-separated-endpoint-uuids>
 ```
 
@@ -248,6 +249,12 @@ npm test
 npm audit --omit=dev
 npm run production:check
 git diff --check
+```
+
+Before public testnet launch checks, run:
+
+```powershell
+npm run phase14:qa
 ```
 
 For an isolated Base Sepolia simulation environment, review
@@ -350,7 +357,8 @@ Settlement accepts only a `VERIFIED` ticket, atomically locks it as `SETTLING`,
 and records the transaction or terminal failure. Ambiguous network results are
 marked `SETTLEMENT_UNKNOWN` and are never retried automatically.
 
-The paid upstream execution phase is also implemented but disabled by default:
+The paid upstream execution phase is enabled only for the controlled production
+testnet beta. Mainnet remains disabled:
 
 ```powershell
 $env:X402_CONFIRM_UPSTREAM_EXECUTION='EXECUTE_X402_BASE_SEPOLIA'
@@ -420,6 +428,11 @@ expiring approval requests, structured audit context, a managed execution
 endpoint allowlist, and operational spike/failure alerts. See
 `docs/PHASE13_TESTNET_RELIABILITY.md`.
 
+Phase 14 adds the final testnet launch QA gate: live E2E checks, wallet
+configuration and optional balance verification, backup/restore drill coverage,
+incident drill coverage, mobile UI checks, docs/onboarding pass, and final
+go/no-go criteria. See `docs/PHASE14_TESTNET_LAUNCH_QA.md`.
+
 ## Repository Map
 
 - `src/` - backend API source.
@@ -437,6 +450,7 @@ endpoint allowlist, and operational spike/failure alerts. See
 - `docs/PHASE11_OPERATOR_CONSOLE.md` - private operator console.
 - `docs/PHASE12_DEVELOPER_INTEGRATION_KIT.md` - SDK, curl, and agent integration kit.
 - `docs/PHASE13_TESTNET_RELIABILITY.md` - abuse controls and testnet reliability.
+- `docs/PHASE14_TESTNET_LAUNCH_QA.md` - final testnet launch QA and go/no-go gate.
 - `docs/INCIDENT_RESPONSE.md` - severity, containment, and recovery.
 - `docs/BACKUP_RECOVERY.md` - PostgreSQL backup and restore drills.
 - `docs/OPERATOR_RUNBOOK.md` - closed-beta ticket and signing runbook.

@@ -49,10 +49,16 @@ const requiredFiles = [
   'docs/PHASE7_PUBLIC_BETA.md',
   'docs/PHASE8_PRODUCTION_LAUNCH.md',
   'docs/PHASE9_TESTNET_PRODUCT_EXECUTION.md',
+  'docs/PHASE10_USER_CONSOLE_UPGRADE.md',
+  'docs/PHASE11_OPERATOR_CONSOLE.md',
+  'docs/PHASE12_DEVELOPER_INTEGRATION_KIT.md',
+  'docs/PHASE13_TESTNET_RELIABILITY.md',
+  'docs/PHASE14_TESTNET_LAUNCH_QA.md',
   'docs/INCIDENT_RESPONSE.md',
   'docs/BACKUP_RECOVERY.md',
   'frontend/beta/index.html',
   'scripts/phase8-smoke.mjs',
+  'scripts/phase14-launch-qa.mjs',
   'scripts/database-backup.mjs',
   '.github/workflows/production.yml',
 ]
@@ -122,9 +128,16 @@ assertIncludes('docs/PHASE6_CLOSED_BETA.md', 'Ticket Ownership')
 assertIncludes('docs/PHASE7_PUBLIC_BETA.md', 'API keys are generated')
 assertIncludes('docs/PHASE8_PRODUCTION_LAUNCH.md', 'OPERATIONS_KILL_SWITCH=true')
 assertIncludes('docs/PHASE9_TESTNET_PRODUCT_EXECUTION.md', 'X402_NETWORK=base-sepolia')
+assertIncludes('docs/PHASE10_USER_CONSOLE_UPGRADE.md', 'User Console Upgrade')
+assertIncludes('docs/PHASE11_OPERATOR_CONSOLE.md', 'Operator Console')
+assertIncludes('docs/PHASE12_DEVELOPER_INTEGRATION_KIT.md', 'Developer Integration Kit')
+assertIncludes('docs/PHASE13_TESTNET_RELIABILITY.md', 'Testnet Reliability')
+assertIncludes('docs/PHASE14_TESTNET_LAUNCH_QA.md', 'Testnet Launch QA')
+assertIncludes('docs/PHASE14_TESTNET_LAUNCH_QA.md', 'npm run phase14:qa')
 assertIncludes('docs/INCIDENT_RESPONSE.md', 'SEV-1')
 assertIncludes('docs/BACKUP_RECOVERY.md', 'pg_restore')
 assertIncludes('frontend/openapi.json', '"/ready"')
 assertIncludes('.github/workflows/production.yml', 'npm audit --omit=dev')
+assertIncludes('package.json', '"phase14:qa"')
 
 console.log('production readiness checks passed')

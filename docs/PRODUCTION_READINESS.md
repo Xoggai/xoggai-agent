@@ -15,17 +15,20 @@ operator-controlled Base Sepolia execution. Mainnet payment remains disabled.
 - Protected operational status at `/api/admin/ops`.
 - CI build, test, dependency audit, and readiness checks.
 - Production smoke test and database backup procedure.
+- Phase 14 launch QA covering live endpoints, docs, agent files, wallet
+  configuration, backup/incident runbooks, and mobile/onboarding readiness.
 
 ## Production Defaults
 
 ```text
 ALLOW_LIVE_EXECUTION=false
 EXECUTION_SIMULATION_ENABLED=false
-X402_PREPARE_ENABLED=false
-X402_SIGNING_ENABLED=false
-X402_VERIFY_ENABLED=false
+X402_PREPARE_ENABLED=true
+X402_SIGNING_ENABLED=true
+X402_VERIFY_ENABLED=true
 X402_SETTLEMENT_ENABLED=false
 X402_UPSTREAM_EXECUTION_ENABLED=true
+X402_NETWORK=base-sepolia
 PUBLIC_BETA_ENABLED=true
 OPERATIONS_KILL_SWITCH=false
 DEPLOYMENT_ENVIRONMENT=production
@@ -44,6 +47,7 @@ git diff --check
 
 ```powershell
 npm run phase8:smoke
+npm run phase14:qa
 ```
 
 Also verify the protected endpoint with the admin secret:
@@ -58,7 +62,8 @@ Expected:
 - readiness is healthy
 - kill switch is false
 - public beta is true
-- payment sending is false
+- payment sending is true only for Base Sepolia upstream execution while
+  `liveExecutionEnabled` remains false
 - pending request count is plausible
 
 ## Backup Gate
@@ -81,3 +86,4 @@ Record a restore drill using `docs/BACKUP_RECOVERY.md`.
 6. Reopen the beta only after the incident checklist passes.
 
 Phase 8 details are in `docs/PHASE8_PRODUCTION_LAUNCH.md`.
+Final launch QA details are in `docs/PHASE14_TESTNET_LAUNCH_QA.md`.

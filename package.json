@@ -15,7 +15,7 @@
     "netlify:prepare": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/prepare-netlify.ps1",
     "seed": "tsx src/db/seed.ts",
     "pretest": "npm run test:phase13",
-    "test": "npm run build --silent && node dist/services/betaAccess.test.js && node dist/services/publicBetaAuth.test.js && node dist/services/runtimeHealth.test.js && node dist/services/executionPolicy.test.js && node dist/services/x402PaymentPreview.test.js && node dist/services/x402PaymentSigning.test.js && node dist/services/x402PaymentVerification.test.js && node dist/services/x402PaymentSettlement.test.js && node dist/services/x402UpstreamExecution.test.js && node dist/routes/executionStatus.test.js && node dist/routes/betaExecutions.integration.test.js && node dist/routes/execute.integration.test.js && node dist/routes/prepareExecution.integration.test.js && node dist/routes/approveExecution.integration.test.js && node dist/routes/consumeExecution.integration.test.js && node dist/routes/signExecution.integration.test.js && node dist/routes/verifyExecution.integration.test.js && node dist/routes/settleExecution.integration.test.js && node dist/routes/upstreamExecution.integration.test.js && node scripts/test-x402-prepare-cli.test.mjs && node scripts/x402-operator-cli.test.mjs && node scripts/public-beta-admin.test.mjs && node scripts/phase8-smoke.test.mjs",
+    "test": "npm run build --silent && node dist/services/betaAccess.test.js && node dist/services/publicBetaAuth.test.js && node dist/services/runtimeHealth.test.js && node dist/services/executionPolicy.test.js && node dist/services/x402PaymentPreview.test.js && node dist/services/x402PaymentSigning.test.js && node dist/services/x402PaymentVerification.test.js && node dist/services/x402PaymentSettlement.test.js && node dist/services/x402UpstreamExecution.test.js && node dist/routes/executionStatus.test.js && node dist/routes/betaExecutions.integration.test.js && node dist/routes/execute.integration.test.js && node dist/routes/prepareExecution.integration.test.js && node dist/routes/approveExecution.integration.test.js && node dist/routes/consumeExecution.integration.test.js && node dist/routes/signExecution.integration.test.js && node dist/routes/verifyExecution.integration.test.js && node dist/routes/settleExecution.integration.test.js && node dist/routes/upstreamExecution.integration.test.js && node scripts/test-x402-prepare-cli.test.mjs && node scripts/x402-operator-cli.test.mjs && node scripts/public-beta-admin.test.mjs && node scripts/phase8-smoke.test.mjs && node scripts/phase14-launch-qa.test.mjs",
     "test:phase13": "npm run build --silent && node dist/services/abuseProtection.test.js && node dist/services/reliabilityAlerts.test.js",
     "test:execution-simulation": "node scripts/test-execution-simulation.mjs",
     "test:x402-prepare": "node scripts/test-x402-prepare.mjs",
@@ -27,6 +27,7 @@
     "phase8:ops": "node scripts/public-beta-admin.mjs ops",
     "phase8:smoke": "node scripts/phase8-smoke.mjs",
     "phase9:execute": "node scripts/public-beta-admin.mjs execute-testnet",
+    "phase14:qa": "node scripts/phase14-launch-qa.mjs",
     "backup:database": "node scripts/database-backup.mjs",
     "x402:operator": "node scripts/x402-operator.mjs"
   },

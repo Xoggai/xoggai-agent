@@ -62,6 +62,7 @@ Use this before sharing XoggAI publicly or shipping a new launch update.
 - Watch Render logs for failed requests.
 - Check Netlify deploy logs after every push.
 - Test terminal commands after deploy completes.
+- Run `npm run phase14:qa` after Render and Netlify are live.
 - Keep announcements framed as `public testnet beta` and `Base Sepolia execution`.
 
 ## Pre-Push
@@ -71,3 +72,4 @@ Use this before sharing XoggAI publicly or shipping a new launch update.
 - `npm run production:check`
 - `git diff --check`
 - `npm run phase8:smoke` after deployment
+- `npm run phase14:qa` after deployment
