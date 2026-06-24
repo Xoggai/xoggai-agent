@@ -61,7 +61,7 @@ The product is built for testnet-first validation. Users can try the flow, opera
 | Backend API | Intent routing, endpoint search, beta execution lifecycle, status feeds |
 | Developer kit | JS helper, curl examples, agent instructions, OpenAPI, `skill.md`, `llms.txt` |
 
-## Current Safety Boundary
+## Public Preview Boundary
 
 - Network: Base Sepolia only.
 - Public routing is dry-run-first.
@@ -69,6 +69,7 @@ The product is built for testnet-first validation. Users can try the flow, opera
 - Requests expire before execution.
 - Per-user and per-request budgets are enforced server-side.
 - Endpoint execution is allowlisted.
+- Controlled testnet upstream execution uses `X402_UPSTREAM_EXECUTION_ENABLED=true`.
 - Browser code never receives wallet private keys, beta execution keys, or admin keys.
 - Mainnet payment execution is not enabled.
 
