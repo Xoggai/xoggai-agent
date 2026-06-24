@@ -4,8 +4,8 @@ Audit date: 2026-06-18
 
 ## Decision
 
-**Approved for prepare-only simulation. A future capped testnet payment still
-requires separate manual approval.**
+**Approved for controlled Base Sepolia testnet execution with manual operator
+approval.**
 
 The Node4All sandbox endpoint returned a live x402 v2 HTTP 402 challenge with
 one exact Base Sepolia USDC requirement. It is suitable as the first
@@ -59,25 +59,26 @@ The discovery schema documents a JSON fortune object with fields including:
 This shape was verified against public discovery and challenge metadata, not
 through a paid response.
 
-## Guardrails For The Next Phase
+## Guardrails For Production Testnet Beta
 
-1. Keep `ALLOW_LIVE_EXECUTION=false` until the payment client is implemented.
-2. Keep the public deployment and wallet isolated from the beta deployment.
+1. Keep `ALLOW_LIVE_EXECUTION=false`; mainnet remains disabled.
+2. Keep the public deployment and wallet isolated from any future mainnet
+   deployment.
 3. Select only `exact` + `eip155:84532` + the audited USDC contract.
 4. Require the quoted amount to be at most `0.005` USDC.
 5. Verify the recipient and resource URL against this audit before signing.
-6. Send `Accept: application/json` for the eventual test request.
-7. Perform at most one separately approved testnet payment.
+6. Send `Accept: application/json` for the test request.
+7. Perform only separately approved testnet payments.
 8. Record verification, settlement, response status, and payment reference.
 9. Stop immediately if any network, asset, amount, recipient, or schema differs.
 
-`EXECUTION_ENDPOINT_ALLOWLIST` remains empty for now because XoggAI does not yet
-have a payment client or a seeded stable endpoint UUID for this resource.
+`EXECUTION_ENDPOINT_ALLOWLIST` must contain only reviewed endpoint UUIDs. The
+managed allowlist is the runtime source of truth for whether this endpoint can
+execute.
 
-The prepare-only implementation pins these values in
-`src/config/auditedX402.ts`. `POST /execute/prepare` may fetch and validate the
-unpaid challenge when explicitly enabled, but it contains no signing or payment
-submission code.
+The implementation pins these values in `src/config/auditedX402.ts`.
+Production testnet execution must still pass prepare, approve, consume, sign,
+verify, and audited upstream execution before any payment is sent.
 
 ## Rejected Alternative
 

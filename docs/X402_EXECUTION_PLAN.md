@@ -151,8 +151,7 @@ x-beta-key: <operator-secret>
 
 Consumption changes an unexpired approved ticket from `APPROVED` to `CONSUMED`.
 It still returns `paymentSigned=false` and `paymentSent=false`. This gives the
-future live execution path a one-time-use checkpoint before wallet signing is
-introduced.
+Base Sepolia execution path a one-time-use checkpoint before wallet signing.
 
 ### Phase 4: Isolated Testnet Signing
 
@@ -269,8 +268,8 @@ Simulation response shape:
 }
 ```
 
-Live execution remains a later phase and must use a separate code path after
-the simulation policy has been verified in closed beta.
+Mainnet execution remains a later phase. Production testnet execution uses the
+separate Base Sepolia upstream path after beta policy and operator approval.
 
 Run the server-side simulation check with:
 
@@ -285,11 +284,12 @@ npm run test:execution-simulation
 
 - Keep dry-run as the default.
 - Require explicit live mode for any payment path.
-- Require a fresh approval ticket before any future live payment.
+- Require a fresh approval ticket before any Base Sepolia payment.
 - Treat prepare tickets as one-time-use records.
 - Keep approval server-side; never expose approval keys in browser code.
-- Consume approved tickets before any future live payment handoff.
-- Block live execution when `ALLOW_LIVE_EXECUTION=false`.
+- Consume approved tickets before any Base Sepolia payment handoff.
+- Keep mainnet/public direct live execution blocked while
+  `ALLOW_LIVE_EXECUTION=false`.
 - Block live execution for unknown endpoints.
 - Block live execution when budget is missing.
 - Block live execution when price exceeds budget.

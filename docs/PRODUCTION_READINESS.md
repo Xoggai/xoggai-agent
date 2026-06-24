@@ -1,6 +1,6 @@
 # Production Readiness
 
-XoggAI is an invite-only production beta with dry-run-first routing and
+XoggAI is a production-grade public testnet beta with dry-run-first routing and
 operator-controlled Base Sepolia execution. Mainnet payment remains disabled.
 
 ## Required Capabilities
@@ -87,3 +87,4 @@ Record a restore drill using `docs/BACKUP_RECOVERY.md`.
 
 Phase 8 details are in `docs/PHASE8_PRODUCTION_LAUNCH.md`.
 Final launch QA details are in `docs/PHASE14_TESTNET_LAUNCH_QA.md`.
+Current testnet product status is in `docs/TESTNET_PRODUCT_STATUS.md`.

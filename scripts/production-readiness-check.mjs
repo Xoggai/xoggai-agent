@@ -45,6 +45,7 @@ const requiredFiles = [
   'docs/OPERATOR_RUNBOOK.md',
   'docs/X402_EXECUTION_PLAN.md',
   'docs/PRODUCTION_READINESS.md',
+  'docs/TESTNET_PRODUCT_STATUS.md',
   'docs/PHASE6_CLOSED_BETA.md',
   'docs/PHASE7_PUBLIC_BETA.md',
   'docs/PHASE8_PRODUCTION_LAUNCH.md',
@@ -124,6 +125,8 @@ assertIncludes('SECURITY.md', 'ALLOW_LIVE_EXECUTION=false')
 assertIncludes('docs/OPERATOR_RUNBOOK.md', 'X402_UPSTREAM_EXECUTION_ENABLED=true')
 assertIncludes('docs/CLOSED_BETA_CHECKLIST.md', 'Unknown upstream execution results are never retried automatically.')
 assertIncludes('docs/PRODUCTION_READINESS.md', 'OPERATIONS_KILL_SWITCH')
+assertIncludes('docs/TESTNET_PRODUCT_STATUS.md', 'production-grade public testnet beta')
+assertIncludes('docs/TESTNET_PRODUCT_STATUS.md', 'Mainnet execution is not enabled')
 assertIncludes('docs/PHASE6_CLOSED_BETA.md', 'Ticket Ownership')
 assertIncludes('docs/PHASE7_PUBLIC_BETA.md', 'API keys are generated')
 assertIncludes('docs/PHASE8_PRODUCTION_LAUNCH.md', 'OPERATIONS_KILL_SWITCH=true')

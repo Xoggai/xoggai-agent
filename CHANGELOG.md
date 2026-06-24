@@ -13,6 +13,9 @@
 - Added Phase 14 final testnet launch QA with a live E2E command, wallet
   configuration/funded checks, backup and incident drill coverage, mobile/docs
   audits, and go/no-go criteria for the public Base Sepolia product.
+- Added a canonical testnet product status document and aligned launch docs to
+  state that XoggAI is ready for controlled public beta users on Base Sepolia
+  while mainnet remains disabled.
 
 ## 2026-06-23
 

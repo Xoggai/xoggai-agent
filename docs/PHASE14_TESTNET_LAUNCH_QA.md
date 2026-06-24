@@ -178,5 +178,19 @@ No-go if any are true:
 - `/ready` reports unhealthy database or cache
 - `/api/admin/ops` reports active reliability alerts during launch
 
+## Current Audited Status
+
+The live Render backend and Netlify frontend have passed Phase 14 QA. Current
+status:
+
+```text
+production-grade testnet beta ready
+```
+
+This means XoggAI can be used by controlled beta users on Base Sepolia with the
+existing guardrails. It does not mean mainnet is enabled.
+
 After Phase 14 passes, XoggAI is ready as a production-grade testnet product.
 Mainnet remains a separate integration phase.
+
+See `docs/TESTNET_PRODUCT_STATUS.md` for the canonical current status.

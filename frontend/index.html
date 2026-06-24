@@ -518,6 +518,8 @@ section{ position:relative;z-index:1; }
 .safety-card{
   background:rgba(10,26,18,0.86);
   padding:1.6rem;
+  position:relative;
+  overflow:hidden;
 }
 .safety-kicker{
   display:block;
@@ -562,6 +564,8 @@ section{ position:relative;z-index:1; }
 .arch-card{
   background:var(--bg2);padding:2.25rem;
   transition:background 0.3s;
+  position:relative;
+  overflow:hidden;
 }
 .arch-card:hover{ background:var(--bg3); }
 .arch-num{
@@ -694,6 +698,18 @@ section{ position:relative;z-index:1; }
   border:1px solid var(--border);
   border-radius:10px;padding:1.625rem;
   transition:all 0.3s;cursor:default;
+  position:relative;overflow:hidden;
+}
+.cap-card::before,.arch-card::before,.safety-card::before{
+  content:"";
+  position:absolute;inset:0;
+  background:linear-gradient(120deg,transparent 24%,rgba(124,255,178,0.07),transparent 52%);
+  transform:translateX(-120%);
+  opacity:0;
+  pointer-events:none;
+}
+.cap-card:hover::before,.arch-card:hover::before,.safety-card:hover::before{
+  animation:panelGlint 1.2s ease;
 }
 .cap-card:hover{
   border-color:rgba(124,255,178,0.35);
@@ -793,6 +809,15 @@ section{ position:relative;z-index:1; }
     inset 0 0 0 1px rgba(247,251,246,0.035);
   position:relative;
   overflow:hidden;
+  transform:translateZ(0);
+  transition:border-color 0.25s,box-shadow 0.25s,transform 0.25s;
+}
+.terminal-panel:hover{
+  border-color:rgba(124,255,178,0.42);
+  box-shadow:
+    0 28px 94px rgba(0,0,0,0.34),
+    0 0 68px rgba(70,227,192,0.09),
+    inset 0 0 0 1px rgba(247,251,246,0.045);
 }
 .terminal-panel::before{
   content:"";
@@ -931,11 +956,44 @@ footer{
   transition:opacity 0.75s ease,transform 0.75s ease;
 }
 .reveal.visible{ opacity:1;transform:translateY(0); }
+.reveal .arch-card,
+.reveal .safety-card,
+.reveal .step,
+.reveal .cap-card,
+.reveal .trust-item,
+.reveal .stat-pill,
+.reveal .code-line,
+.reveal .terminal-panel,
+.reveal .terminal-command{
+  opacity:0;
+  transform:translateY(16px);
+}
+.reveal.visible .arch-card,
+.reveal.visible .safety-card,
+.reveal.visible .step,
+.reveal.visible .cap-card,
+.reveal.visible .trust-item,
+.reveal.visible .stat-pill,
+.reveal.visible .code-line,
+.reveal.visible .terminal-panel,
+.reveal.visible .terminal-command{
+  animation:staggerUp 0.62s ease forwards;
+  animation-delay:var(--stagger,0s);
+}
 
 /* KEYFRAMES */
 @keyframes fadeUp{
   from{opacity:0;transform:translateY(22px)}
   to{opacity:1;transform:translateY(0)}
+}
+@keyframes staggerUp{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes panelGlint{
+  0%{opacity:0;transform:translateX(-120%)}
+  32%{opacity:1}
+  100%{opacity:0;transform:translateX(120%)}
 }
 
 /* RESPONSIVE */
@@ -1672,6 +1730,12 @@ window.addEventListener('load', connectFeed);
 
 // ---- SCROLL REVEAL ----
 const reveals = document.querySelectorAll('.reveal');
+const staggerTargets = '.arch-card,.safety-card,.step,.cap-card,.trust-item,.stat-pill,.code-line,.terminal-panel,.terminal-command';
+reveals.forEach(section => {
+  section.querySelectorAll(staggerTargets).forEach((item, index) => {
+    item.style.setProperty('--stagger', `${Math.min(index * 0.055, 0.45)}s`);
+  });
+});
 const io = new IntersectionObserver((entries) => {
   entries.forEach(e => {
     if (e.isIntersecting) e.target.classList.add('visible');

@@ -1,8 +1,11 @@
 # Closed Beta Checklist
 
-Use this before enabling any XoggAI live x402 execution path for a limited tester group.
+Use this before enabling or expanding any XoggAI x402 execution path for a
+limited tester group.
 
-Public preview must stay dry-run first until every item below is complete.
+Public routing must stay dry-run first. The production public beta may execute
+only through the controlled Base Sepolia path after every item below is
+complete.
 
 ## Beta Scope
 
@@ -10,7 +13,8 @@ Public preview must stay dry-run first until every item below is complete.
 - Closed beta has a fixed start date, end date, and tester list.
 - Testers understand that XoggAI routes x402 API calls and that live execution can spend caller funds.
 - Public website copy still says public preview and dry-run first.
-- `ALLOW_LIVE_EXECUTION=false` remains set for the public demo until a separate beta environment is ready.
+- `ALLOW_LIVE_EXECUTION=false` remains set for public testnet beta and mainnet
+  remains disabled.
 - Policy simulation uses `EXECUTION_SIMULATION_ENABLED=true` without changing `ALLOW_LIVE_EXECUTION`.
 
 ## Environment
@@ -71,8 +75,9 @@ Public preview must stay dry-run first until every item below is complete.
 
 ## Request Guardrails
 
-- Require `dry=false` or a dedicated live execution command for beta execution.
-- Require the ticket lifecycle before any future live payment:
+- Require beta authentication and a dedicated execution command for testnet
+  execution.
+- Require the ticket lifecycle before any Base Sepolia payment:
   - `PREPARED`
   - `APPROVED`
   - `CONSUMED`
@@ -120,7 +125,8 @@ Public preview must stay dry-run first until every item below is complete.
   `paymentSent: false`.
 - A facilitator `INVALID` result records the rejection reason without calling
   settlement.
-- Settlement remains disabled until a dedicated Base Sepolia wallet is funded.
+- Standalone settlement remains disabled in production public beta; audited
+  upstream execution may return settlement metadata from the x402 resource.
 - Settlement requires explicit confirmation and a `VERIFIED` ticket.
 - Ticket state moves atomically to `SETTLING` before the facilitator call.
 - Settlement amount cannot exceed `0.005 USDC`.
@@ -129,8 +135,13 @@ Public preview must stay dry-run first until every item below is complete.
 - Upstream execution uses only the audited Base Sepolia resource and records
   response hashes instead of logging full payloads.
 - Expired, consumed, missing, or wrong-status tickets are rejected.
-- `/api/execution-status` shows payment signing and sending disabled.
-- Live execution is blocked when `ALLOW_LIVE_EXECUTION=false`.
+- In rehearsal mode, `/api/execution-status` shows payment signing and sending
+  disabled.
+- In production Base Sepolia public beta, `/api/execution-status` shows payment
+  signing, verification, and sending enabled while `ALLOW_LIVE_EXECUTION=false`.
+- Mainnet/public direct live execution is blocked when
+  `ALLOW_LIVE_EXECUTION=false`; production testnet execution uses the separate
+  operator-approved Base Sepolia upstream path.
 - Live execution is blocked for non-beta callers.
 - Live execution is blocked for non-allowlisted endpoints.
 - Live execution is blocked when budget is below endpoint price.
@@ -155,7 +166,7 @@ Public preview must stay dry-run first until every item below is complete.
 
 ## Exit Criteria
 
-Closed beta can move toward public beta only when:
+Closed beta can move toward or remain in public testnet beta only when:
 
 - Live execution has completed successfully on an allowlisted endpoint.
 - Ticket rehearsal completed from prepare to approve to consume without payment.

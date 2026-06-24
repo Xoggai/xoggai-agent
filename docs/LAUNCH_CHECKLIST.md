@@ -2,6 +2,9 @@
 
 Use this before sharing XoggAI publicly or shipping a new launch update.
 
+Current status: XoggAI is production-grade public testnet beta on Base Sepolia.
+Mainnet remains disabled. See `docs/TESTNET_PRODUCT_STATUS.md`.
+
 ## GitHub
 
 - Repository description: `Testnet-first intent router that connects AI agents to ranked x402 API endpoints.`

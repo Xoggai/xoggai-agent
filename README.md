@@ -15,9 +15,9 @@
   <a href="https://xoggai-agent.com"><img alt="Mode" src="https://img.shields.io/badge/mode-testnet%20beta-f7fbf6?style=flat-square&labelColor=06150d"></a>
 </p>
 
-XoggAI is a testnet-first intent router for AI agents and x402 APIs.
+XoggAI is a production-grade testnet beta intent router for AI agents and x402 APIs.
 
-Agents send a plain-English intent, inspect ranked endpoint previews, and decide when execution should move from discovery into a wallet-gated path.
+Agents send a plain-English intent, inspect ranked endpoint previews, and route approved beta requests through a guarded Base Sepolia x402 execution path.
 
 **Live product:** https://xoggai-agent.com  
 **Docs UI:** https://xoggai-agent.com/docs  
@@ -38,7 +38,7 @@ intent
 -> explicit execution decision
 ```
 
-The public product is live as a testnet beta. The default user flow starts with dry-run routing, then approved requests can execute through the gated Base Sepolia x402 path.
+The public product is live as a production-grade testnet beta. The default user flow starts with dry-run routing, then approved requests can execute through the gated Base Sepolia x402 path. Mainnet remains disabled.
 
 ## Live Preview
 
@@ -67,7 +67,7 @@ existing agent
 
 ## Public Preview Boundary
 
-- Live today: frontend, backend, beta console, docs UI, endpoint previews.
+- Live today: frontend, backend, beta console, operator console, docs UI, endpoint previews, and gated Base Sepolia execution.
 - Default mode: dry-run routing before execution.
 - Public beta execution: operator-approved Base Sepolia x402 only.
 - Safe by default: no mainnet payment and no browser wallet secrets.
@@ -80,7 +80,7 @@ existing agent
 2. XoggAI embeds/searches/ranks matching x402 API endpoints.
 3. XoggAI returns endpoint metadata in dry-run mode.
 4. The caller sees price, latency, rating, URL, and schema before execution.
-5. Future live execution requires an intentional wallet and budget path.
+5. Controlled testnet execution requires beta access, operator approval, request expiry, budget caps, and an allowlisted Base Sepolia endpoint.
 
 ## Architecture
 
@@ -257,16 +257,18 @@ Before public testnet launch checks, run:
 npm run phase14:qa
 ```
 
-For an isolated Base Sepolia simulation environment, review
+For an isolated Base Sepolia beta environment, review
 [`render.beta.yaml`](render.beta.yaml) and
 [`docs/BETA_ENDPOINT_AUDIT.md`](docs/BETA_ENDPOINT_AUDIT.md). The beta template
-ships with an empty endpoint allowlist by design and does not enable payments.
+ships with an empty endpoint allowlist by design. Production testnet execution
+is enabled only after the intended endpoint is explicitly allowlisted.
 When `X402_PREPARE_ENABLED=true`, `POST /execute/prepare` can fetch and validate
 the audited endpoint's unpaid 402 challenge and store a short-lived
 `PREPARED` approval ticket. This prepare-only route never creates a signature,
 retries with payment credentials, or sends a transaction.
-The backend still refuses to start with `ALLOW_LIVE_EXECUTION=true` until the
-live payment implementation exists and passes a separate audit.
+The backend still refuses to run mainnet-style public live execution with
+`ALLOW_LIVE_EXECUTION=true`. Production testnet execution uses the separate
+Base Sepolia upstream path while `ALLOW_LIVE_EXECUTION=false`.
 Enable execution simulation independently and only in a controlled beta
 environment. Never expose `BETA_EXECUTION_KEY` in browser code.
 
@@ -308,7 +310,7 @@ npm run x402:operator -- approve <prepared-ticket-id>
 Approval changes the ticket status to `APPROVED`; it still does not sign or
 send payment.
 
-Consume an approved ticket before the future live execution handoff:
+Consume an approved ticket before the gated Base Sepolia execution handoff:
 
 ```powershell
 npm run x402:operator -- consume <approved-ticket-id>
@@ -433,6 +435,9 @@ configuration and optional balance verification, backup/restore drill coverage,
 incident drill coverage, mobile UI checks, docs/onboarding pass, and final
 go/no-go criteria. See `docs/PHASE14_TESTNET_LAUNCH_QA.md`.
 
+Current audited status: XoggAI is ready as a production-grade public testnet
+beta on Base Sepolia. See `docs/TESTNET_PRODUCT_STATUS.md`.
+
 ## Repository Map
 
 - `src/` - backend API source.
@@ -441,6 +446,7 @@ go/no-go criteria. See `docs/PHASE14_TESTNET_LAUNCH_QA.md`.
 - `examples/` - standalone integration examples.
 - `scripts/` - local helper scripts.
 - `docs/LAUNCH_CHECKLIST.md` - public launch checklist.
+- `docs/TESTNET_PRODUCT_STATUS.md` - current audited testnet product status.
 - `docs/PHASE5_TESTNET_EXECUTION.md` - first controlled Base Sepolia execution.
 - `docs/PHASE6_CLOSED_BETA.md` - multi-agent beta access, quotas, and ledger.
 - `docs/PHASE7_PUBLIC_BETA.md` - invite accounts, sessions, and approval UX.

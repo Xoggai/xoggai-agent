@@ -1,16 +1,18 @@
 # Operator Runbook
 
-Use this runbook for XoggAI closed-beta execution rehearsals.
+Use this runbook for XoggAI closed-beta rehearsals and production Base Sepolia
+public beta operations.
 
 For the first controlled funded Base Sepolia upstream run, start with the
 dedicated Phase 5 checklist in `docs/PHASE5_TESTNET_EXECUTION.md`.
 
-This flow does not sign a payment and does not send payment. It validates the
-audited x402 challenge, creates an approval ticket, approves it, then consumes
-it as a one-time-use checkpoint for future live execution.
+Ticket rehearsal mode does not sign or send payment. It validates the audited
+x402 challenge, creates an approval ticket, approves it, then consumes it as a
+one-time-use checkpoint.
 
-An optional final testnet step can create a payment credential after
-consumption. It still does not send the paid request.
+Production Base Sepolia public beta can continue after consumption into
+signing, verification, and audited upstream execution. Mainnet remains
+disabled.
 
 ## Required Access
 
@@ -122,8 +124,8 @@ Do not approve if the ticket is expired, unexpected, or missing audit context.
 
 ## 3. Consume
 
-Consume marks the approved ticket as used. This is the dry handoff point that
-future live execution must pass before wallet signing exists.
+Consume marks the approved ticket as used. This is the handoff point that
+gated Base Sepolia execution must pass before wallet signing.
 
 ```powershell
 $env:X402_OPERATOR='operator'
