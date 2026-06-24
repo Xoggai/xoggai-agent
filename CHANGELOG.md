@@ -2,6 +2,8 @@
 
 ## 2026-06-24
 
+- Cleaned the GitHub-facing README into a product landing page and added a
+  documentation index, deployment guide, and repository profile metadata guide.
 - Added the Phase 12 developer integration kit at `/connect-agent/`.
 - Added a reusable JavaScript routing helper, curl recipes, and integration
   instructions for Claude, Codex, and Cursor.
