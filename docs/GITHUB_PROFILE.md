@@ -15,6 +15,13 @@ Production-grade testnet beta for AI agents to route intent into guarded x402 AP
 https://xoggai-agent.com
 ```
 
+## Token
+
+```text
+Ticker: $XOGG
+Contract: 0x4C648EFc1a41453C60C8e2CbbDd0b7bC6a9Aa0D4
+```
+
 ## Topics
 
 ```text

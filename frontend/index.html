@@ -445,6 +445,50 @@ section{ position:relative;z-index:1; }
   margin-right:0.45rem;
 }
 
+.token-contract{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:0.75rem;
+  flex-wrap:wrap;
+  width:min(760px,100%);
+  margin:-1rem auto 2.25rem;
+  padding:0.75rem 0.9rem;
+  border:1px solid rgba(124,255,178,0.24);
+  border-radius:10px;
+  background:linear-gradient(135deg,rgba(124,255,178,0.075),rgba(70,227,192,0.035));
+  box-shadow:0 0 40px rgba(70,227,192,0.055), inset 0 0 0 1px rgba(247,251,246,0.035);
+  animation:fadeUp 0.9s 0.38s ease both;
+}
+.token-label{
+  font-family:var(--font-mono);
+  font-size:0.68rem;
+  color:var(--accent);
+  letter-spacing:0.13em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.token-address{
+  color:var(--text);
+  font-family:var(--font-mono);
+  font-size:0.72rem;
+  overflow-wrap:anywhere;
+  line-height:1.45;
+}
+.token-copy{
+  border:1px solid rgba(124,255,178,0.25);
+  background:rgba(3,16,10,0.58);
+  color:var(--accent);
+  border-radius:6px;
+  padding:0.45rem 0.7rem;
+  font-family:var(--font-mono);
+  font-size:0.62rem;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:all 0.2s ease;
+}
+.token-copy:hover{ border-color:var(--accent);background:rgba(124,255,178,0.08); }
 /* STATS */
 .stats-row{
   display:flex;gap:2px;flex-wrap:wrap;justify-content:center;
@@ -1264,6 +1308,11 @@ footer{
     <div class="trust-item"><strong>Execution gated</strong><span>Wallet + budget later</span></div>
   </div>
 
+  <div class="token-contract" aria-label="XOGG token contract address">
+    <span class="token-label">$XOGG Contract</span>
+    <code class="token-address">0x4C648EFc1a41453C60C8e2CbbDd0b7bC6a9Aa0D4</code>
+    <button class="token-copy" type="button" onclick="doCopy(this, '0x4C648EFc1a41453C60C8e2CbbDd0b7bC6a9Aa0D4')">Copy</button>
+  </div>
   <div class="stats-row">
     <div class="stat-pill"><span class="stat-num" id="ctr-agents">0</span><span class="stat-label">Agents Routed</span></div>
     <div class="stat-pill"><span class="stat-num" id="ctr-tx">0</span><span class="stat-label">Routes Previewed</span></div>

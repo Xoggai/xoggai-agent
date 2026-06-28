@@ -35,6 +35,11 @@ Agents can discover the right endpoint, inspect pricing and metadata first, then
 
 Current status: production-grade public testnet beta on Base Sepolia. See [docs/TESTNET_PRODUCT_STATUS.md](docs/TESTNET_PRODUCT_STATUS.md).
 
+## Token
+
+- Ticker: `$XOGG`
+- Contract: `0x4C648EFc1a41453C60C8e2CbbDd0b7bC6a9Aa0D4`
+
 ## Why XoggAI
 
 AI agents should not execute blindly.
