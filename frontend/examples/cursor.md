@@ -7,6 +7,7 @@ Recommended project context:
 ```text
 XoggAI production API: https://xoggai-backend.onrender.com
 Agent docs: https://xoggai-agent.com/docs
+Beta console: https://xoggai-agent.com/beta/
 Skill file: https://xoggai-agent.com/skill.md
 OpenAPI: https://xoggai-agent.com/openapi.json
 ```
@@ -14,11 +15,12 @@ OpenAPI: https://xoggai-agent.com/openapi.json
 Implementation rules:
 
 - use `dry=true` for route discovery
-- surface endpoint price and budget to the user
+- surface endpoint price, latency, rating, schema, and budget to the user
 - never put beta keys, admin keys, or wallet private keys in frontend code
 - use `/beta/` for user request creation
 - use `/admin/` only for trusted operators
 - Base Sepolia is the only enabled execution network
+- mainnet execution is intentionally disabled
 
 Starter command:
 

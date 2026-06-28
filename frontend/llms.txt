@@ -1,50 +1,72 @@
 # XoggAI
 
-XoggAI is a testnet-first intent router for x402 APIs. Agents send
-natural-language intents to `/intent`; XoggAI embeds the intent, searches
-registered x402 endpoints, and reranks candidates for inspection before any
-execution path opens.
+XoggAI is a production-grade public testnet beta for dry-run-first x402 intent
+routing and operator-approved Base Sepolia execution.
 
 Website: https://xoggai-agent.com
 Docs: https://xoggai-agent.com/docs
+Beta console: https://xoggai-agent.com/beta/
 Connect Agent: https://xoggai-agent.com/connect-agent/
 Backend API: https://xoggai-backend.onrender.com
 OpenAPI: https://xoggai-agent.com/openapi.json
 Skill: https://xoggai-agent.com/skill.md
 
+Ticker: $XOGG
+Contract: 0x4C648EFc1a41453C60C8e2CbbDd0b7bC6a9Aa0D4
+
+## Positioning
+
+XoggAI lets AI agents discover the right x402 endpoint before execution. Agents
+send natural-language intents to /intent; XoggAI embeds the intent, searches
+registered x402 endpoints, and reranks candidates for inspection before any
+payment path opens.
+
+Core line: intelligence becomes action.
+
+## Current Status
+
+- Public website is live.
+- Public docs and agent-readable files are live.
+- Backend API is live on Render.
+- Public routing is dry-run-first.
+- Public beta console is enabled.
+- Controlled execution is Base Sepolia only.
+- Mainnet execution is disabled.
+- Browser code never receives wallet private keys, beta execution keys, or admin keys.
+
 ## Public API
 
-- `GET /health`
-- `GET /ready`
-- `GET /api/info`
-- `GET /api/execution-status`
-- `GET /intent?q=<intent>&budget=0.005&dry=true`
-- `GET /search?q=<query>&limit=5&dry=true`
-- `GET /api/stats`
-- `GET /api/endpoints`
+- GET /health
+- GET /ready
+- GET /api/info
+- GET /api/execution-status
+- GET /intent?q=<intent>&budget=0.005&dry=true
+- GET /search?q=<query>&limit=5&dry=true
+- GET /api/stats
+- GET /api/endpoints
 
 ## Beta User API
 
-- `POST /api/beta/auth/login`
-- `POST /api/beta/auth/logout`
-- `GET /api/beta/dashboard/me`
-- `GET /api/beta/dashboard/requests`
-- `POST /api/beta/dashboard/requests`
+- POST /api/beta/auth/login
+- POST /api/beta/auth/logout
+- GET /api/beta/dashboard/me
+- GET /api/beta/dashboard/requests
+- POST /api/beta/dashboard/requests
 
-`POST /api/beta/dashboard/requests` requires an `Idempotency-Key` header with
+POST /api/beta/dashboard/requests requires an Idempotency-Key header with
 8-128 safe characters. Reusing the key with the same body returns the original
 request; reusing it with different input is rejected.
 
 ## Operator API
 
-- `GET /api/admin/beta/requests`
-- `PATCH /api/admin/beta/requests/:id`
-- `POST /api/admin/beta/requests/:id/execute-testnet`
+- GET /api/admin/beta/requests
+- PATCH /api/admin/beta/requests/:id
+- POST /api/admin/beta/requests/:id/execute-testnet
 
 ## Execution Model
 
-Use `dry=true` for route selection without upstream execution or payment.
-`GET /intent` never executes a paid call.
+Use dry=true for route selection without upstream execution or payment. GET
+/intent never executes a paid call.
 
 Controlled execution is separate:
 
@@ -53,21 +75,30 @@ dry-run route -> public beta request -> operator approval -> Base Sepolia x402 e
 ```
 
 Mainnet execution is disabled. Base Sepolia is the active testnet execution
-network. Browser code must not contain beta keys, admin keys, or wallet private
-keys. Pending requests expire, and only operator-managed allowlist entries can
-enter execution.
+network. Pending requests expire. Budgets are enforced server-side. Only
+operator-managed allowlist entries can enter the signing path.
 
-## Developer Kit
+## Integration Kit
 
-- JavaScript helper: `https://xoggai-agent.com/examples/xoggai-sdk.js`
-- curl examples: `https://xoggai-agent.com/examples/curl.md`
-- Claude instructions: `https://xoggai-agent.com/examples/claude.md`
-- Codex instructions: `https://xoggai-agent.com/examples/codex.md`
-- Cursor instructions: `https://xoggai-agent.com/examples/cursor.md`
+- JavaScript helper: https://xoggai-agent.com/examples/xoggai-sdk.js
+- curl examples: https://xoggai-agent.com/examples/curl.md
+- Claude instructions: https://xoggai-agent.com/examples/claude.md
+- Codex instructions: https://xoggai-agent.com/examples/codex.md
+- Cursor instructions: https://xoggai-agent.com/examples/cursor.md
+
+## Recommended Agent Behavior
+
+1. Read https://xoggai-agent.com/skill.md and https://xoggai-agent.com/openapi.json.
+2. Call /intent with dry=true before any execution decision.
+3. Show endpoint name, price, rating, latency, schema, and budget fit.
+4. If the user wants execution, direct them to the beta console or a trusted backend flow.
+5. Never place wallet private keys, beta keys, or admin keys in frontend code.
+6. Treat mainnet execution as unavailable until the mainnet migration phase is complete.
 
 ## Brand Context
 
-Ticker: `$XOGG`
+Ticker: $XOGG
 Positioning: intelligence becomes action
-Core line: dry-run x402 intent routing for AI agents, with operator-approved
-Base Sepolia execution and mainnet disabled.
+Category: x402 intent routing for AI agents
+Network: Base Sepolia public testnet beta
+Execution boundary: operator-approved testnet execution only

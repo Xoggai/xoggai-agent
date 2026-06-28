@@ -149,7 +149,7 @@ git diff --check
 - [render.yaml](render.yaml) - Render Blueprint for backend, database, and key/value store.
 - [netlify.toml](netlify.toml) - Netlify static frontend deploy config.
 
-Start with [docs/README.md](docs/README.md) for the full documentation index.
+Start with [docs/README.md](docs/README.md) for the full documentation index, or [docs/ROADMAP.md](docs/ROADMAP.md) for the complete product roadmap. Use [docs/UTILITY.md](docs/UTILITY.md) for the quick command reference.
 Use [docs/GITHUB_PROFILE.md](docs/GITHUB_PROFILE.md) for the recommended GitHub
 About description, website, and topics.
 

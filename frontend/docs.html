@@ -595,7 +595,10 @@ footer a:hover{color:var(--accent)}
   <div class="nav-actions">
     <a href="/">Home</a>
     <a href="#quickstart">Quickstart</a>
+    <a href="#beta-console">Beta</a>
+    <a href="#developer-kit">Dev Kit</a>
     <a href="#api">API</a>
+    <a href="#faq">FAQ</a>
     <a href="#agent-files">Files</a>
     <a href="/connect-agent/">Connect</a>
     <a href="https://github.com/Xoggai/xoggai-agent">GitHub</a>
@@ -607,7 +610,7 @@ footer a:hover{color:var(--accent)}
     <div>
       <p class="eyebrow">// agent-readable docs</p>
       <h1>Connect agents to x402 routing.</h1>
-      <p>Start with dry-run intent routing, inspect matched endpoints, then move toward live execution only when wallet and budget controls are intentionally enabled.</p>
+      <p>Start with dry-run intent routing, inspect matched endpoints, then use the public beta console for operator-approved Base Sepolia execution. Mainnet stays intentionally disabled.</p>
     </div>
     <aside class="status-card" aria-label="Documentation status">
       <div class="status-grid">
@@ -620,12 +623,12 @@ footer a:hover{color:var(--accent)}
           <span class="status-label">API routing</span>
         </div>
         <div class="status-item">
-          <span class="status-value">Dry</span>
-          <span class="status-label">Default mode</span>
+          <span class="status-value">Beta</span>
+          <span class="status-label">Public console</span>
         </div>
         <div class="status-item">
-          <span class="status-value">Live</span>
-          <span class="status-label">Backend</span>
+          <span class="status-value">$XOGG</span>
+          <span class="status-label">Token context</span>
         </div>
       </div>
     </aside>
@@ -634,32 +637,61 @@ footer a:hover{color:var(--accent)}
   <section class="guide-stack" id="quickstart" aria-label="Quickstart">
     <div class="section-head">
       <h2>Quickstart</h2>
-      <p>Use the backend directly from an agent, script, or browser console. Public mode is dry-run first.</p>
+      <p>Pick the path that matches what you are building. Public routing is dry-run-first; testnet execution is gated through the beta console and operator approval.</p>
     </div>
     <div class="quick-grid">
       <article class="quick-card">
         <span class="step-index">01</span>
-        <strong>Check service health</strong>
-        <p>Confirm the public backend is awake before routing intents.</p>
-        <code class="code-line">GET https://xoggai-backend.onrender.com/health</code>
+        <strong>User path</strong>
+        <p>Open the beta console, sign in with an issued key, preview a request, then wait for approval and proof.</p>
+        <code class="code-line">https://xoggai-agent.com/beta/</code>
       </article>
       <article class="quick-card">
         <span class="step-index">02</span>
-        <strong>Route a plain-English intent</strong>
-        <p>Ask for the best matching x402 endpoint without sending payment.</p>
+        <strong>Developer path</strong>
+        <p>Call the backend from an agent or script and keep discovery in dry-run mode.</p>
         <code class="code-line">GET /intent?q=what%20is%20the%20ETH%20price&amp;budget=0.005&amp;dry=true</code>
       </article>
       <article class="quick-card">
         <span class="step-index">03</span>
-        <strong>Search the endpoint index</strong>
-        <p>Inspect available endpoint candidates before your agent chooses one.</p>
-        <code class="code-line">GET /search?q=crypto%20price&amp;limit=5&amp;dry=true</code>
+        <strong>Operator path</strong>
+        <p>Review beta requests from trusted tooling, approve only valid requests, then execute on Base Sepolia.</p>
+        <code class="code-line">REQUESTED -&gt; APPROVED -&gt; EXECUTED</code>
       </article>
       <article class="quick-card">
         <span class="step-index">04</span>
-        <strong>Open the integration kit</strong>
-        <p>Choose a JS helper, curl flow, or tool-specific agent instructions.</p>
+        <strong>Agent path</strong>
+        <p>Load the public agent files so Claude, Codex, Cursor, or another tool knows the exact safety boundary.</p>
         <code class="code-line">https://xoggai-agent.com/connect-agent/</code>
+      </article>
+    </div>
+  </section>
+
+  <section class="guide-stack" id="beta-console" aria-label="Beta console guide">
+    <div class="section-head">
+      <h2>Beta console guide</h2>
+      <p>The beta console is the user-facing product flow. It creates controlled requests; it does not expose wallet keys and it does not send payment from browser code.</p>
+    </div>
+    <div class="quick-grid">
+      <article class="quick-card">
+        <span class="step-index">01</span>
+        <strong>Sign in with beta access</strong>
+        <p>The issued beta key becomes a short-lived session. Users only see their own quota, requests, and execution history.</p>
+      </article>
+      <article class="quick-card">
+        <span class="step-index">02</span>
+        <strong>Preview and request</strong>
+        <p>XoggAI dry-runs the intent, checks endpoint price and budget, then queues the request for review.</p>
+      </article>
+      <article class="quick-card">
+        <span class="step-index">03</span>
+        <strong>Operator approval</strong>
+        <p>Trusted operators approve, reject, cancel, or execute requests. Expired and over-budget requests cannot continue.</p>
+      </article>
+      <article class="quick-card">
+        <span class="step-index">04</span>
+        <strong>Proof and history</strong>
+        <p>Executed requests show status, payment proof fields, and Base Sepolia transaction links when available.</p>
       </article>
     </div>
   </section>
@@ -722,6 +754,45 @@ console.log(route.endpoint);</code></pre>
     </div>
   </section>
 
+  <section class="guide-stack" id="developer-kit" aria-label="Developer integration kit">
+    <div class="section-head">
+      <h2>Developer integration kit</h2>
+      <p>Use these files when wiring XoggAI into an agent, backend job, or developer tool. The public examples stay dry-run-first and keep secrets outside browser code.</p>
+    </div>
+    <div class="api-grid">
+      <article class="api-card">
+        <code>/examples/xoggai-sdk.js</code>
+        <strong>JavaScript helper</strong>
+        <p>Copyable helper for routeIntent, searchEndpoints, and execution status checks.</p>
+      </article>
+      <article class="api-card">
+        <code>/examples/curl.md</code>
+        <strong>curl flow</strong>
+        <p>Health check, dry-run routing, endpoint search, beta login, and admin queue examples.</p>
+      </article>
+      <article class="api-card">
+        <code>/examples/claude.md</code>
+        <strong>Claude instructions</strong>
+        <p>Prompt rules for routing user intent through XoggAI before any execution decision.</p>
+      </article>
+      <article class="api-card">
+        <code>/examples/codex.md</code>
+        <strong>Codex instructions</strong>
+        <p>Implementation guardrails for code agents that add x402 intent routing.</p>
+      </article>
+      <article class="api-card">
+        <code>/examples/cursor.md</code>
+        <strong>Cursor instructions</strong>
+        <p>Project context and implementation rules for editor-integrated agents.</p>
+      </article>
+      <article class="api-card">
+        <code>/openapi.json</code>
+        <strong>OpenAPI schema</strong>
+        <p>Machine-readable contract for public routing, beta request creation, and operator endpoints.</p>
+      </article>
+    </div>
+  </section>
+
   <section class="guide-stack" id="api" aria-label="API surface">
     <div class="section-head">
       <h2>API surface</h2>
@@ -762,6 +833,31 @@ console.log(route.endpoint);</code></pre>
         <code>GET /health</code>
         <strong>Health check</strong>
         <p>Returns service status for uptime checks and deploy smoke tests.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="guide-stack" id="faq" aria-label="Frequently asked questions">
+    <div class="section-head">
+      <h2>FAQ</h2>
+      <p>Short answers for the parts that matter most before someone integrates or tests XoggAI.</p>
+    </div>
+    <div class="quick-grid">
+      <article class="quick-card">
+        <strong>Is XoggAI mainnet?</strong>
+        <p>No. XoggAI is live as a production-grade public testnet beta. Execution runs on Base Sepolia and mainnet is intentionally disabled.</p>
+      </article>
+      <article class="quick-card">
+        <strong>Does the browser send payment?</strong>
+        <p>No. Browser code can create beta requests after login, but wallet signing and x402 execution stay server-side and operator-gated.</p>
+      </article>
+      <article class="quick-card">
+        <strong>What is dry-run routing?</strong>
+        <p>Dry-run returns the matched endpoint, price, latency, rating, schema, and metadata without executing the upstream paid call.</p>
+      </article>
+      <article class="quick-card">
+        <strong>What is the $XOGG contract?</strong>
+        <p>The public token context is 0x4C648EFc1a41453C60C8e2CbbDd0b7bC6a9Aa0D4. XoggAI execution remains testnet-first.</p>
       </article>
     </div>
   </section>

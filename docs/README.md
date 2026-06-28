@@ -14,6 +14,8 @@ Current canonical status:
 
 ## Start Here
 
+- [Roadmap](ROADMAP.md)
+- [Utility reference](UTILITY.md)
 - [Testnet product status](TESTNET_PRODUCT_STATUS.md)
 - [Production readiness](PRODUCTION_READINESS.md)
 - [Launch checklist](LAUNCH_CHECKLIST.md)
@@ -43,9 +45,20 @@ Current canonical status:
 - [Closed beta checklist](CLOSED_BETA_CHECKLIST.md)
 - [x402 execution plan](X402_EXECUTION_PLAN.md)
 
+## Public Docs Surface
+
+The live docs page is the preferred starting point for users and developers:
+
+- Quickstart paths for users, developers, operators, and agent tools.
+- Beta console guide for request creation and proof tracking.
+- Developer integration kit with JS, curl, Claude, Codex, Cursor, OpenAPI, `skill.md`, and `llms.txt`.
+- API surface overview for routing, search, status, stats, feeds, and endpoint metadata.
+- FAQ covering dry-run routing, browser payment safety, Base Sepolia, mainnet status, and `$XOGG` token context.
+
 ## Developer Integration
 
 - Website docs: `https://xoggai-agent.com/docs`
+- Beta console: `https://xoggai-agent.com/beta/`
 - Connect agent page: `https://xoggai-agent.com/connect-agent/`
 - OpenAPI: `https://xoggai-agent.com/openapi.json`
 - Agent skill: `https://xoggai-agent.com/skill.md`

@@ -20,8 +20,24 @@ Always start with dry-run routing:
 GET /intent?q=what%20is%20the%20ETH%20price&budget=0.005&dry=true
 ```
 
-Dry-run routing returns endpoint fit, price, latency, rating, and metadata. It
-does not execute upstream calls and does not send payment.
+Dry-run routing returns endpoint fit, price, latency, rating, schema, and
+metadata. It does not execute upstream calls and does not send payment.
+
+## Product Flow
+
+```text
+agent intent -> dry-run endpoint preview -> beta request -> operator approval -> Base Sepolia execution -> proof
+```
+
+Use the beta console only when a user intentionally wants to request controlled
+testnet execution:
+
+```text
+https://xoggai-agent.com/beta/
+```
+
+The browser can create a request after beta login, but it cannot sign payment,
+settle payment, or access wallet secrets.
 
 ## Endpoint Search
 
@@ -45,6 +61,7 @@ https://xoggai-agent.com/openapi.json
 ## Developer Kit
 
 ```text
+https://xoggai-agent.com/docs
 https://xoggai-agent.com/connect-agent/
 https://xoggai-agent.com/examples/xoggai-sdk.js
 https://xoggai-agent.com/examples/curl.md
@@ -74,6 +91,17 @@ Beta request creation requires a unique `Idempotency-Key` header. Retry the
 same request with the same key; never reuse a key for different input. Pending
 requests expire before operator execution and only managed allowlist entries
 can reach the Base Sepolia signing path.
+
+## Token Context
+
+```text
+Ticker: $XOGG
+Contract: 0x4C648EFc1a41453C60C8e2CbbDd0b7bC6a9Aa0D4
+```
+
+Token context is for product identity and discovery. XoggAI payment execution
+remains Base Sepolia testnet-first until a separate mainnet migration is
+intentionally completed.
 
 ## Local Development
 
