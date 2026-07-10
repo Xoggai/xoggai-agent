@@ -96,7 +96,6 @@ can reach the Base Sepolia signing path.
 
 ```text
 Ticker: $XOGG
-Contract: 0x4C648EFc1a41453C60C8e2CbbDd0b7bC6a9Aa0D4
 ```
 
 Token context is for product identity and discovery. XoggAI payment execution

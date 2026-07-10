@@ -38,7 +38,6 @@ Current status: production-grade public testnet beta on Base Sepolia. See [docs/
 ## Token
 
 - Ticker: `$XOGG`
-- Contract: `0x4C648EFc1a41453C60C8e2CbbDd0b7bC6a9Aa0D4`
 
 ## Why XoggAI
 

@@ -19,7 +19,6 @@ https://xoggai-agent.com
 
 ```text
 Ticker: $XOGG
-Contract: 0x4C648EFc1a41453C60C8e2CbbDd0b7bC6a9Aa0D4
 ```
 
 ## Topics
